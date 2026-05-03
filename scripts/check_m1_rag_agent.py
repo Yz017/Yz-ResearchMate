@@ -14,8 +14,8 @@ APP_NAME = "researchmate"
 USER_ID = "m1-user"
 SESSION_ID = "m1-rag-session"
 DEFAULT_PROMPT = (
-    "Use the local knowledge base to answer the user's question. "
-    "Include source citations in the form [source: paper_id, p.N]."
+    "Use the local knowledge base. What does the RAG basics paper say about "
+    "grounded answers? Include source citations in the form [source: paper_id, p.N]."
 )
 
 
