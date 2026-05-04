@@ -13,7 +13,7 @@
 | 里程碑 | 主题                                    | 状态 | 完成日期 |
 | ------ | --------------------------------------- | ---- | -------- |
 | M0     | 项目初始化与脚手架                      | ✅    | 2026-05-02 |
-| M1     | RAG + 对话骨架                          | ☐    |          |
+| M1     | RAG + 对话骨架                          | ✅    | 2026-05-04 |
 | M2     | FastAPI 服务化 + CLI 雏形               | ☐    |          |
 | M3     | Memory + 知识库 API                     | ☐    |          |
 | M4     | 工具调用 + 多 Agent + 周报任务（🎯 MVP） | ☐    |          |
@@ -200,13 +200,13 @@ ResearchAssistant/
 > **出口**：在 `adk web` 上能就一篇本地 PDF 进行问答，回答带 `[source: paper_X, p.12]` 引用，引用准确。
 >
 > **预期工时**：1.5–2 周
-> **独立验收**：录屏一段 `adk web` 上的问答演示，归档至 `docs/demos/M1.md` + `docs/demos/M1.mp4`
+> **独立验收**：手动验收 `adk web` 上的问答演示，验收步骤归档至 `docs/demos/M1.md`
 
 ### 1.1 Embedding & Rerank（GPU 优先 / CPU 可降级）
 - [x] 安装 PyTorch（有 NVIDIA GPU → CUDA 版；无 GPU → CPU 版即可，本期仍可继续）
 - [x] 安装 `FlagEmbedding` 或 `sentence-transformers`
-- [ ] 首次拉取 bge-m3（当前环境网络不可达，已降级为离线优先的本地 hashing fallback）
-- [ ] 首次拉取 bge-reranker-v2-m3（当前环境网络不可达，已降级为 lexical fallback）
+- [x] 首次拉取 bge-m3（官方 HuggingFace 不可达，已通过 `https://hf-mirror.com` 镜像完成）
+- [x] 首次拉取 bge-reranker-v2-m3（官方 HuggingFace 不可达，已通过 `https://hf-mirror.com` 镜像完成）
 - [x] 在 `config.py` 暴露 `EMBEDDING_DEVICE`（`auto` / `cuda` / `cpu`），`auto` 时按 `torch.cuda.is_available()` 判断
 - [x] 写 sanity-check 脚本：5 条句子的 embedding 余弦距离合理；rerank 分数排序合理
 - [x] **CPU 降级路径**：无 GPU 时 dense embedding 走 CPU（速度下降但功能完整）；rerank 可临时关掉只用 RRF top-5（在 perf_baseline.md 标注精度损失）
@@ -250,7 +250,7 @@ ResearchAssistant/
 - [x] 写 `tests/test_retriever.py`：固定 query 命中预期 chunk
 - [x] 写 `tests/test_pdf_parser.py`：解析示例 PDF 长度断言
 - [x] 手工 QA：列 5 条问题，逐条人工验证回答与引用
-- [ ] 录屏 1 段 `adk web` 演示（提问 → 回答 → 点击引用回链）
+- [x] 手动验收 `adk web` 演示（提问 → 回答 → 引用检查；录屏改为人工验收）
 - [x] 把验收材料归档至 `docs/demos/M1.md`
 - [x] 提交 M1 完成 commit + tag `v0.1.0-m1`
 

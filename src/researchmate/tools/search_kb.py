@@ -9,6 +9,7 @@ from researchmate.services.documents import MetadataValue
 from researchmate.services.retriever import KnowledgeRetriever
 
 _MAX_TOOL_TOP_K = 10
+_MIN_RERANK_SCORE = 0.01
 
 
 @lru_cache(maxsize=1)
@@ -34,7 +35,9 @@ def _clean_filters(filters: dict[str, str] | None) -> dict[str, MetadataValue] |
 
 
 def _has_grounding_signal(result: Any) -> bool:
-    return result.sparse_rank is not None or (result.rerank_score or 0.0) > 0.0
+    if result.sparse_rank is not None:
+        return True
+    return (result.rerank_score or 0.0) >= _MIN_RERANK_SCORE
 
 
 def search_knowledge_base(

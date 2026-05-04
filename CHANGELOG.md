@@ -5,6 +5,8 @@
 - Added the local RAG pipeline: PDF extraction/chunking, Chroma vector storage, idempotent ingest with per-PDF rollback, hybrid retrieval, and ADK `search_knowledge_base` tool.
 - Added M1 Coordinator agent prompt that requires knowledge-base lookup and `[source: paper_id, p.N]` citations for grounded answers.
 - Added offline-first embedding/rerank runtime: `sentence-transformers`/`FlagEmbedding` optional path with hashing + lexical fallback for CPU or no-network environments.
+- Completed BGE model cache setup through `hf-mirror.com` after HuggingFace official connectivity failed, and made `auto` prefer cached BGE before fallback.
+- Pinned `transformers<5` for `FlagEmbedding` reranker compatibility.
 - Added sample PDFs, embedding sanity check, retrieval QA notes, and unit tests for PDF parsing and retrieval.
 - Verified `ruff`, `black --check`, `mypy`, pytest, ADK app discovery, sample ingest, and citation-bearing retrieval.
 

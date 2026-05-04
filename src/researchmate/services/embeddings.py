@@ -2,11 +2,14 @@ from __future__ import annotations
 
 import importlib
 import math
+import os
 import re
 import warnings
-from collections.abc import Sequence
+from collections.abc import Iterator, Sequence
+from contextlib import contextmanager
 from dataclasses import dataclass
 from hashlib import blake2b
+from pathlib import Path
 from typing import Any, Protocol
 
 from researchmate.config import Settings, get_settings
@@ -44,6 +47,43 @@ class Reranker(Protocol):
     def model_id(self) -> str: ...
 
     def score(self, query: str, documents: Sequence[str]) -> list[float]: ...
+
+
+@contextmanager
+def _offline_hf_context(enabled: bool) -> Iterator[None]:
+    if not enabled:
+        yield
+        return
+    keys = ("HF_HUB_OFFLINE", "TRANSFORMERS_OFFLINE")
+    previous = {key: os.environ.get(key) for key in keys}
+    try:
+        for key in keys:
+            os.environ[key] = "1"
+        yield
+    finally:
+        for key, value in previous.items():
+            if value is None:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = value
+
+
+def _resolve_cached_model_path(model_name: str, *, allow_download: bool) -> str:
+    if allow_download or Path(model_name).exists():
+        return model_name
+    cached_path = _find_cached_model_path(model_name)
+    if cached_path is not None:
+        return cached_path
+    return model_name
+
+
+def _find_cached_model_path(model_name: str) -> str | None:
+    try:
+        module = importlib.import_module("huggingface_hub")
+        snapshot_download = module.snapshot_download
+        return str(snapshot_download(model_name, local_files_only=True))
+    except Exception:
+        return None
 
 
 def detect_embedding_device(requested: str) -> str:
@@ -142,11 +182,19 @@ class SentenceTransformerEmbeddingBackend:
         if self._model is None:
             module = importlib.import_module("sentence_transformers")
             sentence_transformer = module.SentenceTransformer
-            self._model = sentence_transformer(
+            local_files_only = not self._allow_download
+            model_name_or_path = _resolve_cached_model_path(
                 self._model_name,
-                device=self._device,
-                local_files_only=not self._allow_download,
+                allow_download=self._allow_download,
             )
+            with _offline_hf_context(local_files_only):
+                self._model = sentence_transformer(
+                    model_name_or_path,
+                    device=self._device,
+                    local_files_only=local_files_only,
+                    model_kwargs={"local_files_only": local_files_only},
+                    config_kwargs={"local_files_only": local_files_only},
+                )
         return self._model
 
     def encode(self, texts: Sequence[str]) -> list[list[float]]:
@@ -245,11 +293,17 @@ class FlagEmbeddingReranker:
     def __init__(self, *, model_name: str, device: str, allow_download: bool) -> None:
         module = importlib.import_module("FlagEmbedding")
         reranker_class = module.FlagReranker
-        self._model = reranker_class(
+        local_files_only = not allow_download
+        model_name_or_path = _resolve_cached_model_path(
             model_name,
-            use_fp16=device == "cuda",
-            local_files_only=not allow_download,
+            allow_download=allow_download,
         )
+        with _offline_hf_context(local_files_only):
+            self._model = reranker_class(
+                model_name_or_path,
+                use_fp16=device == "cuda",
+                local_files_only=local_files_only,
+            )
         self._backend_name = "flagembedding"
         self._model_name = model_name
 
@@ -296,11 +350,14 @@ def create_embedding_backend(settings: Settings | None = None) -> EmbeddingBacke
             allow_download=settings.embedding_allow_download,
             dimension=1024,
         )
-    if not settings.embedding_allow_download:
-        return fallback
     try:
         importlib.import_module("sentence_transformers")
     except Exception:
+        return fallback
+    if (
+        not settings.embedding_allow_download
+        and _find_cached_model_path(settings.embedding_model) is None
+    ):
         return fallback
     primary = SentenceTransformerEmbeddingBackend(
         model_name=settings.embedding_model,
@@ -319,11 +376,14 @@ def create_reranker(settings: Settings | None = None) -> Reranker:
         return NoReranker()
     if settings.rerank_backend == "lexical":
         return LexicalReranker()
-    if settings.rerank_backend == "auto" and not settings.rerank_allow_download:
-        return LexicalReranker()
     try:
         importlib.import_module("FlagEmbedding")
     except Exception:
+        return LexicalReranker()
+    if (
+        not settings.rerank_allow_download
+        and _find_cached_model_path(settings.reranker_model) is None
+    ):
         return LexicalReranker()
     try:
         return FlagEmbeddingReranker(

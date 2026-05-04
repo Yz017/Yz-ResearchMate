@@ -90,4 +90,9 @@ uv run python scripts/check_m1_rag_agent.py \
 uv run adk web src/
 ```
 
-默认 `EMBEDDING_BACKEND=auto` 且 `EMBEDDING_ALLOW_DOWNLOAD=false`：系统会直接使用本地 hashing embedding，保证离线 CPU 环境也能完成 M1 验收。需要真实 BGE 模型时，设置 `EMBEDDING_BACKEND=sentence-transformers`；首次拉取模型时再把 `EMBEDDING_ALLOW_DOWNLOAD=true` 和 `RERANK_ALLOW_DOWNLOAD=true` 写入 `.env`。
+默认 `EMBEDDING_BACKEND=auto` 且 `EMBEDDING_ALLOW_DOWNLOAD=false`：如果本机已经缓存 `BAAI/bge-m3` 与 `BAAI/bge-reranker-v2-m3`，系统会自动使用真实 BGE embedding/rerank；否则退回本地 hashing + lexical，保证离线 CPU 环境也能运行。首次拉取模型时，可先尝试 HuggingFace 官方源；如果不可达，使用镜像源：
+
+```bash
+uv run python -c "from huggingface_hub import snapshot_download; snapshot_download('BAAI/bge-m3', endpoint='https://hf-mirror.com', ignore_patterns=['imgs/*'])"
+uv run python -c "from huggingface_hub import snapshot_download; snapshot_download('BAAI/bge-reranker-v2-m3', endpoint='https://hf-mirror.com')"
+```
