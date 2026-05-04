@@ -1,6 +1,6 @@
 # ResearchMate
 
-ResearchMate 是一个本地优先的个人科研助手，基于 Google ADK 构建。当前已完成 M1：可以解析本地 PDF、写入 Chroma 知识库，并通过 ADK agent 调用 RAG 检索工具生成带来源引用的回答。
+ResearchMate 是一个本地优先的个人科研助手，基于 Google ADK 构建。当前已完成 M2：可以通过 FastAPI 暴露本地 HTTP/SSE 服务，并用 `rmcli` 完成探活、session 管理和对话。
 
 ## Quick Start
 
@@ -59,6 +59,21 @@ ResearchMate 是一个本地优先的个人科研助手，基于 Google ADK 构�
    浏览器打开 ADK 输出的本地地址，选择 `researchmate` app 后提问：
    `What does paper_X say about its method?`
 
+7. 启动无头服务并用 CLI 对话：
+
+   ```bash
+   uv run uvicorn researchmate.api:app --host 127.0.0.1 --port 8000 --workers 1
+   uv run rmcli health
+   uv run rmcli session create --user-id local
+   uv run rmcli chat "请简短说明 ResearchMate 当前能力。"
+   ```
+
+   `rmcli` 默认读取 `.env` 中的 `RESEARCH_AGENT_BIND` 和 `RESEARCH_AGENT_TOKEN`，请求头使用 `X-Internal-Token`。需要完整 M2 冒烟验证时，在服务运行后执行：
+
+   ```bash
+   uv run python scripts/smoke_test.py --steps 1,2
+   ```
+
 ## Directory Layout
 
 - `src/researchmate/`：主包，包含 ADK 入口、API、CLI、服务层和工具包装。
@@ -95,4 +110,23 @@ uv run adk web src/
 ```bash
 uv run python -c "from huggingface_hub import snapshot_download; snapshot_download('BAAI/bge-m3', endpoint='https://hf-mirror.com', ignore_patterns=['imgs/*'])"
 uv run python -c "from huggingface_hub import snapshot_download; snapshot_download('BAAI/bge-reranker-v2-m3', endpoint='https://hf-mirror.com')"
+```
+
+## M2 Service Commands
+
+```bash
+uv run uvicorn researchmate.api:app --host 127.0.0.1 --port 8000 --workers 1
+uv run python -m researchmate.api
+uv run rmcli health
+uv run rmcli health --deep
+uv run rmcli session create --user-id local
+uv run rmcli chat "请用一句话说明 ResearchMate 可以做什么。"
+uv run python scripts/smoke_test.py --steps 1,2
+```
+
+curl 示例在 `examples/curl/`：
+
+```bash
+RESEARCH_AGENT_TOKEN="$(grep '^RESEARCH_AGENT_TOKEN=' .env | cut -d= -f2-)" \
+  bash examples/curl/quickstart.sh
 ```

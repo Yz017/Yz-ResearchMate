@@ -14,7 +14,7 @@
 | ------ | --------------------------------------- | ---- | -------- |
 | M0     | 项目初始化与脚手架                      | ✅    | 2026-05-02 |
 | M1     | RAG + 对话骨架                          | ✅    | 2026-05-04 |
-| M2     | FastAPI 服务化 + CLI 雏形               | ☐    |          |
+| M2     | FastAPI 服务化 + CLI 雏形               | ✅    | 2026-05-04 |
 | M3     | Memory + 知识库 API                     | ☐    |          |
 | M4     | 工具调用 + 多 Agent + 周报任务（🎯 MVP） | ☐    |          |
 | M5     | 规划、批处理、稳定化                    | ☐    |          |
@@ -264,72 +264,72 @@ ResearchAssistant/
 > **独立验收**：脱离 `adk web` 后用 `rmcli chat` 完整对话；`scripts/smoke_test.py --steps 1,2` 通过。
 
 ### 2.1 FastAPI 应用骨架
-- [ ] 写 `api/app.py`：调 `get_fast_api_app(agents_dir="src", session_service_uri=settings.adk_session_db_url, ...)` 装配 ADK 自带 FastAPI app，把实例命名为 `app`
-- [ ] 写 `api/__init__.py`：`from .app import app`，确保 `uvicorn researchmate.api:app` 能定位到对象
-- [ ] 写启动入口 `api/__main__.py`：`uvicorn researchmate.api:app --host 127.0.0.1 --port 8000 --workers 1`
-- [ ] 写 `Makefile` / `tasks.ps1`：`make serve` 一键起服务
-- [ ] 写 `examples/curl/quickstart.sh`
+- [x] 写 `api/app.py`：调 `get_fast_api_app(agents_dir="src", session_service_uri=settings.adk_session_db_url, ...)` 装配 ADK 自带 FastAPI app，把实例命名为 `app`
+- [x] 写 `api/__init__.py`：`from .app import app`，确保 `uvicorn researchmate.api:app` 能定位到对象
+- [x] 写启动入口 `api/__main__.py`：`uvicorn researchmate.api:app --host 127.0.0.1 --port 8000 --workers 1`
+- [x] 写 `Makefile` / `tasks.ps1`：`make serve` 一键起服务
+- [x] 写 `examples/curl/quickstart.sh`
 
 ### 2.2 中间件
-- [ ] `auth_middleware`：校验 `X-Internal-Token`（与 env 比对，不一致 401）
-- [ ] `trace_id_middleware`：生成 UUIDv7，注入响应头 `X-Trace-Id`，绑定到 loguru contextvars
-- [ ] 全局异常处理器：把异常映射成统一错误体 `{code, message, trace_id, retryable}`
-- [ ] CORS：localhost 限制（开发期）
+- [x] `auth_middleware`：校验 `X-Internal-Token`（与 env 比对，不一致 401）
+- [x] `trace_id_middleware`：生成 UUIDv7，注入响应头 `X-Trace-Id`，绑定到 loguru contextvars
+- [x] 全局异常处理器：把异常映射成统一错误体 `{code, message, trace_id, retryable}`
+- [x] CORS：localhost 限制（开发期）
 
 ### 2.3 系统接口（健康检查分层，避免每次探活都打 DeepSeek）
-- [ ] `GET /v1/livez`：本地进程是否能响应（200 = 存活），耗时 < 5ms，**不依赖任何外部资源**
-- [ ] `GET /v1/readyz`：本地依赖就绪（Chroma 文件可读、配置已加载、Session DB 可连）。运行模式（GPU/CPU）只作信息回显，**CPU 模式不视为 not-ready**。耗时 < 50ms
-- [ ] `GET /v1/healthz?deep=true`：深度检查，触发一次 DeepSeek 极简调用；结果 5 分钟 TTL 缓存，避免被 Java 高频探活打爆配额或被外部 LLM 抖动误判
-- [ ] `GET /v1/healthz`（默认 `deep=false`）= readyz + 缓存内最近一次的 LLM 状态
-- [ ] `GET /v1/version`：返回 git sha + ADK 版本 + 默认模型 ID + 运行模式
-- [ ] **约定**：Java/CLI 定时探活只调 `/livez` 或 `/readyz`；`/healthz?deep=true` 仅在故障定位或运维触发（research.md §9.3.7 已同步为此结构）
+- [x] `GET /v1/livez`：本地进程是否能响应（200 = 存活），耗时 < 5ms，**不依赖任何外部资源**
+- [x] `GET /v1/readyz`：本地依赖就绪（Chroma 文件可读、配置已加载、Session DB 可连）。运行模式（GPU/CPU）只作信息回显，**CPU 模式不视为 not-ready**。耗时 < 50ms
+- [x] `GET /v1/healthz?deep=true`：深度检查，触发一次 DeepSeek 极简调用；结果 5 分钟 TTL 缓存，避免被 Java 高频探活打爆配额或被外部 LLM 抖动误判
+- [x] `GET /v1/healthz`（默认 `deep=false`）= readyz + 缓存内最近一次的 LLM 状态
+- [x] `GET /v1/version`：返回 git sha + ADK 版本 + 默认模型 ID + 运行模式
+- [x] **约定**：Java/CLI 定时探活只调 `/livez` 或 `/readyz`；`/healthz?deep=true` 仅在故障定位或运维触发（research.md §9.3.7 已同步为此结构）
 
 ### 2.4 会话接口（包装 ADK Sessions）
-- [ ] 在 `pyproject.toml` 主依赖中加 `aiosqlite`（ADK Session 走 SQLAlchemy async 驱动；缺它启动会失败）
-- [ ] `.env.example` 增加 `ADK_SESSION_DB_URL=sqlite+aiosqlite:///./data/sessions.db`（**SQLAlchemy URL 格式，不是普通文件路径**）
-- [ ] `config.py` 暴露 `adk_session_db_url`，`get_fast_api_app(...)` 装配时透传
-- [ ] 启动时自动 `mkdir -p ./data/`，否则 SQLite 创建会失败
-- [ ] `POST /v1/sessions`（入 `user_id` → 出 `session_id`）
-- [ ] `GET /v1/sessions/{session_id}`
-- [ ] `DELETE /v1/sessions/{session_id}`（M2 不接 Memory Curator，仅删除；归档触发点见 M3.5）
+- [x] 在 `pyproject.toml` 主依赖中加 `aiosqlite`（ADK Session 走 SQLAlchemy async 驱动；缺它启动会失败）
+- [x] `.env.example` 增加 `ADK_SESSION_DB_URL=sqlite+aiosqlite:///./data/sessions.db`（**SQLAlchemy URL 格式，不是普通文件路径**）
+- [x] `config.py` 暴露 `adk_session_db_url`，`get_fast_api_app(...)` 装配时透传
+- [x] 启动时自动 `mkdir -p ./data/`，否则 SQLite 创建会失败
+- [x] `POST /v1/sessions`（入 `user_id` → 出 `session_id`）
+- [x] `GET /v1/sessions/{session_id}`
+- [x] `DELETE /v1/sessions/{session_id}`（M2 不接 Memory Curator，仅删除；归档触发点见 M3.5）
 
 ### 2.5 对话接口（SSE）
-- [ ] `POST /v1/chat/{session_id}` 路由
-- [ ] 把 ADK `Runner.run_async()` 事件映射成 9.3.2 SSE 事件类型：
-  - [ ] `thinking`
-  - [ ] `tool_call`
-  - [ ] `tool_result`
-  - [ ] `token`
-  - [ ] `final`
-  - [ ] `error`
-  - [ ] `citation`（M1 检索器已能产出，本期接入流式）
-- [ ] 用 `StreamingResponse` 输出 `text/event-stream`
-- [ ] 异常路径：超时返回 `error` 事件后 close
+- [x] `POST /v1/chat/{session_id}` 路由
+- [x] 把 ADK `Runner.run_async()` 事件映射成 9.3.2 SSE 事件类型：
+  - [x] `thinking`
+  - [x] `tool_call`
+  - [x] `tool_result`
+  - [x] `token`
+  - [x] `final`
+  - [x] `error`
+  - [x] `citation`（M1 检索器已能产出，本期接入流式）
+- [x] 用 `StreamingResponse` 输出 `text/event-stream`
+- [x] 异常路径：超时返回 `error` 事件后 close
 
 ### 2.6 日志与可观测
-- [ ] 配置 loguru → JSON 输出到 `./logs/researchmate.json`
-- [ ] 关键日志字段：`trace_id`、`user_id`、`session_id`、`event`、`latency_ms`
-- [ ] 日志按天滚动 + 保留 14 天
+- [x] 配置 loguru → JSON 输出到 `./logs/researchmate.json`
+- [x] 关键日志字段：`trace_id`、`user_id`、`session_id`、`event`、`latency_ms`
+- [x] 日志按天滚动 + 保留 14 天
 
 ### 2.7 CLI 雏形（`rmcli`）
-- [ ] 选 CLI 框架：Typer
-- [ ] `cli/main.py`：注册子命令组
-- [ ] `rmcli health`：默认调 `/v1/readyz`（轻量，不打 DeepSeek）；`rmcli health --deep` 调 `/v1/healthz?deep=true` 触发完整 LLM 探活
-- [ ] `rmcli session create/get/delete`
-- [ ] `rmcli chat`：交互式 REPL，使用 `httpx.stream()` 接 SSE，按事件类型渲染
-- [ ] 错误体反序列化与友好提示（含 trace_id）
+- [x] 选 CLI 框架：Typer
+- [x] `cli/main.py`：注册子命令组
+- [x] `rmcli health`：默认调 `/v1/readyz`（轻量，不打 DeepSeek）；`rmcli health --deep` 调 `/v1/healthz?deep=true` 触发完整 LLM 探活
+- [x] `rmcli session create/get/delete`
+- [x] `rmcli chat`：交互式 REPL，使用 `httpx.stream()` 接 SSE，按事件类型渲染
+- [x] 错误体反序列化与友好提示（含 trace_id）
 
 ### 2.8 Smoke-test 脚手架
-- [ ] 写 `scripts/smoke_test.py` 框架（CLI 参数 `--steps 1,2,3,4,5 --base-url --deep`）
-- [ ] 实现 step 1：探活 —— 无 `--deep` 时调 `/livez` + `/readyz`；带 `--deep` 时再加 `/healthz?deep=true`
-- [ ] 实现 step 2：session 创建 + chat + 校验 SSE 事件序列完整性
+- [x] 写 `scripts/smoke_test.py` 框架（CLI 参数 `--steps 1,2,3,4,5 --base-url --deep`）
+- [x] 实现 step 1：探活 —— 无 `--deep` 时调 `/livez` + `/readyz`；带 `--deep` 时再加 `/healthz?deep=true`
+- [x] 实现 step 2：session 创建 + chat + 校验 SSE 事件序列完整性
 
 ### 2.9 文档与验收
-- [ ] 导出 `openapi.json` → `docs/openapi.json`
-- [ ] `examples/curl/`：health.sh / session.sh / chat.sh
-- [ ] README quick-start 增加"启动服务 + `rmcli chat`"段
-- [ ] smoke-test 1–2 全绿
-- [ ] 提交 M2 完成 commit + tag `v0.2.0-m2`
+- [x] 导出 `openapi.json` → `docs/openapi.json`
+- [x] `examples/curl/`：health.sh / session.sh / chat.sh
+- [x] README quick-start 增加"启动服务 + `rmcli chat`"段
+- [x] smoke-test 1–2 全绿
+- [x] 提交 M2 完成 commit + tag `v0.2.0-m2`
 
 ---
 

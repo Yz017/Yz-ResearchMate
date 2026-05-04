@@ -106,6 +106,10 @@ class Settings(BaseSettings):
         return int(self.research_agent_bind.rsplit(":", maxsplit=1)[1])
 
     @property
+    def session_db_path(self) -> Path:
+        return Path(self.adk_session_db_url.removeprefix("sqlite+aiosqlite:///"))
+
+    @property
     def has_deepseek_api_key(self) -> bool:
         if self.deepseek_api_key is None:
             return False
