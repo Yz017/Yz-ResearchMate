@@ -36,6 +36,8 @@ class Settings(BaseSettings):
     )
     oss_bucket: str | None = Field(default=None, alias="OSS_BUCKET")
     oss_endpoint: str | None = Field(default=None, alias="OSS_ENDPOINT")
+    oss_local_dir: Path = Field(default=Path("./data/oss"), alias="OSS_LOCAL_DIR")
+    oss_cache_dir: Path = Field(default=Path("./data/cache"), alias="OSS_CACHE_DIR")
 
     research_agent_token: SecretStr = Field(
         default=SecretStr("change-me-to-a-random-token-with-at-least-32-chars"),
@@ -57,6 +59,24 @@ class Settings(BaseSettings):
     rerank_allow_download: bool = Field(default=False, alias="RERANK_ALLOW_DOWNLOAD")
     chroma_dir: Path = Field(default=Path("./data/chroma"), alias="CHROMA_DIR")
     kb_collection: str = Field(default="kb_chunks", alias="KB_COLLECTION")
+    memory_collection: str = Field(default="memory_records", alias="MEMORY_COLLECTION")
+    jobs_db_path: Path = Field(default=Path("./data/jobs.db"), alias="JOBS_DB_PATH")
+    memory_idle_archive_seconds: int = Field(
+        default=1800,
+        alias="MEMORY_IDLE_ARCHIVE_SECONDS",
+        ge=60,
+    )
+    memory_idle_scan_seconds: int = Field(
+        default=300,
+        alias="MEMORY_IDLE_SCAN_SECONDS",
+        ge=30,
+    )
+    memory_max_session_facts: int = Field(
+        default=8,
+        alias="MEMORY_MAX_SESSION_FACTS",
+        ge=1,
+        le=50,
+    )
     rag_dense_k: int = Field(default=20, alias="RAG_DENSE_K", ge=1, le=200)
     rag_sparse_k: int = Field(default=20, alias="RAG_SPARSE_K", ge=1, le=200)
     rag_final_k: int = Field(default=5, alias="RAG_FINAL_K", ge=1, le=50)
@@ -97,6 +117,14 @@ class Settings(BaseSettings):
             raise ValueError(msg)
         return value.strip()
 
+    @field_validator("memory_collection")
+    @classmethod
+    def validate_memory_collection_name(cls, value: str) -> str:
+        if not value.strip():
+            msg = "MEMORY_COLLECTION must not be empty"
+            raise ValueError(msg)
+        return value.strip()
+
     @property
     def bind_host(self) -> str:
         return self.research_agent_bind.rsplit(":", maxsplit=1)[0]
@@ -114,6 +142,14 @@ class Settings(BaseSettings):
         if self.deepseek_api_key is None:
             return False
         return bool(self.deepseek_api_key.get_secret_value().strip())
+
+    @property
+    def has_oss_credentials(self) -> bool:
+        if not self.oss_access_key_id or not self.oss_bucket or not self.oss_endpoint:
+            return False
+        if self.oss_access_key_secret is None:
+            return False
+        return bool(self.oss_access_key_secret.get_secret_value().strip())
 
 
 @lru_cache(maxsize=1)

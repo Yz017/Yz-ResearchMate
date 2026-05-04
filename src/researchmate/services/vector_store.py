@@ -118,6 +118,11 @@ class KnowledgeVectorStore:
         if ids:
             self._collection.delete(ids=list(ids))
 
+    def delete_where(self, filters: dict[str, MetadataValue]) -> None:
+        where = _build_where(filters)
+        if where:
+            self._collection.delete(where=where)
+
     def get_existing_ids(self, ids: Sequence[str]) -> set[str]:
         if not ids:
             return set()

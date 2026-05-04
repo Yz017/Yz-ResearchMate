@@ -15,7 +15,7 @@
 | M0     | 项目初始化与脚手架                      | ✅    | 2026-05-02 |
 | M1     | RAG + 对话骨架                          | ✅    | 2026-05-04 |
 | M2     | FastAPI 服务化 + CLI 雏形               | ✅    | 2026-05-04 |
-| M3     | Memory + 知识库 API                     | ☐    |          |
+| M3     | Memory + 知识库 API                     | ✅    | 2026-05-04 |
 | M4     | 工具调用 + 多 Agent + 周报任务（🎯 MVP） | ☐    |          |
 | M5     | 规划、批处理、稳定化                    | ☐    |          |
 | M6     | Java Spring Boot 联调                   | ☐    |          |
@@ -341,75 +341,75 @@ ResearchAssistant/
 > **独立验收**：`rmcli memory add ...` → 新 session `rmcli chat` 测试模型用上偏好；ingest 端到端 OSS 链路通。
 
 ### 3.1 OSS 接入
-- [ ] 安装 `oss2`，写 `services/oss_client.py`（put/get/exists/sign_url）
-- [ ] 单元测试：上传 → 下载 → 校验 sha256
-- [ ] 失败重试：指数退避 3 次
-- [ ] 大文件分片上传（>10MB）
+- [x] 安装 `oss2`，写 `services/oss_client.py`（put/get/exists/sign_url）
+- [x] 单元测试：上传 → 下载 → 校验 sha256
+- [x] 失败重试：指数退避 3 次
+- [x] 大文件分片上传（>10MB）
 
 ### 3.2 长期 Memory Service
-- [ ] 设计 `memory_records` collection schema（content, category, user_id, created_at, expires_at）
-- [ ] 实现 `services/memory_service.py`，继承 `BaseMemoryService`：
-  - [ ] `add_session_to_memory()` 抽取关键事实（LLM 总结）后入库
-  - [ ] `search_memory(query, user_id, category?)` 向量召回
-  - [ ] `expire_sweep()` 定期清理过期项
-- [ ] 注册为 ADK MemoryService
-- [ ] `tools/load_memory.py`：包装为 FunctionTool
-- [ ] `tools/save_preference.py`：显式写入工具
-- [ ] 在 Coordinator 上挂 `load_memory` + `save_preference`
+- [x] 设计 `memory_records` collection schema（content, category, user_id, created_at, expires_at）
+- [x] 实现 `services/memory_service.py`，继承 `BaseMemoryService`：
+  - [x] `add_session_to_memory()` 抽取关键事实（LLM 总结）后入库
+  - [x] `search_memory(query, user_id, category?)` 向量召回
+  - [x] `expire_sweep()` 定期清理过期项
+- [x] 注册为 ADK MemoryService
+- [x] `tools/load_memory.py`：包装为 FunctionTool
+- [x] `tools/save_preference.py`：显式写入工具
+- [x] 在 Coordinator 上挂 `load_memory` + `save_preference`
 
 ### 3.3 Memory CRUD 接口
-- [ ] `POST /v1/memory`（含 expires_at 可选）
-- [ ] `GET /v1/memory?user_id=&category=`
-- [ ] `PATCH /v1/memory/{memory_id}`
-- [ ] `DELETE /v1/memory/{memory_id}`
-- [ ] 单测覆盖 CRUD 与 expires 行为
+- [x] `POST /v1/memory`（含 expires_at 可选）
+- [x] `GET /v1/memory?user_id=&category=`
+- [x] `PATCH /v1/memory/{memory_id}`
+- [x] `DELETE /v1/memory/{memory_id}`
+- [x] 单测覆盖 CRUD 与 expires 行为
 
 ### 3.4 异步任务运行器（asyncio.Task registry + jobs.db 状态机）
 
 > 这套运行器同时支撑 M3 的知识库 ingest 和 M4 的 `/v1/tasks/*`，**不要写两套**。`FastAPI BackgroundTasks` 不能取消、不能查询、无法挂 SSE 进度，只够最简的 fire-and-forget，本项目需求已超过它。
 
-- [ ] 设计 `jobs.db` 表：`(id, kind, state, progress, error, params_json, result_json, user_id, created_at, finished_at)`
-- [ ] 状态机：`queued → running → done | failed | interrupted | cancelled`
-- [ ] 写 `services/job_runner.py`，维护 `dict[job_id, asyncio.Task]` registry：
-  - [ ] `submit(kind, params, user_id) -> job_id`：写 db `queued` → 启动 `asyncio.create_task(...)` → registry 登记
-  - [ ] `cancel(job_id)`：`task.cancel()` + 写 db `cancelled`
-  - [ ] `subscribe(job_id) -> AsyncIterator[event]`：基于 `asyncio.Queue` 推送进度事件
-  - [ ] 异常捕获：所有未处理异常写 db `failed` + 完整 traceback，避免静默丢失
-  - [ ] 任务结束（done/failed/cancelled）从 registry 移除，但 db 保留
-- [ ] **中断恢复**：服务启动时扫所有 `state=running` 的 job 标记为 `interrupted`，调用方据此提示用户重试
-- [ ] `POST /v1/knowledge/ingest`：接 OSS keys → `submit("ingest", ...)` → 返回 job_id
-- [ ] `GET /v1/knowledge/jobs/{job_id}`：状态 + 进度查询
-- [ ] `GET /v1/knowledge/jobs/{job_id}/events`：SSE 流式进度（基于 `subscribe`）
-- [ ] `GET /v1/knowledge/documents?user_id=&tag=`：分页列表
-- [ ] `DELETE /v1/knowledge/documents/{doc_id}`：连带删除 chunks
+- [x] 设计 `jobs.db` 表：`(id, kind, state, progress, error, params_json, result_json, user_id, created_at, finished_at)`
+- [x] 状态机：`queued → running → done | failed | interrupted | cancelled`
+- [x] 写 `services/job_runner.py`，维护 `dict[job_id, asyncio.Task]` registry：
+  - [x] `submit(kind, params, user_id) -> job_id`：写 db `queued` → 启动 `asyncio.create_task(...)` → registry 登记
+  - [x] `cancel(job_id)`：`task.cancel()` + 写 db `cancelled`
+  - [x] `subscribe(job_id) -> AsyncIterator[event]`：基于 `asyncio.Queue` 推送进度事件
+  - [x] 异常捕获：所有未处理异常写 db `failed` + 完整 traceback，避免静默丢失
+  - [x] 任务结束（done/failed/cancelled）从 registry 移除，但 db 保留
+- [x] **中断恢复**：服务启动时扫所有 `state=running` 的 job 标记为 `interrupted`，调用方据此提示用户重试
+- [x] `POST /v1/knowledge/ingest`：接 OSS keys → `submit("ingest", ...)` → 返回 job_id
+- [x] `GET /v1/knowledge/jobs/{job_id}`：状态 + 进度查询
+- [x] `GET /v1/knowledge/jobs/{job_id}/events`：SSE 流式进度（基于 `subscribe`）
+- [x] `GET /v1/knowledge/documents?user_id=&tag=`：分页列表
+- [x] `DELETE /v1/knowledge/documents/{doc_id}`：连带删除 chunks
 
 ### 3.5 Memory Curator（多触发点，避免依赖用户主动删 session）
 
 用户在实际使用中很少会主动 `DELETE` 一个 session，因此不能只把归档绑在那个事件上。下列四条触发路径必须都覆盖：
 
-- [ ] 写 `agents/memory_curator.py`（独立 LlmAgent，不对外）
-- [ ] **触发 1：显式写入** —— `save_preference` 工具或 `POST /v1/memory` 同步写库（已在 3.2 / 3.3 实现，此处确认即可）
-- [ ] **触发 2：会话主动结束** —— `DELETE /v1/sessions/{id}` 时调归档
-- [ ] **触发 3：会话空闲归档** —— 后台周期任务（每 5 分钟）扫 sessions 表，最近 event 超过 30 分钟（可配）的会话触发归档；用 `archived_at` 字段防重复
-- [ ] **触发 4：任务完成归档** —— `/v1/tasks/{id}` 进入终态时把任务摘要归档进 `recent_tasks` 类目
-- [ ] 抽取 4 类信息：`research_direction` / `advisor_requirements` / `writing_style` / `recent_tasks`
-- [ ] 防过度归档：每次最多写 N 条；对相似已有记忆做合并而非追加（向量检索 + 阈值判定）
-- [ ] 提供 `rmcli memory archive --session <id>` 手动触发，便于调试
+- [x] 写 `agents/memory_curator.py`（独立 LlmAgent，不对外）
+- [x] **触发 1：显式写入** —— `save_preference` 工具或 `POST /v1/memory` 同步写库（已在 3.2 / 3.3 实现，此处确认即可）
+- [x] **触发 2：会话主动结束** —— `DELETE /v1/sessions/{id}` 时调归档
+- [x] **触发 3：会话空闲归档** —— 后台周期任务（每 5 分钟）扫 sessions 表，最近 event 超过 30 分钟（可配）的会话触发归档；用 `archived_at` 字段防重复
+- [x] **触发 4：任务完成归档** —— `/v1/tasks/{id}` 进入终态时把任务摘要归档进 `recent_tasks` 类目
+- [x] 抽取 4 类信息：`research_direction` / `advisor_requirements` / `writing_style` / `recent_tasks`
+- [x] 防过度归档：每次最多写 N 条；对相似已有记忆做合并而非追加（向量检索 + 阈值判定）
+- [x] 提供 `rmcli memory archive --session <id>` 手动触发，便于调试
 
 ### 3.6 CLI 扩展
-- [ ] `rmcli ingest <pdf_path...>`：本地 → OSS 上传 → 调 `/v1/knowledge/ingest` → 流式打印进度
-- [ ] `rmcli kb ls`、`rmcli kb rm <doc_id>`
-- [ ] `rmcli memory add --category <c> "<content>"`、`rmcli memory ls`、`rmcli memory rm <id>`
+- [x] `rmcli ingest <pdf_path...>`：本地 → OSS 上传 → 调 `/v1/knowledge/ingest` → 流式打印进度
+- [x] `rmcli kb ls`、`rmcli kb rm <doc_id>`
+- [x] `rmcli memory add --category <c> "<content>"`、`rmcli memory ls`、`rmcli memory rm <id>`
 
 ### 3.7 Smoke-test 扩展
-- [ ] step 3：ingest → 提问 → 校验 citation 准确
-- [ ] step 4：memory add → 新 session → 提问 → 校验回答用上偏好
+- [x] step 3：ingest → 提问 → 校验 citation 准确
+- [x] step 4：memory add → 新 session → 提问 → 校验回答用上偏好
 
 ### 3.8 验收
-- [ ] smoke-test 1–4 全绿
-- [ ] README 增加 ingest / memory 用法段
-- [ ] `docs/demos/M3.md`：录屏一段 ingest + 记忆触发
-- [ ] 提交 M3 完成 commit + tag `v0.3.0-m3`
+- [x] smoke-test 1–4 全绿
+- [x] README 增加 ingest / memory 用法段
+- [x] `docs/demos/M3.md`：录屏一段 ingest + 记忆触发
+- [x] 提交 M3 完成 commit + tag `v0.3.0-m3`
 
 ---
 

@@ -14,7 +14,7 @@ import uuid
 from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import aclosing, asynccontextmanager
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any, cast
 
@@ -37,8 +37,21 @@ from researchmate.api.schemas import (
     DependencyStatus,
     ErrorResponse,
     HealthResponse,
+    JobResponse,
+    JobSubmitResponse,
+    KnowledgeDocumentDeleteResponse,
+    KnowledgeDocumentListResponse,
+    KnowledgeDocumentResponse,
+    KnowledgeIngestRequest,
     LivezResponse,
     LlmStatus,
+    MemoryArchiveRequest,
+    MemoryArchiveResponse,
+    MemoryCreateRequest,
+    MemoryDeleteResponse,
+    MemoryListResponse,
+    MemoryResponse,
+    MemoryUpdateRequest,
     ReadyzResponse,
     SessionCreateRequest,
     SessionDeleteResponse,
@@ -46,6 +59,10 @@ from researchmate.api.schemas import (
     VersionResponse,
 )
 from researchmate.config import Settings, get_settings
+from researchmate.services.job_runner import JobContext, JobRecord, JobRunner
+from researchmate.services.knowledge_base import IngestedDocument, KnowledgeBaseService
+from researchmate.services.memory_service import MemoryRecord, ResearchMemoryService
+from researchmate.services.oss_client import OssClient
 
 APP_NAME = "researchmate"
 _CHAT_TIMEOUT_SECONDS = 120.0
@@ -63,10 +80,12 @@ class _DeepHealthCache:
 class _ApiRuntime:
     def __init__(self, settings: Settings) -> None:
         self.session_service = DatabaseSessionService(settings.adk_session_db_url)
+        self.memory_service = ResearchMemoryService.from_settings(settings)
         self.runner = Runner(
             app_name=APP_NAME,
             agent=root_agent,
             session_service=self.session_service,
+            memory_service=self.memory_service,
             auto_create_session=False,
         )
 
@@ -83,6 +102,9 @@ _deep_health_lock = asyncio.Lock()
 def _ensure_runtime_dirs(settings: Settings) -> None:
     settings.session_db_path.parent.mkdir(parents=True, exist_ok=True)
     settings.chroma_dir.mkdir(parents=True, exist_ok=True)
+    settings.oss_local_dir.mkdir(parents=True, exist_ok=True)
+    settings.oss_cache_dir.mkdir(parents=True, exist_ok=True)
+    settings.jobs_db_path.parent.mkdir(parents=True, exist_ok=True)
     Path("logs").mkdir(parents=True, exist_ok=True)
 
 
@@ -218,10 +240,30 @@ def _check_chroma_dir(settings: Settings) -> DependencyStatus:
         return DependencyStatus(ok=False, detail=f"{type(exc).__name__}: {exc}")
 
 
+def _check_writable_dir(path: Path) -> DependencyStatus:
+    try:
+        path.mkdir(parents=True, exist_ok=True)
+        if not os.access(path, os.R_OK | os.W_OK):
+            return DependencyStatus(ok=False, detail=f"{path} is not readable/writable")
+        return DependencyStatus(ok=True, detail=str(path))
+    except Exception as exc:
+        return DependencyStatus(ok=False, detail=f"{type(exc).__name__}: {exc}")
+
+
 async def _readyz_payload(settings: Settings) -> ReadyzResponse:
     dependencies = {
         "config": DependencyStatus(ok=True, detail="loaded"),
         "chroma": _check_chroma_dir(settings),
+        "oss": DependencyStatus(
+            ok=True,
+            detail=(
+                f"remote bucket={settings.oss_bucket}"
+                if settings.has_oss_credentials
+                else f"local fallback {settings.oss_local_dir}"
+            ),
+        ),
+        "cache": _check_writable_dir(settings.oss_cache_dir),
+        "jobs_db": _check_writable_dir(settings.jobs_db_path.parent),
         "session_db": await _check_session_db(settings),
     }
     status_text = "ok" if all(item.ok for item in dependencies.values()) else "degraded"
@@ -307,6 +349,64 @@ def _session_response(session: Session) -> SessionResponse:
     )
 
 
+def _parse_iso_datetime(value: str | None) -> datetime | None:
+    if not value:
+        return None
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if parsed.tzinfo is None:
+        return parsed.replace(tzinfo=UTC)
+    return parsed
+
+
+def _memory_response(record: MemoryRecord) -> MemoryResponse:
+    created_at = _parse_iso_datetime(record.created_at) or datetime.fromtimestamp(0, UTC)
+    return MemoryResponse(
+        id=record.id,
+        user_id=record.user_id,
+        category=record.category,
+        content=record.content,
+        created_at=created_at,
+        expires_at=_parse_iso_datetime(record.expires_at),
+        updated_at=_parse_iso_datetime(record.updated_at),
+        source=record.source,
+        origin_session_id=record.origin_session_id,
+        score=record.score,
+    )
+
+
+def _job_response(record: JobRecord) -> JobResponse:
+    created_at = _parse_iso_datetime(record.created_at) or datetime.fromtimestamp(0, UTC)
+    return JobResponse(
+        id=record.id,
+        kind=record.kind,
+        state=record.state,
+        progress=record.progress,
+        error=record.error,
+        params=record.params,
+        result=record.result,
+        user_id=record.user_id,
+        created_at=created_at,
+        finished_at=_parse_iso_datetime(record.finished_at),
+    )
+
+
+def _document_response(document: IngestedDocument) -> KnowledgeDocumentResponse:
+    return KnowledgeDocumentResponse(
+        doc_id=document.doc_id,
+        title=document.title,
+        source_path=document.source_path,
+        oss_key=document.oss_key,
+        user_id=document.user_id,
+        tags=document.tags,
+        chunks=document.chunks,
+        pages=document.pages,
+        ingested_at=_parse_iso_datetime(document.ingested_at),
+    )
+
+
 def _jsonable(value: Any) -> Any:
     if value is None or isinstance(value, str | int | float | bool):
         return value
@@ -346,6 +446,30 @@ def _citations_from_text(text: str) -> list[dict[str, Any]]:
     return citations
 
 
+def _message_with_memory_context(
+    *,
+    memory_service: ResearchMemoryService,
+    user_id: str,
+    message: str,
+) -> str:
+    try:
+        records = memory_service.search_records(query=message, user_id=user_id, top_k=5)
+    except Exception:
+        return message
+    if not records:
+        return message
+    bullets = "\n".join(
+        f"- {record.category}: {record.content}" for record in records if record.content
+    )
+    if not bullets:
+        return message
+    return (
+        "以下是该用户的长期记忆，只能用于个性化、偏好和任务上下文，不能作为论文事实来源：\n"
+        f"{bullets}\n\n"
+        f"当前用户消息：{message}"
+    )
+
+
 async def _chat_event_stream(
     *,
     runtime: _ApiRuntime,
@@ -356,9 +480,14 @@ async def _chat_event_stream(
     invocation_id = _new_uuid7()
     full_text_parts: list[str] = []
     emitted_citations: set[tuple[str, int]] = set()
+    message_for_agent = _message_with_memory_context(
+        memory_service=runtime.memory_service,
+        user_id=user_id,
+        message=message,
+    )
     new_message = types.Content(
         role="user",
-        parts=[types.Part.from_text(text=message)],
+        parts=[types.Part.from_text(text=message_for_agent)],
     )
     yield _sse("thinking", {"text": "agent_started", "invocation_id": invocation_id})
     try:
@@ -451,20 +580,130 @@ async def _chat_event_stream(
         )
 
 
+def _cache_path_for_oss_key(settings: Settings, key: str) -> Path:
+    digest = uuid.uuid5(uuid.NAMESPACE_URL, key).hex[:16]
+    name = Path(key).name or f"{digest}.pdf"
+    return settings.oss_cache_dir / digest / name
+
+
+def _build_ingest_handler(
+    *,
+    settings: Settings,
+    memory_service: ResearchMemoryService,
+) -> Callable[[JobContext], Awaitable[dict[str, Any] | None]]:
+    async def handle_ingest(context: JobContext) -> dict[str, Any]:
+        oss_keys = [str(item) for item in context.params.get("oss_keys", [])]
+        owner_user_id = str(context.params.get("owner_user_id") or context.user_id)
+        tags = [str(item) for item in context.params.get("tags", []) if str(item).strip()]
+        paper_id = context.params.get("paper_id")
+        title = context.params.get("title")
+        if not oss_keys:
+            msg = "oss_keys must not be empty"
+            raise ValueError(msg)
+        if (paper_id or title) and len(oss_keys) != 1:
+            msg = "paper_id/title overrides are only valid for one OSS key"
+            raise ValueError(msg)
+
+        oss_client = OssClient.from_settings(settings)
+        kb_service = KnowledgeBaseService.from_settings(settings)
+        documents: list[dict[str, object]] = []
+        total = len(oss_keys)
+        for index, oss_key in enumerate(oss_keys, start=1):
+            base_progress = (index - 1) / total * 95.0
+            await context.progress(base_progress, f"downloading {oss_key}")
+            local_path = _cache_path_for_oss_key(settings, oss_key)
+            await asyncio.to_thread(oss_client.get_file, oss_key, local_path)
+
+            await context.progress(base_progress + 20.0 / total, f"ingesting {oss_key}")
+            document = await asyncio.to_thread(
+                kb_service.ingest_pdf,
+                local_path,
+                paper_id=str(paper_id) if paper_id else None,
+                title=str(title) if title else None,
+                oss_key=oss_key,
+                user_id=owner_user_id,
+                tags=tags,
+            )
+            documents.append(document.to_payload())
+            await context.progress(index / total * 95.0, f"ingested {document.doc_id}")
+
+        if owner_user_id:
+            memory_service.add_record(
+                user_id=owner_user_id,
+                category="recent_tasks",
+                content=(
+                    f"Knowledge ingest job {context.job_id} completed: "
+                    f"{len(documents)} document(s), tags={tags}."
+                ),
+                source="job",
+            )
+        return {"documents": documents}
+
+    return handle_ingest
+
+
+async def _archive_idle_sessions(
+    *,
+    runtime: _ApiRuntime,
+    settings: Settings,
+) -> None:
+    cutoff = datetime.now(UTC) - timedelta(seconds=settings.memory_idle_archive_seconds)
+    sessions = await runtime.session_service.list_sessions(app_name=APP_NAME)
+    for session_stub in sessions.sessions:
+        if session_stub.last_update_time > cutoff.timestamp():
+            continue
+        if runtime.memory_service.has_session_archive(session_stub.id):
+            continue
+        session = await runtime.session_service.get_session(
+            app_name=APP_NAME,
+            user_id=session_stub.user_id,
+            session_id=session_stub.id,
+        )
+        if session is not None:
+            await runtime.memory_service.add_session_to_memory(cast(Session, session))
+
+
+async def _idle_archive_loop(
+    *,
+    runtime: _ApiRuntime,
+    settings: Settings,
+) -> None:
+    while True:
+        await asyncio.sleep(settings.memory_idle_scan_seconds)
+        try:
+            await _archive_idle_sessions(runtime=runtime, settings=settings)
+        except Exception:
+            logger.bind(event="memory_idle_archive_error").exception("idle memory archive failed")
+
+
 def create_app(settings: Settings | None = None) -> FastAPI:
     settings = settings or get_settings()
     _ensure_runtime_dirs(settings)
     _configure_logging()
+    runtime = _get_runtime(settings)
+    job_runner = JobRunner(settings.jobs_db_path)
+    job_runner.register_handler(
+        "ingest",
+        _build_ingest_handler(settings=settings, memory_service=runtime.memory_service),
+    )
 
     @asynccontextmanager
     async def lifespan(_: FastAPI) -> AsyncIterator[None]:
         _ensure_runtime_dirs(settings)
+        await job_runner.start()
+        archive_task = asyncio.create_task(
+            _idle_archive_loop(runtime=runtime, settings=settings),
+            name="rm-memory-idle-archive",
+        )
         try:
             yield
         finally:
-            runtime = _runtime_by_session_uri.pop(settings.adk_session_db_url, None)
-            if runtime is not None:
-                await runtime.close()
+            archive_task.cancel()
+            await asyncio.gather(archive_task, return_exceptions=True)
+            await job_runner.close()
+            closed_runtime = _runtime_by_session_uri.pop(settings.adk_session_db_url, None)
+            if closed_runtime is not None:
+                await closed_runtime.close()
 
     app = get_fast_api_app(
         agents_dir="src",
@@ -484,6 +723,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.version = __version__
     app.description = "Local-first AI research assistant service."
     app.state.rm_settings = settings
+    app.state.rm_job_runner = job_runner
 
     @app.middleware("http")
     async def request_context_middleware(
@@ -606,14 +846,138 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @app.delete("/v1/sessions/{session_id}", response_model=SessionDeleteResponse)
     async def delete_session(session_id: str) -> SessionDeleteResponse:
-        runtime = _get_runtime(settings)
         session = await _find_session(runtime, session_id)
+        await runtime.memory_service.add_session_to_memory(session)
         await runtime.session_service.delete_session(APP_NAME, session.user_id, session_id)
         return SessionDeleteResponse(session_id=session_id, deleted=True)
 
+    @app.post("/v1/memory", response_model=MemoryResponse)
+    async def create_memory(req: MemoryCreateRequest) -> MemoryResponse:
+        record = runtime.memory_service.add_record(
+            user_id=req.user_id,
+            category=req.category,
+            content=req.content,
+            expires_at=req.expires_at.isoformat() if req.expires_at else None,
+            source="api",
+        )
+        return _memory_response(record)
+
+    @app.get("/v1/memory", response_model=MemoryListResponse)
+    async def list_memory(
+        user_id: str,
+        category: str | None = None,
+        include_expired: bool = False,
+        limit: int = 100,
+    ) -> MemoryListResponse:
+        records = runtime.memory_service.list_records(
+            user_id=user_id,
+            category=category,
+            include_expired=include_expired,
+            limit=limit,
+        )
+        items = [_memory_response(record) for record in records]
+        return MemoryListResponse(items=items, count=len(items))
+
+    @app.patch("/v1/memory/{memory_id}", response_model=MemoryResponse)
+    async def update_memory(memory_id: str, req: MemoryUpdateRequest) -> MemoryResponse:
+        try:
+            record = runtime.memory_service.update_record(
+                memory_id,
+                content=req.content,
+                category=req.category,
+                expires_at=req.expires_at.isoformat() if req.expires_at else None,
+            )
+        except KeyError as exc:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+        return _memory_response(record)
+
+    @app.delete("/v1/memory/{memory_id}", response_model=MemoryDeleteResponse)
+    async def delete_memory(memory_id: str) -> MemoryDeleteResponse:
+        deleted = runtime.memory_service.delete_record(memory_id)
+        if not deleted:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Memory not found")
+        return MemoryDeleteResponse(memory_id=memory_id, deleted=True)
+
+    @app.post("/v1/memory/archive", response_model=MemoryArchiveResponse)
+    async def archive_memory(req: MemoryArchiveRequest) -> MemoryArchiveResponse:
+        session = await _find_session(runtime, req.session_id)
+        archived_count = await runtime.memory_service.archive_session(session)
+        return MemoryArchiveResponse(session_id=req.session_id, archived_count=archived_count)
+
+    @app.post("/v1/knowledge/ingest", response_model=JobSubmitResponse)
+    async def ingest_knowledge(req: KnowledgeIngestRequest) -> JobSubmitResponse:
+        job_id = await job_runner.submit(
+            "ingest",
+            params=req.model_dump(mode="json"),
+            user_id=req.owner_user_id,
+        )
+        return JobSubmitResponse(job_id=job_id)
+
+    @app.get("/v1/knowledge/jobs/{job_id}", response_model=JobResponse)
+    async def get_knowledge_job(job_id: str) -> JobResponse:
+        record = await job_runner.get_job(job_id)
+        if record is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Job not found")
+        return _job_response(record)
+
+    @app.post("/v1/knowledge/jobs/{job_id}/cancel", response_model=JobResponse)
+    async def cancel_knowledge_job(job_id: str) -> JobResponse:
+        cancelled = await job_runner.cancel(job_id)
+        if not cancelled:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Job not found or already finished",
+            )
+        record = await job_runner.get_job(job_id)
+        if record is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Job not found")
+        return _job_response(record)
+
+    @app.get("/v1/knowledge/jobs/{job_id}/events")
+    async def stream_knowledge_job(job_id: str) -> StreamingResponse:
+        if await job_runner.get_job(job_id) is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Job not found")
+
+        async def event_stream() -> AsyncIterator[str]:
+            async for event in job_runner.subscribe(job_id):
+                yield _sse(event.event, event.data)
+
+        return StreamingResponse(
+            event_stream(),
+            media_type="text/event-stream",
+            headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+        )
+
+    @app.get("/v1/knowledge/documents", response_model=KnowledgeDocumentListResponse)
+    async def list_knowledge_documents(
+        user_id: str | None = None,
+        tag: str | None = None,
+        limit: int = 100,
+        offset: int = 0,
+    ) -> KnowledgeDocumentListResponse:
+        service = KnowledgeBaseService.from_settings(settings)
+        documents = service.list_documents(
+            user_id=user_id,
+            tag=tag,
+            limit=limit,
+            offset=offset,
+        )
+        items = [_document_response(document) for document in documents]
+        return KnowledgeDocumentListResponse(items=items, count=len(items))
+
+    @app.delete(
+        "/v1/knowledge/documents/{doc_id}",
+        response_model=KnowledgeDocumentDeleteResponse,
+    )
+    async def delete_knowledge_document(doc_id: str) -> KnowledgeDocumentDeleteResponse:
+        service = KnowledgeBaseService.from_settings(settings)
+        deleted = service.delete_document(doc_id)
+        if deleted == 0:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Document not found")
+        return KnowledgeDocumentDeleteResponse(doc_id=doc_id, deleted_chunks=deleted)
+
     @app.post("/v1/chat/{session_id}")
     async def chat(session_id: str, req: ChatRequest) -> StreamingResponse:
-        runtime = _get_runtime(settings)
         session = await _find_session(runtime, session_id)
         stream = _chat_event_stream(
             runtime=runtime,

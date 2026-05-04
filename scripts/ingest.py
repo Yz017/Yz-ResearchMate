@@ -1,29 +1,12 @@
 from __future__ import annotations
 
 import argparse
-from collections.abc import Iterable, Sequence
-from dataclasses import dataclass
+from collections.abc import Sequence
 from pathlib import Path
-from typing import TypeVar
 
 from researchmate.config import get_settings
-from researchmate.services.embeddings import create_embedding_backend
-from researchmate.services.pdf_parser import parse_pdf_to_chunks
+from researchmate.services.knowledge_base import IngestedDocument, KnowledgeBaseService
 from researchmate.services.vector_store import KnowledgeVectorStore
-
-T = TypeVar("T")
-
-
-@dataclass(frozen=True, slots=True)
-class IngestResult:
-    path: Path
-    paper_id: str
-    chunks: int
-
-
-def _batched(items: Sequence[T], batch_size: int) -> Iterable[Sequence[T]]:
-    for start in range(0, len(items), batch_size):
-        yield items[start : start + batch_size]
 
 
 def ingest_pdf_paths(
@@ -34,35 +17,27 @@ def ingest_pdf_paths(
     reset: bool = False,
     chroma_dir: str | Path | None = None,
     collection_name: str | None = None,
-) -> list[IngestResult]:
+) -> list[IngestedDocument]:
     settings = get_settings()
-    store = KnowledgeVectorStore(
-        persist_directory=chroma_dir or settings.chroma_dir,
-        collection_name=collection_name or settings.kb_collection,
-    )
+    service = KnowledgeBaseService.from_settings(settings)
+    if chroma_dir is not None or collection_name is not None:
+        service = KnowledgeBaseService(
+            settings=settings,
+            store=KnowledgeVectorStore(
+                persist_directory=chroma_dir or settings.chroma_dir,
+                collection_name=collection_name or settings.kb_collection,
+            ),
+        )
     if reset:
-        store.reset()
-    embedder = create_embedding_backend(settings)
-    results: list[IngestResult] = []
+        service.store.reset()
+    results: list[IngestedDocument] = []
     for raw_path in paths:
         pdf_path = Path(raw_path)
-        chunks = parse_pdf_to_chunks(pdf_path, paper_id=paper_id, title=title)
-        existing_ids = store.get_existing_ids([chunk.id for chunk in chunks])
-        inserted_ids: list[str] = []
-        try:
-            for batch in _batched(chunks, settings.embedding_batch_size):
-                embeddings = embedder.encode([chunk.text for chunk in batch])
-                store.upsert_chunks(batch, embeddings, embedding_model=embedder.model_id)
-                inserted_ids.extend(chunk.id for chunk in batch if chunk.id not in existing_ids)
-        except Exception:
-            store.delete_ids(inserted_ids)
-            raise
-        resolved_paper_id = chunks[0].paper_id if chunks else (paper_id or pdf_path.stem)
         results.append(
-            IngestResult(
-                path=pdf_path,
-                paper_id=resolved_paper_id,
-                chunks=len(chunks),
+            service.ingest_pdf(
+                pdf_path,
+                paper_id=paper_id,
+                title=title,
             )
         )
     return results
@@ -95,7 +70,7 @@ def main() -> None:
         collection_name=args.collection,
     )
     for result in results:
-        print(f"{result.path}: paper_id={result.paper_id} chunks={result.chunks}")
+        print(f"{result.source_path}: paper_id={result.doc_id} chunks={result.chunks}")
 
 
 if __name__ == "__main__":

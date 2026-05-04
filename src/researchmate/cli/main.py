@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from collections.abc import Iterator
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Annotated
 
 import httpx
@@ -10,6 +11,7 @@ import typer
 
 from researchmate import __version__
 from researchmate.config import get_settings
+from researchmate.services.oss_client import OssClient
 
 app = typer.Typer(
     name="rmcli",
@@ -17,7 +19,11 @@ app = typer.Typer(
     no_args_is_help=True,
 )
 session_app = typer.Typer(help="Manage ResearchMate chat sessions.")
+memory_app = typer.Typer(help="Manage long-term memory.")
+kb_app = typer.Typer(help="Manage knowledge-base documents.")
 app.add_typer(session_app, name="session")
+app.add_typer(memory_app, name="memory")
+app.add_typer(kb_app, name="kb")
 
 
 @dataclass(slots=True)
@@ -170,6 +176,36 @@ def _render_sse_event(event: str, payload: dict[str, object]) -> bool:
     return False
 
 
+def _render_job_event(event: str, payload: dict[str, object]) -> bool:
+    if event in {"snapshot", "queued", "running", "progress"}:
+        progress = payload.get("progress", 0)
+        message = payload.get("message") or payload.get("state") or event
+        typer.secho(f"[{progress}%] {message}", fg=typer.colors.BLUE)
+        return False
+    if event == "done":
+        typer.secho("[done] job completed", fg=typer.colors.GREEN)
+        result = payload.get("result")
+        if result:
+            _print_json(result)
+        return True
+    if event in {"failed", "cancelled", "interrupted"}:
+        typer.secho(
+            f"[{event}] {payload.get('error') or 'job stopped'}",
+            fg=typer.colors.RED,
+            err=True,
+        )
+        return True
+    return False
+
+
+def _stream_job(client: httpx.Client, job_id: str) -> None:
+    with client.stream("GET", f"/v1/knowledge/jobs/{job_id}/events", timeout=300.0) as response:
+        _exit_for_error(response)
+        for event, payload in _iter_sse_lines(response):
+            if _render_job_event(event, payload):
+                break
+
+
 @app.command()
 def config() -> None:
     """Print non-secret local configuration."""
@@ -292,6 +328,140 @@ def chat(
             if not prompt.strip():
                 continue
             _stream_chat(client, active_session, prompt)
+
+
+@app.command()
+def ingest(
+    ctx: typer.Context,
+    pdf_paths: Annotated[list[Path], typer.Argument(help="Local PDF path(s) to ingest.")],
+    user_id: Annotated[str, typer.Option("--user-id", help="Owner user id.")] = "local",
+    tag: Annotated[
+        list[str] | None,
+        typer.Option("--tag", help="Tag to attach to the ingested document."),
+    ] = None,
+    paper_id: Annotated[
+        str | None,
+        typer.Option("--paper-id", help="Override paper_id. Only valid with one PDF."),
+    ] = None,
+    title: Annotated[
+        str | None,
+        typer.Option("--title", help="Override title. Only valid with one PDF."),
+    ] = None,
+    wait: Annotated[bool, typer.Option("--wait/--no-wait", help="Stream job progress.")] = True,
+) -> None:
+    """Upload local PDFs to OSS/local store and submit a knowledge ingest job."""
+    if len(pdf_paths) > 1 and (paper_id or title):
+        typer.secho(
+            "--paper-id/--title can only be used with one PDF",
+            fg=typer.colors.RED,
+            err=True,
+        )
+        raise typer.Exit(1)
+    oss_client = OssClient.from_settings()
+    oss_keys: list[str] = []
+    for path in pdf_paths:
+        if not path.exists():
+            typer.secho(f"PDF not found: {path}", fg=typer.colors.RED, err=True)
+            raise typer.Exit(1)
+        key = oss_client.put_file(path)
+        oss_keys.append(key)
+        typer.secho(f"[upload] {path} -> {key}", fg=typer.colors.GREEN)
+
+    payload = {
+        "oss_keys": oss_keys,
+        "owner_user_id": user_id,
+        "tags": tag or [],
+        "paper_id": paper_id,
+        "title": title,
+    }
+    with _client(ctx, timeout=300.0) as client:
+        response = client.post("/v1/knowledge/ingest", json=payload)
+        _exit_for_error(response)
+        job_id = str(response.json()["job_id"])
+        typer.secho(f"job_id={job_id}", fg=typer.colors.GREEN)
+        if wait:
+            _stream_job(client, job_id)
+
+
+@kb_app.command("ls")
+def kb_ls(
+    ctx: typer.Context,
+    user_id: Annotated[str | None, typer.Option("--user-id", help="Filter by user id.")] = None,
+    tag: Annotated[str | None, typer.Option("--tag", help="Filter by tag.")] = None,
+) -> None:
+    """List indexed knowledge-base documents."""
+    params = {key: value for key, value in {"user_id": user_id, "tag": tag}.items() if value}
+    with _client(ctx) as client:
+        response = client.get("/v1/knowledge/documents", params=params)
+    _exit_for_error(response)
+    _print_json(response.json())
+
+
+@kb_app.command("rm")
+def kb_rm(ctx: typer.Context, doc_id: str) -> None:
+    """Remove a knowledge-base document and its chunks."""
+    with _client(ctx) as client:
+        response = client.delete(f"/v1/knowledge/documents/{doc_id}")
+    _exit_for_error(response)
+    _print_json(response.json())
+
+
+@memory_app.command("add")
+def memory_add(
+    ctx: typer.Context,
+    content: Annotated[str, typer.Argument(help="Memory content.")],
+    category: Annotated[str, typer.Option("--category", "-c", help="Memory category.")],
+    user_id: Annotated[str, typer.Option("--user-id", help="Owner user id.")] = "local",
+    expires_at: Annotated[
+        str | None,
+        typer.Option("--expires-at", help="Optional ISO 8601 expiration timestamp."),
+    ] = None,
+) -> None:
+    """Add a long-term memory record."""
+    payload = {
+        "user_id": user_id,
+        "category": category,
+        "content": content,
+        "expires_at": expires_at,
+    }
+    with _client(ctx) as client:
+        response = client.post("/v1/memory", json=payload)
+    _exit_for_error(response)
+    _print_json(response.json())
+
+
+@memory_app.command("ls")
+def memory_ls(
+    ctx: typer.Context,
+    user_id: Annotated[str, typer.Option("--user-id", help="Owner user id.")] = "local",
+    category: Annotated[str | None, typer.Option("--category", "-c")] = None,
+) -> None:
+    """List long-term memory records."""
+    params = {"user_id": user_id}
+    if category:
+        params["category"] = category
+    with _client(ctx) as client:
+        response = client.get("/v1/memory", params=params)
+    _exit_for_error(response)
+    _print_json(response.json())
+
+
+@memory_app.command("rm")
+def memory_rm(ctx: typer.Context, memory_id: str) -> None:
+    """Delete a long-term memory record."""
+    with _client(ctx) as client:
+        response = client.delete(f"/v1/memory/{memory_id}")
+    _exit_for_error(response)
+    _print_json(response.json())
+
+
+@memory_app.command("archive")
+def memory_archive(ctx: typer.Context, session: Annotated[str, typer.Option("--session")]) -> None:
+    """Archive a chat session into long-term memory."""
+    with _client(ctx) as client:
+        response = client.post("/v1/memory/archive", json={"session_id": session})
+    _exit_for_error(response)
+    _print_json(response.json())
 
 
 if __name__ == "__main__":

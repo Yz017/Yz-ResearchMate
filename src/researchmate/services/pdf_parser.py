@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import importlib
 import re
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from pathlib import Path
 
 from researchmate.services.documents import (
@@ -53,6 +53,9 @@ def parse_pdf_to_chunks(
     paper_id: str | None = None,
     title: str | None = None,
     oss_key: str = "",
+    user_id: str = "",
+    tags: Sequence[str] | None = None,
+    ingested_at: str = "",
     target_tokens: int = 768,
     max_tokens: int = 1024,
 ) -> list[KnowledgeChunk]:
@@ -80,6 +83,9 @@ def parse_pdf_to_chunks(
                     source_path=str(pdf_path),
                     oss_key=oss_key,
                     chunk_index=len(chunks),
+                    owner_user_id=user_id,
+                    tags=tuple(tags or ()),
+                    ingested_at=ingested_at,
                 )
             )
     return chunks

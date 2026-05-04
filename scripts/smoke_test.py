@@ -2,11 +2,15 @@ from __future__ import annotations
 
 import argparse
 import json
+import time
 from collections.abc import Iterator
+from pathlib import Path
+from typing import NoReturn
 
 import httpx
 
 from researchmate.config import get_settings
+from researchmate.services.oss_client import OssClient
 
 
 def _parse_steps(value: str) -> list[int]:
@@ -23,7 +27,7 @@ def _headers(token: str) -> dict[str, str]:
     return {"X-Internal-Token": token}
 
 
-def _fail(message: str) -> None:
+def _fail(message: str) -> NoReturn:
     raise RuntimeError(message)
 
 
@@ -113,10 +117,115 @@ def step_2_session_chat(client: httpx.Client, *, user_id: str) -> None:
     print("[step 2] session + chat ok")
 
 
+def _wait_for_job(
+    client: httpx.Client,
+    job_id: str,
+    *,
+    timeout_seconds: float = 180.0,
+) -> dict[str, object]:
+    deadline = time.monotonic() + timeout_seconds
+    last_payload: dict[str, object] | None = None
+    while time.monotonic() < deadline:
+        response = client.get(f"/v1/knowledge/jobs/{job_id}")
+        _check_response(response)
+        payload = response.json()
+        if isinstance(payload, dict):
+            last_payload = payload
+            if payload.get("state") in {"done", "failed", "cancelled", "interrupted"}:
+                return payload
+        time.sleep(1.0)
+    _fail(f"job {job_id} did not finish before timeout; last={last_payload}")
+
+
+def step_3_ingest_chat(
+    client: httpx.Client,
+    *,
+    user_id: str,
+    sample_pdf: Path,
+) -> None:
+    if not sample_pdf.exists():
+        _fail(f"sample PDF not found: {sample_pdf}")
+    oss_key = OssClient.from_settings().put_file(sample_pdf)
+    submit = client.post(
+        "/v1/knowledge/ingest",
+        json={
+            "oss_keys": [oss_key],
+            "owner_user_id": user_id,
+            "tags": ["smoke"],
+            "paper_id": "smoke_rag_basics",
+            "title": "Smoke RAG Basics",
+        },
+        timeout=30.0,
+    )
+    _check_response(submit)
+    job_id = str(submit.json()["job_id"])
+    job = _wait_for_job(client, job_id)
+    if job.get("state") != "done":
+        _fail(f"ingest job failed: {job.get('error')}")
+
+    create_response = client.post("/v1/sessions", json={"user_id": user_id})
+    _check_response(create_response)
+    session_id = str(create_response.json()["session_id"])
+    final_text = ""
+    citations = []
+    with client.stream(
+        "POST",
+        f"/v1/chat/{session_id}",
+        json={"message": "RAG basics 这份资料如何要求回答引用来源？"},
+        timeout=120.0,
+    ) as response:
+        _check_response(response)
+        for event, payload in _iter_sse(response):
+            if event == "error":
+                _fail(f"chat stream returned error event: {payload}")
+            if event == "final":
+                final_text = str(payload.get("full_text", ""))
+                raw_citations = payload.get("citations", [])
+                citations = raw_citations if isinstance(raw_citations, list) else []
+                break
+    if "smoke_rag_basics" not in final_text and not citations:
+        _fail(f"RAG answer did not include smoke citation: {final_text}")
+    print("[step 3] ingest + citation chat ok")
+
+
+def step_4_memory_chat(client: httpx.Client, *, user_id: str) -> None:
+    content = "我的研究方向是 M3 smoke 多模态对齐。"
+    created = client.post(
+        "/v1/memory",
+        json={
+            "user_id": user_id,
+            "category": "research_direction",
+            "content": content,
+        },
+    )
+    _check_response(created)
+
+    create_response = client.post("/v1/sessions", json={"user_id": user_id})
+    _check_response(create_response)
+    session_id = str(create_response.json()["session_id"])
+    final_text = ""
+    with client.stream(
+        "POST",
+        f"/v1/chat/{session_id}",
+        json={"message": "请根据长期记忆回答：我的研究方向是什么？"},
+        timeout=120.0,
+    ) as response:
+        _check_response(response)
+        for event, payload in _iter_sse(response):
+            if event == "error":
+                _fail(f"chat stream returned error event: {payload}")
+            if event == "final":
+                final_text = str(payload.get("full_text", ""))
+                break
+    if "多模态" not in final_text and "对齐" not in final_text:
+        _fail(f"memory answer did not reflect saved preference: {final_text}")
+    print("[step 4] memory + new-session chat ok")
+
+
 def build_parser() -> argparse.ArgumentParser:
     settings = get_settings()
     parser = argparse.ArgumentParser(description="ResearchMate milestone smoke tests.")
-    parser.add_argument("--steps", default="1,2", help="Comma-separated steps, e.g. 1,2.")
+    parser.add_argument("--steps", default="1,2", help="Comma-separated steps, e.g. 1,2,3,4.")
     parser.add_argument(
         "--base-url",
         default=f"http://{settings.research_agent_bind}",
@@ -129,13 +238,18 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--user-id", default="smoke", help="User id for session tests.")
     parser.add_argument("--deep", action="store_true", help="Include deep LLM health probe.")
+    parser.add_argument(
+        "--sample-pdf",
+        default="examples/pdfs/rag_basics.pdf",
+        help="Sample PDF used by step 3.",
+    )
     return parser
 
 
 def main() -> None:
     args = build_parser().parse_args()
     requested_steps = _parse_steps(str(args.steps))
-    unsupported = [step for step in requested_steps if step not in {1, 2}]
+    unsupported = [step for step in requested_steps if step not in {1, 2, 3, 4}]
     if unsupported:
         _fail(f"steps {unsupported} are not implemented until later milestones")
     with httpx.Client(
@@ -147,6 +261,14 @@ def main() -> None:
             step_1_health(client, deep=bool(args.deep))
         if 2 in requested_steps:
             step_2_session_chat(client, user_id=str(args.user_id))
+        if 3 in requested_steps:
+            step_3_ingest_chat(
+                client,
+                user_id=str(args.user_id),
+                sample_pdf=Path(str(args.sample_pdf)),
+            )
+        if 4 in requested_steps:
+            step_4_memory_chat(client, user_id=str(args.user_id))
 
 
 if __name__ == "__main__":

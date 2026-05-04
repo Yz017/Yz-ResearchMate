@@ -34,6 +34,9 @@ class KnowledgeChunk:
     oss_key: str
     chunk_index: int
     chunk_hash: str
+    owner_user_id: str = ""
+    tags: tuple[str, ...] = ()
+    ingested_at: str = ""
 
     @classmethod
     def create(
@@ -47,6 +50,9 @@ class KnowledgeChunk:
         source_path: str,
         oss_key: str = "",
         chunk_index: int,
+        owner_user_id: str = "",
+        tags: tuple[str, ...] = (),
+        ingested_at: str = "",
     ) -> KnowledgeChunk:
         normalized_text = normalize_text(text)
         chunk_hash = stable_text_hash("\n".join([paper_id, str(page), section, normalized_text]))
@@ -61,6 +67,9 @@ class KnowledgeChunk:
             oss_key=oss_key,
             chunk_index=chunk_index,
             chunk_hash=chunk_hash,
+            owner_user_id=owner_user_id,
+            tags=tags,
+            ingested_at=ingested_at,
         )
 
     @property
@@ -78,6 +87,9 @@ class KnowledgeChunk:
             "chunk_index": self.chunk_index,
             "chunk_hash": self.chunk_hash,
             "citation": self.citation,
+            "user_id": self.owner_user_id,
+            "tags": ",".join(self.tags),
+            "ingested_at": self.ingested_at,
         }
         if embedding_model:
             payload["embedding_model"] = embedding_model

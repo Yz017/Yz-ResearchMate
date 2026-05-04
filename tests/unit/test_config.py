@@ -18,6 +18,8 @@ def test_settings_parse_bind_and_token() -> None:
     assert settings.embedding_device == "auto"
     assert settings.embedding_backend == "auto"
     assert settings.kb_collection == "kb_chunks"
+    assert settings.memory_collection == "memory_records"
+    assert settings.jobs_db_path.as_posix().endswith("data/jobs.db")
     assert settings.rag_final_k == 5
 
 

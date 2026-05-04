@@ -1,6 +1,6 @@
 # ResearchMate
 
-ResearchMate 是一个本地优先的个人科研助手，基于 Google ADK 构建。当前已完成 M2：可以通过 FastAPI 暴露本地 HTTP/SSE 服务，并用 `rmcli` 完成探活、session 管理和对话。
+ResearchMate 是一个本地优先的个人科研助手，基于 Google ADK 构建。当前已完成 M3：可以通过 FastAPI 暴露本地 HTTP/SSE 服务，并用 `rmcli` 完成探活、session 管理、对话、知识库入库和长期记忆管理。
 
 ## Quick Start
 
@@ -68,10 +68,23 @@ ResearchMate 是一个本地优先的个人科研助手，基于 Google ADK 构�
    uv run rmcli chat "请简短说明 ResearchMate 当前能力。"
    ```
 
-   `rmcli` 默认读取 `.env` 中的 `RESEARCH_AGENT_BIND` 和 `RESEARCH_AGENT_TOKEN`，请求头使用 `X-Internal-Token`。需要完整 M2 冒烟验证时，在服务运行后执行：
+   `rmcli` 默认读取 `.env` 中的 `RESEARCH_AGENT_BIND` 和 `RESEARCH_AGENT_TOKEN`，请求头使用 `X-Internal-Token`。
+
+8. 通过 M3 服务 API 导入 PDF 并保存长期记忆：
 
    ```bash
-   uv run python scripts/smoke_test.py --steps 1,2
+   uv run rmcli ingest examples/pdfs/rag_basics.pdf --user-id local --tag sample
+   uv run rmcli kb ls --user-id local
+   uv run rmcli memory add --category research_direction "我的研究方向是多模态对齐。"
+   uv run rmcli memory ls
+   ```
+
+   没有配置阿里云 OSS 凭据时，`rmcli ingest` 会把文件写入 `OSS_LOCAL_DIR`，再通过同一套 OSS key 流程提交 `/v1/knowledge/ingest`。配置 `OSS_ACCESS_KEY_ID`、`OSS_ACCESS_KEY_SECRET`、`OSS_BUCKET`、`OSS_ENDPOINT` 后会自动切换到真实 OSS。
+
+   需要完整 M3 冒烟验证时，在服务运行后执行：
+
+   ```bash
+   uv run python scripts/smoke_test.py --steps 1,2,3,4
    ```
 
 ## Directory Layout
@@ -129,4 +142,17 @@ curl 示例在 `examples/curl/`：
 ```bash
 RESEARCH_AGENT_TOKEN="$(grep '^RESEARCH_AGENT_TOKEN=' .env | cut -d= -f2-)" \
   bash examples/curl/quickstart.sh
+```
+
+## M3 Memory And Knowledge Commands
+
+```bash
+uv run uvicorn researchmate.api:app --host 127.0.0.1 --port 8000 --workers 1
+uv run rmcli ingest examples/pdfs/rag_basics.pdf --user-id local --tag sample
+uv run rmcli kb ls --user-id local
+uv run rmcli memory add --category research_direction "我的研究方向是多模态对齐。"
+uv run rmcli memory add --category writing_style "写作偏好是先给结论，再给依据。"
+uv run rmcli memory ls --user-id local
+uv run rmcli chat --user-id local "请根据长期记忆说明我的研究方向。"
+uv run python scripts/smoke_test.py --steps 1,2,3,4
 ```
