@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from collections.abc import Iterator
 from dataclasses import dataclass
+from datetime import date
 from pathlib import Path
 from typing import Annotated
 
@@ -21,9 +22,13 @@ app = typer.Typer(
 session_app = typer.Typer(help="Manage ResearchMate chat sessions.")
 memory_app = typer.Typer(help="Manage long-term memory.")
 kb_app = typer.Typer(help="Manage knowledge-base documents.")
+task_app = typer.Typer(help="Run and monitor asynchronous ResearchMate tasks.")
+papers_app = typer.Typer(help="Manage paper metadata.")
 app.add_typer(session_app, name="session")
 app.add_typer(memory_app, name="memory")
 app.add_typer(kb_app, name="kb")
+app.add_typer(task_app, name="task")
+app.add_typer(papers_app, name="papers")
 
 
 @dataclass(slots=True)
@@ -198,12 +203,36 @@ def _render_job_event(event: str, payload: dict[str, object]) -> bool:
     return False
 
 
-def _stream_job(client: httpx.Client, job_id: str) -> None:
-    with client.stream("GET", f"/v1/knowledge/jobs/{job_id}/events", timeout=300.0) as response:
+def _stream_job(client: httpx.Client, job_id: str, *, events_path: str) -> None:
+    with client.stream("GET", events_path.format(job_id=job_id), timeout=300.0) as response:
         _exit_for_error(response)
         for event, payload in _iter_sse_lines(response):
             if _render_job_event(event, payload):
                 break
+
+
+def _parse_params_json(value: str | None) -> dict[str, object]:
+    if not value:
+        return {}
+    try:
+        payload = json.loads(value)
+    except json.JSONDecodeError as exc:
+        typer.secho(f"invalid JSON params: {exc}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(1) from exc
+    if not isinstance(payload, dict):
+        typer.secho("--params-json must decode to an object", fg=typer.colors.RED, err=True)
+        raise typer.Exit(1)
+    return {str(key): item for key, item in payload.items()}
+
+
+def _week_to_monday(value: str) -> str:
+    try:
+        year_raw, week_raw = value.upper().split("-W", maxsplit=1)
+        monday = date.fromisocalendar(int(year_raw), int(week_raw), 1)
+    except Exception as exc:
+        typer.secho("--week must look like 2026-W17", fg=typer.colors.RED, err=True)
+        raise typer.Exit(1) from exc
+    return monday.isoformat()
 
 
 @app.command()
@@ -380,7 +409,11 @@ def ingest(
         job_id = str(response.json()["job_id"])
         typer.secho(f"job_id={job_id}", fg=typer.colors.GREEN)
         if wait:
-            _stream_job(client, job_id)
+            _stream_job(
+                client,
+                job_id,
+                events_path="/v1/knowledge/jobs/{job_id}/events",
+            )
 
 
 @kb_app.command("ls")
@@ -460,6 +493,150 @@ def memory_archive(ctx: typer.Context, session: Annotated[str, typer.Option("--s
     """Archive a chat session into long-term memory."""
     with _client(ctx) as client:
         response = client.post("/v1/memory/archive", json={"session_id": session})
+    _exit_for_error(response)
+    _print_json(response.json())
+
+
+@task_app.command("run")
+def task_run(
+    ctx: typer.Context,
+    kind: Annotated[str, typer.Argument(help="Task kind, e.g. weekly-report.")],
+    params_json: Annotated[
+        str | None,
+        typer.Option("--params-json", help="Raw JSON object merged into task params."),
+    ] = None,
+    user_id: Annotated[str, typer.Option("--user-id", help="Owner user id.")] = "local",
+    week: Annotated[
+        str | None,
+        typer.Option("--week", help="ISO week for weekly-report, e.g. 2026-W17."),
+    ] = None,
+    week_start: Annotated[
+        str | None,
+        typer.Option("--week-start", help="Monday date for weekly-report, e.g. 2026-04-20."),
+    ] = None,
+    paper_count: Annotated[
+        int,
+        typer.Option("--paper-count", min=1, max=20, help="Number of papers for weekly-report."),
+    ] = 5,
+    focus_keyword: Annotated[
+        list[str] | None,
+        typer.Option("--focus-keyword", help="Focus keyword for weekly-report."),
+    ] = None,
+    include_external: Annotated[
+        bool,
+        typer.Option("--include-external/--local-only", help="Include arXiv/S2 candidates."),
+    ] = False,
+    wait: Annotated[bool, typer.Option("--wait/--no-wait", help="Stream task progress.")] = True,
+) -> None:
+    """Submit an asynchronous task."""
+    normalized_kind = kind.replace("-", "_")
+    params = _parse_params_json(params_json)
+    if normalized_kind == "weekly_report":
+        if week and week_start:
+            typer.secho(
+                "use either --week or --week-start, not both",
+                fg=typer.colors.RED,
+                err=True,
+            )
+            raise typer.Exit(1)
+        if week:
+            params["week_start"] = _week_to_monday(week)
+        elif week_start:
+            params["week_start"] = week_start
+        params.setdefault("paper_count", paper_count)
+        params.setdefault("focus_keywords", focus_keyword or [])
+        params.setdefault("include_external", include_external)
+    payload = {"kind": normalized_kind, "params": params, "user_id": user_id}
+    with _client(ctx, timeout=300.0) as client:
+        response = client.post("/v1/tasks/run", json=payload)
+        _exit_for_error(response)
+        task_id = str(response.json()["task_id"])
+        typer.secho(f"task_id={task_id}", fg=typer.colors.GREEN)
+        if wait:
+            _stream_job(client, task_id, events_path="/v1/tasks/{job_id}/events")
+
+
+@task_app.command("status")
+def task_status(
+    ctx: typer.Context,
+    task_id: str,
+    watch: Annotated[bool, typer.Option("--watch/--no-watch", help="Stream task events.")] = True,
+) -> None:
+    """Show task status, optionally as an SSE stream."""
+    with _client(ctx, timeout=300.0) as client:
+        if watch:
+            _stream_job(client, task_id, events_path="/v1/tasks/{job_id}/events")
+            return
+        response = client.get(f"/v1/tasks/{task_id}")
+    _exit_for_error(response)
+    _print_json(response.json())
+
+
+@task_app.command("cancel")
+def task_cancel(ctx: typer.Context, task_id: str) -> None:
+    """Cancel a running task."""
+    with _client(ctx) as client:
+        response = client.post(f"/v1/tasks/{task_id}/cancel")
+    _exit_for_error(response)
+    _print_json(response.json())
+
+
+@papers_app.command("ls")
+def papers_ls(
+    ctx: typer.Context,
+    user_id: Annotated[str | None, typer.Option("--user-id", help="Filter by user id.")] = None,
+    tag: Annotated[str | None, typer.Option("--tag", help="Filter by tag.")] = None,
+    year: Annotated[int | None, typer.Option("--year", help="Filter by publication year.")] = None,
+    q: Annotated[str | None, typer.Option("--q", help="Title/venue/author search.")] = None,
+) -> None:
+    """List paper metadata."""
+    params = {
+        key: value
+        for key, value in {"user_id": user_id, "tag": tag, "year": year, "q": q}.items()
+        if value is not None
+    }
+    with _client(ctx) as client:
+        response = client.get("/v1/papers", params=params)
+    _exit_for_error(response)
+    _print_json(response.json())
+
+
+@papers_app.command("show")
+def papers_show(ctx: typer.Context, paper_id: str) -> None:
+    """Show one paper metadata record."""
+    with _client(ctx) as client:
+        response = client.get(f"/v1/papers/{paper_id}")
+    _exit_for_error(response)
+    _print_json(response.json())
+
+
+@papers_app.command("update")
+def papers_update(
+    ctx: typer.Context,
+    paper_id: str,
+    tag: Annotated[
+        list[str] | None,
+        typer.Option("--tag", help="Replace paper tags. Can be passed more than once."),
+    ] = None,
+    read_at: Annotated[
+        str | None,
+        typer.Option("--read-at", help="ISO 8601 read timestamp/date."),
+    ] = None,
+    rating: Annotated[
+        float | None,
+        typer.Option("--rating", min=0.0, max=5.0, help="Reading rating from 0 to 5."),
+    ] = None,
+) -> None:
+    """Update paper tags, read timestamp, or rating."""
+    payload: dict[str, object] = {}
+    if tag is not None:
+        payload["tags"] = tag
+    if read_at is not None:
+        payload["read_at"] = read_at
+    if rating is not None:
+        payload["rating"] = rating
+    with _client(ctx) as client:
+        response = client.patch(f"/v1/papers/{paper_id}", json=payload)
     _exit_for_error(response)
     _print_json(response.json())
 

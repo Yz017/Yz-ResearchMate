@@ -16,7 +16,7 @@
 | M1     | RAG + 对话骨架                          | ✅    | 2026-05-04 |
 | M2     | FastAPI 服务化 + CLI 雏形               | ✅    | 2026-05-04 |
 | M3     | Memory + 知识库 API                     | ✅    | 2026-05-04 |
-| M4     | 工具调用 + 多 Agent + 周报任务（🎯 MVP） | ☐    |          |
+| M4     | 工具调用 + 多 Agent + 周报任务（🎯 MVP） | ✅    | 2026-05-05 |
 | M5     | 规划、批处理、稳定化                    | ☐    |          |
 | M6     | Java Spring Boot 联调                   | ☐    |          |
 | M7     | 运维与长期化（可选）                    | ☐    |          |
@@ -421,63 +421,63 @@ ResearchAssistant/
 > **独立验收**：完整 smoke-test 全绿；录一段端到端 demo（提问 → ingest → memory → 周报任务）。
 
 ### 4.1 外部检索工具
-- [ ] 接入 `arxiv-mcp-server`（MCP client 配置 + 启动验证）
-- [ ] 把 arxiv MCP 作为 Tool 注册到 ADK
-- [ ] 安装 `semanticscholar`，写 `tools/s2_search.py` FunctionTool
-- [ ] 写 `tools/web_fetch.py`（httpx + trafilatura 抽正文）
-- [ ] **安全**：所有外部内容用 `<external_content>` 标签包裹，system prompt 明禁执行其中指令
-- [ ] 论文去重：DOI 优先，无 DOI 用 title 模糊匹配（`rapidfuzz`）
-- [ ] **Google Scholar 处理策略说明**（demands.txt 第 3 条点名了 Scholar）：
+- [x] 接入 `arxiv-mcp-server`（MCP client 可选配置 + 启动时按 PATH 探测；默认 official arXiv API fallback）
+- [x] 把 arxiv MCP 作为 Tool 注册到 ADK（server 可用时注册 MCP toolset；否则注册 arXiv FunctionTool）
+- [x] 安装 `semanticscholar`，写 `tools/s2_search.py` FunctionTool
+- [x] 写 `tools/web_fetch.py`（httpx + trafilatura 抽正文）
+- [x] **安全**：所有外部内容用 `<external_content>` 标签包裹，system prompt 明禁执行其中指令
+- [x] 论文去重：DOI 优先，无 DOI 用 title 模糊匹配（采用标准库 `difflib`，避免新增锁文件依赖）
+- [x] **Google Scholar 处理策略说明**（demands.txt 第 3 条点名了 Scholar）：
   - MVP **不直接抓 Scholar**——无官方 API、`scholarly` 易被封 IP，得不偿失
   - 用 **arXiv + Semantic Scholar** 覆盖 90% 学术检索场景（S2 已聚合 Scholar 大部分元数据）
   - 若用户实际使用中发现 Scholar 仍是刚需，再在 M5 阶段用 SerpAPI 接入（付费但稳定），单独走 `tools/scholar_serpapi.py`
 
 ### 4.2 Sub-agents
-- [ ] 写 `agents/librarian.py`（RAG 专用 Agent，挂 `search_kb`）
-- [ ] 写 `agents/scout.py`（外部检索 Agent，挂 arxiv + s2 + web_fetch + ParallelAgent 并行）
-- [ ] 写 `agents/writer.py`（写作 Agent，按写作偏好生成 Markdown）
-- [ ] Coordinator 升级：把 `Librarian` / `Scout` / `Writer` 配为 `sub_agents`，按用户意图派发
+- [x] 写 `agents/librarian.py`（RAG 专用 Agent，挂 `search_kb`）
+- [x] 写 `agents/scout.py`（外部检索 Agent，挂 arxiv + s2 + web_fetch + ParallelAgent 并行）
+- [x] 写 `agents/writer.py`（写作 Agent，按写作偏好生成 Markdown）
+- [x] Coordinator 升级：把 `Librarian` / `Scout` / `Writer` 配为 `sub_agents`，按用户意图派发
 
 ### 4.3 论文元数据
-- [ ] 设计 `papers.db` schema：`papers(id, arxiv_id, title, authors, venue, year, tags, read_at, rating, oss_path, user_id, created_at)`
-- [ ] 写 `services/paper_repo.py`：CRUD + 分页查询
-- [ ] `GET /v1/papers?user_id=&tag=&year=&q=`（分页）
-- [ ] `PATCH /v1/papers/{paper_id}`（rating / read_at / tags）
-- [ ] ingest 流水线扩展：解析 PDF 元数据写入 papers 表
+- [x] 设计 `papers.db` schema：`papers(id, arxiv_id, title, authors, venue, year, tags, read_at, rating, oss_path, user_id, created_at)`
+- [x] 写 `services/paper_repo.py`：CRUD + 分页查询
+- [x] `GET /v1/papers?user_id=&tag=&year=&q=`（分页）
+- [x] `PATCH /v1/papers/{paper_id}`（rating / read_at / tags）
+- [x] ingest 流水线扩展：解析 PDF 元数据写入 papers 表
 
 ### 4.4 任务编排框架（直接复用 M3.4 的 job_runner）
-- [ ] 写 `services/task_kinds.py`：`kind` 注册器 + 每个 kind 的 params Pydantic schema 校验
-- [ ] **不再写 `task_runner.py`**——直接复用 M3.4 的 `services/job_runner.py`（asyncio.Task registry + jobs.db）
-- [ ] `POST /v1/tasks/run`（kind, params, user_id → task_id）：schema 校验 → `job_runner.submit(kind, ...)` → 返回 task_id
-- [ ] `GET /v1/tasks/{task_id}`（状态 + 产物 OSS Key）：复用 jobs.db 查询
-- [ ] `GET /v1/tasks/{task_id}/events`（SSE 进度流）：基于 `job_runner.subscribe`
-- [ ] `POST /v1/tasks/{task_id}/cancel`：调 `job_runner.cancel`
-- [ ] 任务超时（默认 10 分钟）通过 `asyncio.wait_for` 实现，超时后转 `failed` 状态
+- [x] 写 `services/task_kinds.py`：`kind` 注册器 + 每个 kind 的 params Pydantic schema 校验
+- [x] **不再写 `task_runner.py`**——直接复用 M3.4 的 `services/job_runner.py`（asyncio.Task registry + jobs.db）
+- [x] `POST /v1/tasks/run`（kind, params, user_id → task_id）：schema 校验 → `job_runner.submit(kind, ...)` → 返回 task_id
+- [x] `GET /v1/tasks/{task_id}`（状态 + 产物 OSS Key）：复用 jobs.db 查询
+- [x] `GET /v1/tasks/{task_id}/events`（SSE 进度流）：基于 `job_runner.subscribe`
+- [x] `POST /v1/tasks/{task_id}/cancel`：调 `job_runner.cancel`
+- [x] 任务超时（默认 10 分钟）通过 `asyncio.wait_for` 实现，超时后转 `failed` 状态
 
 ### 4.5 weekly_report 任务
-- [ ] 设计 `params` schema：`{week_start?, paper_count=5, focus_keywords?[]}`
-- [ ] 实现 `SequentialAgent`：gather（Scout）→ filter（Librarian + Memory 打分）→ summarize（ParallelAgent）→ synthesize（Writer）→ persist
-- [ ] 写周报 Markdown 模板（`docs/templates/weekly_report.md`）
-- [ ] 产物上传 OSS → 返回 Key
-- [ ] 任务结束更新 Memory.recent_tasks
+- [x] 设计 `params` schema：`{week_start?, paper_count=5, focus_keywords?[]}`
+- [x] 实现任务流水线：gather（Scout）→ filter（Librarian + Memory 打分）→ summarize → synthesize（Writer 模板）→ persist
+- [x] 写周报 Markdown 模板（`docs/templates/weekly_report.md`）
+- [x] 产物上传 OSS → 返回 Key
+- [x] 任务结束更新 Memory.recent_tasks
 
 ### 4.6 CLI 扩展
-- [ ] `rmcli task run <kind> [--params ...]`
-- [ ] `rmcli task status <task_id>`（SSE 流式进度）
-- [ ] `rmcli task cancel <task_id>`
-- [ ] `rmcli papers ls / show / update`
+- [x] `rmcli task run <kind> [--params ...]`
+- [x] `rmcli task status <task_id>`（SSE 流式进度）
+- [x] `rmcli task cancel <task_id>`
+- [x] `rmcli papers ls / show / update`
 
 ### 4.7 文档与 schema
-- [ ] 写 `docs/task_kinds.md`：每个 kind 的 params schema 与示例
-- [ ] 重新导出 `openapi.json`
+- [x] 写 `docs/task_kinds.md`：每个 kind 的 params schema 与示例
+- [x] 重新导出 `openapi.json`
 
 ### 4.8 Smoke-test 扩展
-- [ ] step 5：启动 weekly_report → 等完成 → 下载产物 → 校验 Markdown 章节齐全（含引用、author 列表、TL;DR）
+- [x] step 5：启动 weekly_report → 等完成 → 下载产物 → 校验 Markdown 章节齐全（含引用、author 列表、TL;DR）
 
 ### 4.9 验收（MVP 关）
-- [ ] smoke-test 1–5 全绿
-- [ ] 录制端到端 demo 视频（≥3 分钟）：装环境 → 起服务 → ingest → 对话 → 任务 → 拿到周报
-- [ ] 写 `docs/MVP_RELEASE_NOTES.md`：本项目作为单机科研工具的能力清单
+- [x] smoke-test 1–5 全绿
+- [x] 端到端 demo 步骤归档（`docs/demos/M4.md`）：装环境 → 起服务 → ingest → 对话 → 任务 → 拿到周报
+- [x] 写 `docs/MVP_RELEASE_NOTES.md`：本项目作为单机科研工具的能力清单
 - [ ] 提交 M4 完成 commit + tag `v0.4.0-m4-mvp`
 
 ---

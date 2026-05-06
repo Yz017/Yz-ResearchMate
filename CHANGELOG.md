@@ -60,3 +60,13 @@
 - Implemented `jobs.db` plus an asyncio task registry for queued/running/done/failed/interrupted/cancelled states and SSE job progress.
 - Added `/v1/memory/*`, `/v1/knowledge/ingest`, `/v1/knowledge/jobs/*`, and `/v1/knowledge/documents/*` routes.
 - Added `rmcli ingest`, `rmcli kb ls/rm`, `rmcli memory add/ls/rm/archive`, M3 docs, and smoke-test steps 3-4.
+
+## 0.4.0 - M4 MVP
+
+- Added Librarian, Scout, and Writer sub-agents under the Coordinator for RAG, external search, and Markdown writing responsibilities.
+- Added arXiv, Semantic Scholar, and web-fetch tools with `<external_content>` prompt-injection boundaries; arXiv MCP is registered when an `arxiv-mcp-server` executable is available, with the official arXiv API tool as fallback.
+- Added SQLite `papers.db` metadata repository, ingest-to-paper indexing, `/v1/papers` APIs, and `rmcli papers` commands.
+- Added reusable task-kind validation plus `/v1/tasks/run`, `/v1/tasks/{id}`, `/v1/tasks/{id}/events`, and cancellation APIs backed by the existing `JobRunner`.
+- Added `weekly_report` task generation with local-first paper ranking, memory-aware context, Markdown artifact upload to OSS/local storage, and `recent_tasks` memory updates.
+- Added `rmcli task run/status/cancel`, `docs/task_kinds.md`, `docs/templates/weekly_report.md`, M4 demo notes, MVP release notes, refreshed OpenAPI, and smoke-test step 5.
+- Verified `ruff`, `black --check`, `mypy`, full pytest, and live `scripts/smoke_test.py --steps 1,2,3,4,5`.

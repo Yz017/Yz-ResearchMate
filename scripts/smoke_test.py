@@ -121,12 +121,13 @@ def _wait_for_job(
     client: httpx.Client,
     job_id: str,
     *,
+    status_path: str = "/v1/knowledge/jobs/{job_id}",
     timeout_seconds: float = 180.0,
 ) -> dict[str, object]:
     deadline = time.monotonic() + timeout_seconds
     last_payload: dict[str, object] | None = None
     while time.monotonic() < deadline:
-        response = client.get(f"/v1/knowledge/jobs/{job_id}")
+        response = client.get(status_path.format(job_id=job_id))
         _check_response(response)
         payload = response.json()
         if isinstance(payload, dict):
@@ -222,10 +223,80 @@ def step_4_memory_chat(client: httpx.Client, *, user_id: str) -> None:
     print("[step 4] memory + new-session chat ok")
 
 
+def step_5_weekly_report(
+    client: httpx.Client,
+    *,
+    user_id: str,
+    sample_pdf: Path,
+) -> None:
+    if not sample_pdf.exists():
+        _fail(f"sample PDF not found: {sample_pdf}")
+    oss_client = OssClient.from_settings()
+    oss_key = oss_client.put_file(sample_pdf)
+    submit = client.post(
+        "/v1/knowledge/ingest",
+        json={
+            "oss_keys": [oss_key],
+            "owner_user_id": user_id,
+            "tags": ["smoke", "weekly"],
+            "paper_id": "smoke_weekly_rag_basics",
+            "title": "Smoke Weekly RAG Basics",
+        },
+        timeout=30.0,
+    )
+    _check_response(submit)
+    ingest_job_id = str(submit.json()["job_id"])
+    ingest_job = _wait_for_job(client, ingest_job_id)
+    if ingest_job.get("state") != "done":
+        _fail(f"weekly setup ingest failed: {ingest_job.get('error')}")
+
+    task = client.post(
+        "/v1/tasks/run",
+        json={
+            "kind": "weekly-report",
+            "user_id": user_id,
+            "params": {
+                "week_start": "2026-04-20",
+                "paper_count": 1,
+                "focus_keywords": ["RAG"],
+                "include_external": False,
+            },
+        },
+        timeout=30.0,
+    )
+    _check_response(task)
+    task_id = str(task.json()["task_id"])
+    task_job = _wait_for_job(
+        client,
+        task_id,
+        status_path="/v1/tasks/{job_id}",
+        timeout_seconds=180.0,
+    )
+    if task_job.get("state") != "done":
+        _fail(f"weekly_report task failed: {task_job.get('error')}")
+    result = task_job.get("result")
+    if not isinstance(result, dict):
+        _fail(f"weekly_report result missing: {task_job}")
+    artifact_key = result.get("artifact_oss_key")
+    if not isinstance(artifact_key, str) or not artifact_key:
+        _fail(f"weekly_report artifact key missing: {result}")
+    settings = get_settings()
+    local_report = oss_client.get_file(
+        artifact_key,
+        settings.oss_cache_dir / "smoke" / f"{task_id}.md",
+    )
+    markdown = local_report.read_text(encoding="utf-8")
+    required = ["## TL;DR", "## Candidate Papers", "## Citations", "Authors:", "[source:"]
+    missing = [item for item in required if item not in markdown]
+    if missing:
+        _fail(f"weekly report missing sections/content {missing}: {artifact_key}")
+    print(f"[step 5] weekly_report ok artifact={artifact_key}")
+
+
 def build_parser() -> argparse.ArgumentParser:
     settings = get_settings()
     parser = argparse.ArgumentParser(description="ResearchMate milestone smoke tests.")
-    parser.add_argument("--steps", default="1,2", help="Comma-separated steps, e.g. 1,2,3,4.")
+    parser.add_argument("--steps", default="1,2", help="Comma-separated steps, e.g. 1,2,3,4,5.")
     parser.add_argument(
         "--base-url",
         default=f"http://{settings.research_agent_bind}",
@@ -249,7 +320,7 @@ def build_parser() -> argparse.ArgumentParser:
 def main() -> None:
     args = build_parser().parse_args()
     requested_steps = _parse_steps(str(args.steps))
-    unsupported = [step for step in requested_steps if step not in {1, 2, 3, 4}]
+    unsupported = [step for step in requested_steps if step not in {1, 2, 3, 4, 5}]
     if unsupported:
         _fail(f"steps {unsupported} are not implemented until later milestones")
     with httpx.Client(
@@ -269,6 +340,12 @@ def main() -> None:
             )
         if 4 in requested_steps:
             step_4_memory_chat(client, user_id=str(args.user_id))
+        if 5 in requested_steps:
+            step_5_weekly_report(
+                client,
+                user_id=str(args.user_id),
+                sample_pdf=Path(str(args.sample_pdf)),
+            )
 
 
 if __name__ == "__main__":

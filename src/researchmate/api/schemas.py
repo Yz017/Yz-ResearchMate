@@ -165,3 +165,45 @@ class KnowledgeDocumentListResponse(BaseModel):
 class KnowledgeDocumentDeleteResponse(BaseModel):
     doc_id: str
     deleted_chunks: int
+
+
+class TaskRunRequest(BaseModel):
+    kind: str = Field(min_length=1)
+    params: dict[str, Any] = Field(default_factory=dict)
+    user_id: str = Field(min_length=1)
+
+
+class TaskSubmitResponse(BaseModel):
+    task_id: str
+
+
+class TaskKindsResponse(BaseModel):
+    items: dict[str, Any]
+
+
+class PaperResponse(BaseModel):
+    id: str
+    arxiv_id: str = ""
+    doi: str = ""
+    title: str
+    authors: list[str] = Field(default_factory=list)
+    venue: str = ""
+    year: int | None = None
+    tags: list[str] = Field(default_factory=list)
+    read_at: datetime | None = None
+    rating: float | None = None
+    oss_path: str = ""
+    user_id: str
+    created_at: datetime
+    updated_at: datetime | None = None
+
+
+class PaperListResponse(BaseModel):
+    items: list[PaperResponse]
+    count: int
+
+
+class PaperUpdateRequest(BaseModel):
+    tags: list[str] | None = None
+    read_at: datetime | None = None
+    rating: float | None = Field(default=None, ge=0.0, le=5.0)

@@ -52,10 +52,16 @@ from researchmate.api.schemas import (
     MemoryListResponse,
     MemoryResponse,
     MemoryUpdateRequest,
+    PaperListResponse,
+    PaperResponse,
+    PaperUpdateRequest,
     ReadyzResponse,
     SessionCreateRequest,
     SessionDeleteResponse,
     SessionResponse,
+    TaskKindsResponse,
+    TaskRunRequest,
+    TaskSubmitResponse,
     VersionResponse,
 )
 from researchmate.config import Settings, get_settings
@@ -63,6 +69,13 @@ from researchmate.services.job_runner import JobContext, JobRecord, JobRunner
 from researchmate.services.knowledge_base import IngestedDocument, KnowledgeBaseService
 from researchmate.services.memory_service import MemoryRecord, ResearchMemoryService
 from researchmate.services.oss_client import OssClient
+from researchmate.services.paper_repo import PaperRecord, PaperRepository
+from researchmate.services.task_kinds import (
+    normalize_task_kind,
+    register_task_handlers,
+    task_kind_schema_payload,
+    validate_task_params,
+)
 
 APP_NAME = "researchmate"
 _CHAT_TIMEOUT_SECONDS = 120.0
@@ -105,6 +118,7 @@ def _ensure_runtime_dirs(settings: Settings) -> None:
     settings.oss_local_dir.mkdir(parents=True, exist_ok=True)
     settings.oss_cache_dir.mkdir(parents=True, exist_ok=True)
     settings.jobs_db_path.parent.mkdir(parents=True, exist_ok=True)
+    settings.papers_db_path.parent.mkdir(parents=True, exist_ok=True)
     Path("logs").mkdir(parents=True, exist_ok=True)
 
 
@@ -264,6 +278,7 @@ async def _readyz_payload(settings: Settings) -> ReadyzResponse:
         ),
         "cache": _check_writable_dir(settings.oss_cache_dir),
         "jobs_db": _check_writable_dir(settings.jobs_db_path.parent),
+        "papers_db": _check_writable_dir(settings.papers_db_path.parent),
         "session_db": await _check_session_db(settings),
     }
     status_text = "ok" if all(item.ok for item in dependencies.values()) else "degraded"
@@ -404,6 +419,26 @@ def _document_response(document: IngestedDocument) -> KnowledgeDocumentResponse:
         chunks=document.chunks,
         pages=document.pages,
         ingested_at=_parse_iso_datetime(document.ingested_at),
+    )
+
+
+def _paper_response(record: PaperRecord) -> PaperResponse:
+    created_at = _parse_iso_datetime(record.created_at) or datetime.fromtimestamp(0, UTC)
+    return PaperResponse(
+        id=record.id,
+        arxiv_id=record.arxiv_id,
+        doi=record.doi,
+        title=record.title,
+        authors=record.authors or [],
+        venue=record.venue,
+        year=record.year,
+        tags=record.tags or [],
+        read_at=_parse_iso_datetime(record.read_at),
+        rating=record.rating,
+        oss_path=record.oss_path,
+        user_id=record.user_id,
+        created_at=created_at,
+        updated_at=_parse_iso_datetime(record.updated_at),
     )
 
 
@@ -606,6 +641,7 @@ def _build_ingest_handler(
 
         oss_client = OssClient.from_settings(settings)
         kb_service = KnowledgeBaseService.from_settings(settings)
+        paper_repo = PaperRepository.from_settings(settings)
         documents: list[dict[str, object]] = []
         total = len(oss_keys)
         for index, oss_key in enumerate(oss_keys, start=1):
@@ -624,6 +660,7 @@ def _build_ingest_handler(
                 user_id=owner_user_id,
                 tags=tags,
             )
+            paper_repo.upsert_ingested_document(document)
             documents.append(document.to_payload())
             await context.progress(index / total * 95.0, f"ingested {document.doc_id}")
 
@@ -685,6 +722,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     job_runner.register_handler(
         "ingest",
         _build_ingest_handler(settings=settings, memory_service=runtime.memory_service),
+    )
+    register_task_handlers(
+        job_runner,
+        settings=settings,
+        memory_service=runtime.memory_service,
     )
 
     @asynccontextmanager
@@ -975,6 +1017,101 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         if deleted == 0:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Document not found")
         return KnowledgeDocumentDeleteResponse(doc_id=doc_id, deleted_chunks=deleted)
+
+    @app.get("/v1/papers", response_model=PaperListResponse)
+    async def list_papers(
+        user_id: str | None = None,
+        tag: str | None = None,
+        year: int | None = None,
+        q: str | None = None,
+        limit: int = 100,
+        offset: int = 0,
+    ) -> PaperListResponse:
+        repo = PaperRepository.from_settings(settings)
+        records = repo.list_papers(
+            user_id=user_id,
+            tag=tag,
+            year=year,
+            q=q,
+            limit=limit,
+            offset=offset,
+        )
+        items = [_paper_response(record) for record in records]
+        return PaperListResponse(items=items, count=len(items))
+
+    @app.get("/v1/papers/{paper_id}", response_model=PaperResponse)
+    async def get_paper(paper_id: str) -> PaperResponse:
+        repo = PaperRepository.from_settings(settings)
+        record = repo.get_paper(paper_id)
+        if record is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Paper not found")
+        return _paper_response(record)
+
+    @app.patch("/v1/papers/{paper_id}", response_model=PaperResponse)
+    async def update_paper(paper_id: str, req: PaperUpdateRequest) -> PaperResponse:
+        repo = PaperRepository.from_settings(settings)
+        try:
+            record = repo.update_paper(
+                paper_id,
+                tags=req.tags,
+                read_at=req.read_at.isoformat() if req.read_at else None,
+                rating=req.rating,
+            )
+        except KeyError as exc:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+        return _paper_response(record)
+
+    @app.get("/v1/tasks/kinds", response_model=TaskKindsResponse)
+    async def list_task_kinds() -> TaskKindsResponse:
+        return TaskKindsResponse(items=task_kind_schema_payload())
+
+    @app.post("/v1/tasks/run", response_model=TaskSubmitResponse)
+    async def run_task(req: TaskRunRequest) -> TaskSubmitResponse:
+        normalized_kind = normalize_task_kind(req.kind)
+        try:
+            params = validate_task_params(normalized_kind, req.params)
+        except ValueError as exc:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=str(exc),
+            ) from exc
+        task_id = await job_runner.submit(normalized_kind, params=params, user_id=req.user_id)
+        return TaskSubmitResponse(task_id=task_id)
+
+    @app.get("/v1/tasks/{task_id}", response_model=JobResponse)
+    async def get_task(task_id: str) -> JobResponse:
+        record = await job_runner.get_job(task_id)
+        if record is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
+        return _job_response(record)
+
+    @app.post("/v1/tasks/{task_id}/cancel", response_model=JobResponse)
+    async def cancel_task(task_id: str) -> JobResponse:
+        cancelled = await job_runner.cancel(task_id)
+        if not cancelled:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Task not found or already finished",
+            )
+        record = await job_runner.get_job(task_id)
+        if record is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
+        return _job_response(record)
+
+    @app.get("/v1/tasks/{task_id}/events")
+    async def stream_task(task_id: str) -> StreamingResponse:
+        if await job_runner.get_job(task_id) is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
+
+        async def event_stream() -> AsyncIterator[str]:
+            async for event in job_runner.subscribe(task_id):
+                yield _sse(event.event, event.data)
+
+        return StreamingResponse(
+            event_stream(),
+            media_type="text/event-stream",
+            headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+        )
 
     @app.post("/v1/chat/{session_id}")
     async def chat(session_id: str, req: ChatRequest) -> StreamingResponse:

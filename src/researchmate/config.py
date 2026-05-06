@@ -61,6 +61,7 @@ class Settings(BaseSettings):
     kb_collection: str = Field(default="kb_chunks", alias="KB_COLLECTION")
     memory_collection: str = Field(default="memory_records", alias="MEMORY_COLLECTION")
     jobs_db_path: Path = Field(default=Path("./data/jobs.db"), alias="JOBS_DB_PATH")
+    papers_db_path: Path = Field(default=Path("./data/papers.db"), alias="PAPERS_DB_PATH")
     memory_idle_archive_seconds: int = Field(
         default=1800,
         alias="MEMORY_IDLE_ARCHIVE_SECONDS",

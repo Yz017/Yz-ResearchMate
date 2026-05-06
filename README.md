@@ -1,6 +1,6 @@
 # ResearchMate
 
-ResearchMate 是一个本地优先的个人科研助手，基于 Google ADK 构建。当前已完成 M3：可以通过 FastAPI 暴露本地 HTTP/SSE 服务，并用 `rmcli` 完成探活、session 管理、对话、知识库入库和长期记忆管理。
+ResearchMate 是一个本地优先的个人科研助手，基于 Google ADK 构建。当前已完成 M4 MVP：可以通过 FastAPI 暴露本地 HTTP/SSE 服务，并用 `rmcli` 完成探活、session 管理、对话、知识库入库、长期记忆、论文元数据和周报任务管理。
 
 ## Quick Start
 
@@ -70,21 +70,22 @@ ResearchMate 是一个本地优先的个人科研助手，基于 Google ADK 构�
 
    `rmcli` 默认读取 `.env` 中的 `RESEARCH_AGENT_BIND` 和 `RESEARCH_AGENT_TOKEN`，请求头使用 `X-Internal-Token`。
 
-8. 通过 M3 服务 API 导入 PDF 并保存长期记忆：
+8. 通过服务 API 导入 PDF、保存长期记忆并生成周报：
 
    ```bash
    uv run rmcli ingest examples/pdfs/rag_basics.pdf --user-id local --tag sample
    uv run rmcli kb ls --user-id local
    uv run rmcli memory add --category research_direction "我的研究方向是多模态对齐。"
    uv run rmcli memory ls
+   uv run rmcli task run weekly-report --week 2026-W17 --paper-count 5
    ```
 
    没有配置阿里云 OSS 凭据时，`rmcli ingest` 会把文件写入 `OSS_LOCAL_DIR`，再通过同一套 OSS key 流程提交 `/v1/knowledge/ingest`。配置 `OSS_ACCESS_KEY_ID`、`OSS_ACCESS_KEY_SECRET`、`OSS_BUCKET`、`OSS_ENDPOINT` 后会自动切换到真实 OSS。
 
-   需要完整 M3 冒烟验证时，在服务运行后执行：
+   需要完整 M4 冒烟验证时，在服务运行后执行：
 
    ```bash
-   uv run python scripts/smoke_test.py --steps 1,2,3,4
+   uv run python scripts/smoke_test.py --steps 1,2,3,4,5
    ```
 
 ## Directory Layout
@@ -156,3 +157,17 @@ uv run rmcli memory ls --user-id local
 uv run rmcli chat --user-id local "请根据长期记忆说明我的研究方向。"
 uv run python scripts/smoke_test.py --steps 1,2,3,4
 ```
+
+## M4 MVP Task Commands
+
+```bash
+uv run uvicorn researchmate.api:app --host 127.0.0.1 --port 8000 --workers 1
+uv run rmcli ingest examples/pdfs/rag_basics.pdf --user-id local --tag weekly
+uv run rmcli papers ls --user-id local
+uv run rmcli papers update rag_basics --rating 4.5 --tag weekly --tag read
+uv run rmcli task run weekly-report --week 2026-W17 --paper-count 5 --focus-keyword RAG
+uv run rmcli task status <task_id> --no-watch
+uv run python scripts/smoke_test.py --steps 1,2,3,4,5
+```
+
+`weekly_report` 默认只使用本地知识库和 `papers.db`，因此可以离线验收；需要外部候选论文时加 `--include-external`，会调用 arXiv 和 Semantic Scholar。Google Scholar 在 M4 不直接抓取，详见 `docs/task_kinds.md`。

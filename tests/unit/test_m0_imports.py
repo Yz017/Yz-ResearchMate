@@ -8,7 +8,7 @@ from researchmate.cli.main import app as cli_app
 
 
 def test_package_version() -> None:
-    assert __version__ == "0.3.0"
+    assert __version__ == "0.4.0"
 
 
 def test_agent_exports_root_agent() -> None:
