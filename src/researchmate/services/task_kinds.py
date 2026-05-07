@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import asyncio
+import json
+import math
 import re
 from dataclasses import dataclass
 from datetime import UTC, date, datetime, timedelta
@@ -20,7 +22,9 @@ from researchmate.tools.arxiv_search import search_arxiv
 from researchmate.tools.s2_search import search_semantic_scholar
 
 _TITLE_WORD_RE = re.compile(r"[^a-z0-9]+")
+_TOKEN_RE = re.compile(r"[A-Za-z0-9]+|[\u4e00-\u9fff]+")
 _MAX_WEEKLY_PAPERS = 20
+_MAX_FILTER_PAPERS = 200
 
 
 class WeeklyReportParams(BaseModel):
@@ -34,6 +38,14 @@ class WeeklyReportParams(BaseModel):
         default=False,
         description="When true, gather extra candidates from arXiv and Semantic Scholar.",
     )
+    timeout_seconds: float = Field(default=600.0, ge=10.0, le=3600.0)
+
+
+class FilterPapersParams(BaseModel):
+    query: str = Field(min_length=1)
+    candidate_paper_ids: list[str] = Field(default_factory=list)
+    top_n: int = Field(default=50, ge=1, le=_MAX_FILTER_PAPERS)
+    max_iter: int = Field(default=3, ge=1, le=10)
     timeout_seconds: float = Field(default=600.0, ge=10.0, le=3600.0)
 
 
@@ -61,6 +73,8 @@ class _Candidate:
     summary: str
     score: float = 0.0
     local: bool = False
+    read_at: str | None = None
+    rating: float | None = None
 
 
 _TASK_KINDS: dict[str, TaskKind] = {
@@ -71,7 +85,14 @@ _TASK_KINDS: dict[str, TaskKind] = {
             "and optional external search."
         ),
         params_schema=WeeklyReportParams,
-    )
+    ),
+    "filter_papers": TaskKind(
+        kind="filter_papers",
+        description=(
+            "Rank and prune a paper candidate set into the most relevant " "reading shortlist."
+        ),
+        params_schema=FilterPapersParams,
+    ),
 }
 
 
@@ -103,6 +124,10 @@ def register_task_handlers(
         "weekly_report",
         _build_weekly_report_handler(settings=settings, memory_service=memory_service),
     )
+    runner.register_handler(
+        "filter_papers",
+        _build_filter_papers_handler(settings=settings, memory_service=memory_service),
+    )
 
 
 def _build_weekly_report_handler(
@@ -123,6 +148,336 @@ def _build_weekly_report_handler(
         )
 
     return handle_weekly_report
+
+
+def _build_filter_papers_handler(
+    *,
+    settings: Settings,
+    memory_service: ResearchMemoryService,
+) -> JobHandler:
+    async def handle_filter_papers(context: JobContext) -> dict[str, Any]:
+        params = FilterPapersParams.model_validate(context.params)
+        return await asyncio.wait_for(
+            _run_filter_papers(
+                context=context,
+                params=params,
+                settings=settings,
+                memory_service=memory_service,
+            ),
+            timeout=params.timeout_seconds,
+        )
+
+    return handle_filter_papers
+
+
+async def _run_filter_papers(
+    *,
+    context: JobContext,
+    params: FilterPapersParams,
+    settings: Settings,
+    memory_service: ResearchMemoryService,
+) -> dict[str, Any]:
+    repo = PaperRepository.from_settings(settings)
+    await context.progress(5.0, "filter_papers: loading candidate papers")
+    candidates = await asyncio.to_thread(
+        _load_filter_candidates,
+        repo,
+        context.user_id,
+        params.candidate_paper_ids,
+    )
+    memories = memory_service.list_records(user_id=context.user_id, limit=20)
+    memory_text = " ".join(record.content for record in memories if record.content)
+    if not candidates:
+        empty_payload = {
+            "query": params.query,
+            "effective_query": params.query,
+            "top_n": params.top_n,
+            "max_iter": params.max_iter,
+            "iterations": [],
+            "selected_papers": [],
+            "paper_count": 0,
+        }
+        return await _persist_filter_artifacts_and_summarize(
+            settings=settings,
+            memory_service=memory_service,
+            context=context,
+            payload=empty_payload,
+            rationale_markdown=_render_filter_rationale(
+                user_id=context.user_id,
+                query=params.query,
+                effective_query=params.query,
+                memories=memories,
+                iterations=[],
+                candidates=[],
+            ),
+        )
+
+    query = params.query.strip()
+    iterations: list[dict[str, Any]] = []
+    scored: list[_Candidate] = []
+    current_candidates = candidates
+    for iteration in range(1, params.max_iter + 1):
+        await context.progress(
+            min(15.0 + (iteration - 1) * 20.0, 70.0),
+            f"filter_papers: score_batch iteration {iteration}",
+        )
+        scored = _score_filter_candidates(
+            current_candidates,
+            query=query,
+            memory_text=memory_text,
+        )
+        keep_count = min(
+            len(scored),
+            max(params.top_n, math.ceil(len(scored) / 2)),
+        )
+        selected = scored[:keep_count]
+        dropped = len(scored) - len(selected)
+        iterations.append(
+            {
+                "iteration": iteration,
+                "query": query,
+                "candidate_count": len(scored),
+                "kept_count": len(selected),
+                "dropped_count": dropped,
+                "top_ids": [candidate.paper_id for candidate in selected[:10]],
+            }
+        )
+        if len(scored) <= params.top_n or iteration == params.max_iter:
+            scored = selected
+            break
+        query = _refine_filter_query(query, selected)
+        current_candidates = selected
+
+    selected = scored[: params.top_n]
+    await context.progress(80.0, "filter_papers: rendering rationale")
+    selected_payload = [
+        {
+            "id": candidate.paper_id,
+            "title": candidate.title,
+            "authors": candidate.authors,
+            "venue": candidate.venue,
+            "year": candidate.year,
+            "tags": candidate.tags,
+            "source": candidate.source,
+            "citation": candidate.citation,
+            "score": round(candidate.score, 4),
+            "rationale": candidate.summary,
+        }
+        for candidate in selected
+    ]
+    payload = {
+        "query": params.query,
+        "effective_query": query,
+        "top_n": params.top_n,
+        "max_iter": params.max_iter,
+        "iterations": iterations,
+        "selected_papers": selected_payload,
+        "paper_count": len(selected_payload),
+    }
+    rationale_markdown = _render_filter_rationale(
+        user_id=context.user_id,
+        query=params.query,
+        effective_query=query,
+        memories=memories,
+        iterations=iterations,
+        candidates=selected,
+    )
+    return await _persist_filter_artifacts_and_summarize(
+        settings=settings,
+        memory_service=memory_service,
+        context=context,
+        payload=payload,
+        rationale_markdown=rationale_markdown,
+    )
+
+
+def _load_filter_candidates(
+    repo: PaperRepository,
+    user_id: str,
+    candidate_paper_ids: list[str],
+) -> list[_Candidate]:
+    if candidate_paper_ids:
+        records = [repo.get_paper(paper_id) for paper_id in candidate_paper_ids]
+        return [_candidate_from_record(record) for record in records if record is not None]
+
+    papers = repo.list_papers(user_id=user_id, limit=500)
+    history = [paper for paper in papers if paper.read_at]
+    source = history or papers
+    return [_candidate_from_record(record) for record in source]
+
+
+def _tokenize_text(text: str) -> list[str]:
+    return [token for token in _TOKEN_RE.findall(text.lower()) if token.strip()]
+
+
+def _score_filter_candidates(
+    candidates: list[_Candidate],
+    *,
+    query: str,
+    memory_text: str,
+) -> list[_Candidate]:
+    query_tokens = set(_tokenize_text(query))
+    memory_tokens = set(_tokenize_text(memory_text))
+    scored: list[_Candidate] = []
+    for candidate in candidates:
+        title_tokens = set(_tokenize_text(candidate.title))
+        venue_tokens = set(_tokenize_text(candidate.venue))
+        tag_tokens = set(_tokenize_text(" ".join(candidate.tags)))
+        author_tokens = set(_tokenize_text(" ".join(candidate.authors)))
+        overlap_title = len(query_tokens & title_tokens)
+        overlap_venue = len(query_tokens & venue_tokens)
+        overlap_tags = len(query_tokens & tag_tokens)
+        overlap_authors = len(query_tokens & author_tokens)
+        memory_overlap = len(memory_tokens & (title_tokens | tag_tokens))
+        score = 1.0
+        if candidate.local:
+            score += 1.5
+        score += overlap_title * 2.25
+        score += overlap_tags * 1.5
+        score += overlap_venue * 0.4
+        score += overlap_authors * 0.1
+        score += memory_overlap * 0.2
+        if candidate.year:
+            score += max(0.0, min(candidate.year - 2019, 6)) * 0.05
+        if candidate.rating is not None:
+            score += min(max(candidate.rating, 0.0), 5.0) * 0.1
+        if candidate.read_at:
+            score += 0.25
+        rationale_bits = [
+            f"title overlap={overlap_title}",
+            f"tags overlap={overlap_tags}",
+            f"memory overlap={memory_overlap}",
+        ]
+        if candidate.rating is not None:
+            rationale_bits.append(f"rating={candidate.rating:.1f}")
+        if candidate.read_at:
+            rationale_bits.append("read")
+        scored.append(
+            _Candidate(
+                source=candidate.source,
+                paper_id=candidate.paper_id,
+                title=candidate.title,
+                authors=candidate.authors,
+                venue=candidate.venue,
+                year=candidate.year,
+                tags=candidate.tags,
+                doi=candidate.doi,
+                arxiv_id=candidate.arxiv_id,
+                url=candidate.url,
+                pdf_url=candidate.pdf_url,
+                citation=candidate.citation,
+                summary="; ".join(rationale_bits),
+                score=score,
+                local=candidate.local,
+            )
+        )
+    scored.sort(key=lambda item: (item.score, item.year or 0, item.title), reverse=True)
+    return scored
+
+
+def _refine_filter_query(query: str, candidates: list[_Candidate]) -> str:
+    existing = set(_tokenize_text(query))
+    additions: list[str] = []
+    for candidate in candidates:
+        for token in _tokenize_text(" ".join([candidate.title, candidate.venue, *candidate.tags])):
+            if len(token) < 3 or token in existing or token in additions:
+                continue
+            additions.append(token)
+            if len(additions) >= 4:
+                break
+        if len(additions) >= 4:
+            break
+    if not additions:
+        return query
+    return f"{query} {' '.join(additions[:4])}".strip()
+
+
+def _render_filter_rationale(
+    *,
+    user_id: str,
+    query: str,
+    effective_query: str,
+    memories: list[MemoryRecord],
+    iterations: list[dict[str, Any]],
+    candidates: list[_Candidate],
+) -> str:
+    memory_lines = [
+        f"- {record.category}: {record.content}" for record in memories[:5] if record.content
+    ]
+    iteration_lines = [
+        f"- Iteration {item['iteration']}: query=`{item['query']}` "
+        f"kept {item['kept_count']} of {item['candidate_count']} "
+        f"(dropped {item['dropped_count']})"
+        for item in iterations
+    ]
+    paper_lines = []
+    for index, candidate in enumerate(candidates, start=1):
+        authors = ", ".join(candidate.authors) if candidate.authors else "Unknown"
+        year = f", {candidate.year}" if candidate.year else ""
+        venue = f", {candidate.venue}" if candidate.venue else ""
+        paper_lines.append(
+            f"{index}. **{candidate.title}** ({candidate.source}{year}{venue})\n"
+            f"   - Authors: {authors}\n"
+            f"   - Score: {candidate.score:.3f}\n"
+            f"   - Rationale: {candidate.summary or 'ranked by lexical overlap'}\n"
+            f"   - Citation: {candidate.citation}"
+        )
+    memory_block = "\n".join(memory_lines) if memory_lines else "- No matching long-term memory."
+    iteration_block = "\n".join(iteration_lines) if iteration_lines else "- Single-pass ranking."
+    paper_block = "\n\n".join(paper_lines) if paper_lines else "- No candidate papers selected."
+    return "\n\n".join(
+        [
+            "# Filter Papers Result",
+            f"User: `{user_id}`\n\nQuery: `{query}`\n\nEffective query: `{effective_query}`",
+            f"## Memory Context\n\n{memory_block}",
+            f"## Iterations\n\n{iteration_block}",
+            f"## Selected Papers\n\n{paper_block}",
+        ]
+    )
+
+
+async def _persist_filter_artifacts_and_summarize(
+    *,
+    settings: Settings,
+    memory_service: ResearchMemoryService,
+    context: JobContext,
+    payload: dict[str, Any],
+    rationale_markdown: str,
+) -> dict[str, Any]:
+    await context.progress(90.0, "filter_papers: uploading artifacts")
+    safe_user = re.sub(r"[^A-Za-z0-9_.-]+", "_", context.user_id).strip("._-") or "local"
+    job_dir = settings.oss_cache_dir / "generated" / context.job_id
+    job_dir.mkdir(parents=True, exist_ok=True)
+    json_path = job_dir / "filter_papers.json"
+    md_path = job_dir / "filter_papers.md"
+    json_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    md_path.write_text(rationale_markdown, encoding="utf-8")
+    oss_client = OssClient.from_settings(settings)
+    json_key = oss_client.put_file(
+        json_path,
+        key=f"artifacts/filter_papers/{safe_user}/{context.job_id}.json",
+    )
+    md_key = oss_client.put_file(
+        md_path,
+        key=f"artifacts/filter_papers/{safe_user}/{context.job_id}.md",
+    )
+    memory_service.add_record(
+        user_id=context.user_id,
+        category="recent_tasks",
+        content=(
+            f"Filter papers job {context.job_id} completed for query {payload['query']!r} "
+            f"with {payload['paper_count']} paper(s). Markdown: {md_key}"
+        ),
+        source="job",
+    )
+    return {
+        **payload,
+        "artifact_json_oss_key": json_key,
+        "artifact_markdown_oss_key": md_key,
+        "artifact_url": oss_client.sign_url(md_key),
+        "artifact_json_url": oss_client.sign_url(json_key),
+        "report_preview": rationale_markdown[:1200],
+    }
 
 
 async def _run_weekly_report(
@@ -259,6 +614,8 @@ def _candidate_from_record(record: PaperRecord) -> _Candidate:
         citation=f"[source: {record.id}, p.?]",
         summary="",
         local=True,
+        read_at=record.read_at,
+        rating=record.rating,
     )
 
 
@@ -299,6 +656,8 @@ def _candidate_from_external(source: str, result: dict[str, Any]) -> _Candidate:
         pdf_url=str(result.get("pdf_url") or ""),
         citation=f"[external: {source}:{paper_id}]",
         summary=str(result.get("external_content") or ""),
+        read_at=None,
+        rating=None,
     )
 
 
@@ -370,6 +729,8 @@ def _rank_candidates(
                 summary=candidate.summary,
                 score=score,
                 local=candidate.local,
+                read_at=candidate.read_at,
+                rating=candidate.rating,
             )
         )
     scored.sort(key=lambda item: (item.score, item.year or 0, item.title), reverse=True)

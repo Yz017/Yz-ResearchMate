@@ -1,0 +1,262 @@
+[
+  {
+    "name": "capabilities_overview",
+    "data": [
+      {
+        "query": "ResearchMate 可以做什么？",
+        "reference": "ResearchMate 是本地优先的个人科研助手，支持本地 RAG、长期记忆、外部学术检索、规划批处理任务和周报生成。"
+      }
+    ],
+    "initial_session": {
+      "app_name": "researchmate",
+      "user_id": "eval"
+    }
+  },
+  {
+    "name": "ingest_pdf_flow",
+    "data": [
+      {
+        "query": "如何导入 PDF 到知识库？",
+        "reference": "先把 PDF 上传到 OSS 或本地缓存，再通过 rmcli ingest 或 /v1/knowledge/ingest 入库。"
+      }
+    ],
+    "initial_session": {
+      "app_name": "researchmate",
+      "user_id": "eval"
+    }
+  },
+  {
+    "name": "rag_citation_policy",
+    "data": [
+      {
+        "query": "回答论文问题时需要注意什么？",
+        "reference": "必须先检索知识库，只能基于证据回答，并使用 [source: paper_id, p.N] 形式引用。"
+      }
+    ],
+    "initial_session": {
+      "app_name": "researchmate",
+      "user_id": "eval"
+    }
+  },
+  {
+    "name": "memory_lookup",
+    "data": [
+      {
+        "query": "如何查看我的长期记忆？",
+        "reference": "可以调用 load_memory 工具，或通过 /v1/memory 查询研究方向、偏好和近期任务。"
+      }
+    ],
+    "initial_session": {
+      "app_name": "researchmate",
+      "user_id": "eval"
+    }
+  },
+  {
+    "name": "save_preference",
+    "data": [
+      {
+        "query": "请记住我偏好先给结论，再给依据。",
+        "reference": "我会把这个写入 writing_style 长期记忆，后续写作会优先使用先结论后依据的风格。"
+      }
+    ],
+    "initial_session": {
+      "app_name": "researchmate",
+      "user_id": "eval"
+    }
+  },
+  {
+    "name": "scholar_policy",
+    "data": [
+      {
+        "query": "你会直接抓 Google Scholar 吗？",
+        "reference": "MVP 阶段不直接抓取 Google Scholar，优先使用 arXiv 和 Semantic Scholar。"
+      }
+    ],
+    "initial_session": {
+      "app_name": "researchmate",
+      "user_id": "eval"
+    }
+  },
+  {
+    "name": "external_search",
+    "data": [
+      {
+        "query": "帮我找几篇 RAG 相关论文。",
+        "reference": "可以交给 Scout 调用 arXiv、Semantic Scholar 和网页抓取工具，整理候选论文列表。"
+      }
+    ],
+    "initial_session": {
+      "app_name": "researchmate",
+      "user_id": "eval"
+    }
+  },
+  {
+    "name": "weekly_report_task",
+    "data": [
+      {
+        "query": "帮我整理这周的 5 篇论文并生成周报。",
+        "reference": "可以通过 /v1/tasks/run 或 rmcli task run weekly-report 启动异步周报任务。"
+      }
+    ],
+    "initial_session": {
+      "app_name": "researchmate",
+      "user_id": "eval"
+    }
+  },
+  {
+    "name": "filter_papers_task",
+    "data": [
+      {
+        "query": "从历史论文里筛出最相关的 50 篇。",
+        "reference": "可以通过 filter_papers 任务执行 score_batch、prune 和 refine_query 的迭代筛选。"
+      }
+    ],
+    "initial_session": {
+      "app_name": "researchmate",
+      "user_id": "eval"
+    }
+  },
+  {
+    "name": "backup_script",
+    "data": [
+      {
+        "query": "如何备份 data 目录？",
+        "reference": "运行 scripts/backup.py 即可将 ./data/ 打包并上传到 OSS 或本地对象存储。"
+      }
+    ],
+    "initial_session": {
+      "app_name": "researchmate",
+      "user_id": "eval"
+    }
+  },
+  {
+    "name": "livez_endpoint",
+    "data": [
+      {
+        "query": "哪个接口只检查进程是否活着？",
+        "reference": "使用 /v1/livez，它不依赖外部资源。"
+      }
+    ],
+    "initial_session": {
+      "app_name": "researchmate",
+      "user_id": "eval"
+    }
+  },
+  {
+    "name": "readyz_endpoint",
+    "data": [
+      {
+        "query": "哪个接口检查本地依赖是否就绪？",
+        "reference": "使用 /v1/readyz，它会检查配置、Chroma、SQLite 和缓存目录。"
+      }
+    ],
+    "initial_session": {
+      "app_name": "researchmate",
+      "user_id": "eval"
+    }
+  },
+  {
+    "name": "version_endpoint",
+    "data": [
+      {
+        "query": "怎么查看当前服务版本？",
+        "reference": "调用 /v1/version 可以看到版本、git sha、ADK 版本、模型和运行模式。"
+      }
+    ],
+    "initial_session": {
+      "app_name": "researchmate",
+      "user_id": "eval"
+    }
+  },
+  {
+    "name": "session_archive",
+    "data": [
+      {
+        "query": "删除 session 后会发生什么？",
+        "reference": "会话删除会触发 Memory Curator，将该会话中的可归档信息写入长期记忆。"
+      }
+    ],
+    "initial_session": {
+      "app_name": "researchmate",
+      "user_id": "eval"
+    }
+  },
+  {
+    "name": "knowledge_ingest_job",
+    "data": [
+      {
+        "query": "知识库导入是同步还是异步？",
+        "reference": "知识库导入是异步任务，POST /v1/knowledge/ingest 会返回 job_id。"
+      }
+    ],
+    "initial_session": {
+      "app_name": "researchmate",
+      "user_id": "eval"
+    }
+  },
+  {
+    "name": "papers_query",
+    "data": [
+      {
+        "query": "如何查询论文元数据？",
+        "reference": "使用 /v1/papers 可以按 user_id、tag、year 和 q 进行查询。"
+      }
+    ],
+    "initial_session": {
+      "app_name": "researchmate",
+      "user_id": "eval"
+    }
+  },
+  {
+    "name": "paper_update",
+    "data": [
+      {
+        "query": "如何更新论文的标签和评分？",
+        "reference": "使用 PATCH /v1/papers/{paper_id} 修改 tags、read_at 和 rating。"
+      }
+    ],
+    "initial_session": {
+      "app_name": "researchmate",
+      "user_id": "eval"
+    }
+  },
+  {
+    "name": "task_cancel",
+    "data": [
+      {
+        "query": "怎么取消正在运行的任务？",
+        "reference": "使用 POST /v1/tasks/{task_id}/cancel 即可取消任务。"
+      }
+    ],
+    "initial_session": {
+      "app_name": "researchmate",
+      "user_id": "eval"
+    }
+  },
+  {
+    "name": "planner_format",
+    "data": [
+      {
+        "query": "规划模式的输出格式是什么？",
+        "reference": "PlanReActPlanner 会使用 /*PLANNING*/、/*REASONING*/、/*ACTION*/ 和 /*FINAL_ANSWER*/ 标记。"
+      }
+    ],
+    "initial_session": {
+      "app_name": "researchmate",
+      "user_id": "eval"
+    }
+  },
+  {
+    "name": "memory_update",
+    "data": [
+      {
+        "query": "如何更新一条长期记忆？",
+        "reference": "使用 PATCH /v1/memory/{memory_id} 可以更新内容、分类或过期时间。"
+      }
+    ],
+    "initial_session": {
+      "app_name": "researchmate",
+      "user_id": "eval"
+    }
+  }
+]

@@ -3,7 +3,7 @@
   "info": {
     "title": "ResearchMate",
     "description": "Local-first AI research assistant service.",
-    "version": "0.4.0"
+    "version": "0.5.0"
   },
   "paths": {
     "/health": {

@@ -1,5 +1,6 @@
 .env
 .agents/
+.adk/
 .claude/
 .codex/
 .venv/

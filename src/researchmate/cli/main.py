@@ -14,9 +14,31 @@ from researchmate import __version__
 from researchmate.config import get_settings
 from researchmate.services.oss_client import OssClient
 
+_CLI_EPILOG = """
+Examples:
+  rmcli livez
+  rmcli health --deep
+  rmcli session create --user-id local
+  rmcli chat --user-id local "请简短说明 ResearchMate 当前能力。"
+  rmcli ingest examples/pdfs/rag_basics.pdf --user-id local --tag sample
+  rmcli kb ls --user-id local
+  rmcli kb job <job_id>
+  rmcli kb events <job_id>
+  rmcli memory add --category writing_style "先给结论，再给依据。"
+  rmcli memory update <memory_id> --content "..."
+  rmcli papers ls --user-id local
+  rmcli papers update <paper_id> --rating 4.5 --tag read
+  rmcli task kinds
+  rmcli task run weekly-report --week 2026-W17 --paper-count 5
+  rmcli task run filter-papers --query "RAG agent shortlist" --top-n 50
+  rmcli task status <task_id>
+  rmcli task cancel <task_id>
+""".strip()
+
 app = typer.Typer(
     name="rmcli",
     help="ResearchMate command line client.",
+    epilog=_CLI_EPILOG,
     no_args_is_help=True,
 )
 session_app = typer.Typer(help="Manage ResearchMate chat sessions.")
@@ -115,6 +137,12 @@ def _exit_for_error(response: httpx.Response) -> None:
     typer.secho(
         f"HTTP {response.status_code}: {message}" + (f" (trace_id={trace_id})" if trace_id else ""),
         fg=typer.colors.RED,
+        err=True,
+    )
+    typer.secho(
+        "Troubleshooting: verify --base-url, RESEARCH_AGENT_TOKEN, /v1/readyz, "
+        "and service logs for the trace_id.",
+        fg=typer.colors.YELLOW,
         err=True,
     )
     raise typer.Exit(1)
@@ -261,6 +289,24 @@ def config() -> None:
 def hello() -> None:
     """Run a local CLI sanity check."""
     typer.echo("ResearchMate CLI is ready.")
+
+
+@app.command()
+def livez(ctx: typer.Context) -> None:
+    """Check whether the service process is alive."""
+    with _client(ctx) as client:
+        response = client.get("/v1/livez")
+    _exit_for_error(response)
+    _print_json(response.json())
+
+
+@app.command()
+def version(ctx: typer.Context) -> None:
+    """Show the running service version and runtime metadata."""
+    with _client(ctx) as client:
+        response = client.get("/v1/version")
+    _exit_for_error(response)
+    _print_json(response.json())
 
 
 @app.command()
@@ -439,6 +485,31 @@ def kb_rm(ctx: typer.Context, doc_id: str) -> None:
     _print_json(response.json())
 
 
+@kb_app.command("job")
+def kb_job(ctx: typer.Context, job_id: str) -> None:
+    """Inspect a knowledge ingest job."""
+    with _client(ctx) as client:
+        response = client.get(f"/v1/knowledge/jobs/{job_id}")
+    _exit_for_error(response)
+    _print_json(response.json())
+
+
+@kb_app.command("cancel")
+def kb_cancel(ctx: typer.Context, job_id: str) -> None:
+    """Cancel a knowledge ingest job."""
+    with _client(ctx) as client:
+        response = client.post(f"/v1/knowledge/jobs/{job_id}/cancel")
+    _exit_for_error(response)
+    _print_json(response.json())
+
+
+@kb_app.command("events")
+def kb_events(ctx: typer.Context, job_id: str) -> None:
+    """Stream knowledge ingest job events."""
+    with _client(ctx, timeout=300.0) as client:
+        _stream_job(client, job_id, events_path="/v1/knowledge/jobs/{job_id}/events")
+
+
 @memory_app.command("add")
 def memory_add(
     ctx: typer.Context,
@@ -488,6 +559,35 @@ def memory_rm(ctx: typer.Context, memory_id: str) -> None:
     _print_json(response.json())
 
 
+@memory_app.command("update")
+def memory_update(
+    ctx: typer.Context,
+    memory_id: str,
+    content: Annotated[
+        str | None, typer.Option("--content", help="Updated memory content.")
+    ] = None,
+    category: Annotated[
+        str | None, typer.Option("--category", "-c", help="Updated category.")
+    ] = None,
+    expires_at: Annotated[
+        str | None,
+        typer.Option("--expires-at", help="Optional ISO 8601 expiration timestamp."),
+    ] = None,
+) -> None:
+    """Update a long-term memory record."""
+    payload: dict[str, object] = {}
+    if content is not None:
+        payload["content"] = content
+    if category is not None:
+        payload["category"] = category
+    if expires_at is not None:
+        payload["expires_at"] = expires_at
+    with _client(ctx) as client:
+        response = client.patch(f"/v1/memory/{memory_id}", json=payload)
+    _exit_for_error(response)
+    _print_json(response.json())
+
+
 @memory_app.command("archive")
 def memory_archive(ctx: typer.Context, session: Annotated[str, typer.Option("--session")]) -> None:
     """Archive a chat session into long-term memory."""
@@ -522,6 +622,25 @@ def task_run(
         list[str] | None,
         typer.Option("--focus-keyword", help="Focus keyword for weekly-report."),
     ] = None,
+    query: Annotated[
+        str | None,
+        typer.Option("--query", help="Query for filter-papers."),
+    ] = None,
+    candidate_paper_id: Annotated[
+        list[str] | None,
+        typer.Option(
+            "--candidate-paper-id",
+            help="Candidate paper id for filter-papers. Can be passed multiple times.",
+        ),
+    ] = None,
+    top_n: Annotated[
+        int,
+        typer.Option("--top-n", min=1, max=200, help="How many papers to keep."),
+    ] = 50,
+    max_iter: Annotated[
+        int,
+        typer.Option("--max-iter", min=1, max=10, help="How many prune/refine rounds to run."),
+    ] = 3,
     include_external: Annotated[
         bool,
         typer.Option("--include-external/--local-only", help="Include arXiv/S2 candidates."),
@@ -546,6 +665,15 @@ def task_run(
         params.setdefault("paper_count", paper_count)
         params.setdefault("focus_keywords", focus_keyword or [])
         params.setdefault("include_external", include_external)
+    elif normalized_kind == "filter_papers":
+        resolved_query = query or str(params.get("query", "")).strip()
+        if not resolved_query:
+            typer.secho("--query is required for filter-papers", fg=typer.colors.RED, err=True)
+            raise typer.Exit(1)
+        params.setdefault("query", resolved_query)
+        params.setdefault("candidate_paper_ids", candidate_paper_id or [])
+        params.setdefault("top_n", top_n)
+        params.setdefault("max_iter", max_iter)
     payload = {"kind": normalized_kind, "params": params, "user_id": user_id}
     with _client(ctx, timeout=300.0) as client:
         response = client.post("/v1/tasks/run", json=payload)
@@ -554,6 +682,15 @@ def task_run(
         typer.secho(f"task_id={task_id}", fg=typer.colors.GREEN)
         if wait:
             _stream_job(client, task_id, events_path="/v1/tasks/{job_id}/events")
+
+
+@task_app.command("kinds")
+def task_kinds(ctx: typer.Context) -> None:
+    """List supported task kinds and their parameter schemas."""
+    with _client(ctx) as client:
+        response = client.get("/v1/tasks/kinds")
+    _exit_for_error(response)
+    _print_json(response.json())
 
 
 @task_app.command("status")

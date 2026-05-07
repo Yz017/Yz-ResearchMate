@@ -11,6 +11,7 @@ import httpx
 
 from researchmate.config import get_settings
 from researchmate.services.oss_client import OssClient
+from researchmate.services.paper_repo import PaperRepository
 
 
 def _parse_steps(value: str) -> list[int]:
@@ -293,10 +294,92 @@ def step_5_weekly_report(
     print(f"[step 5] weekly_report ok artifact={artifact_key}")
 
 
+def step_6_filter_papers(client: httpx.Client, *, user_id: str) -> None:
+    repo = PaperRepository.from_settings()
+    paper_ids = [
+        repo.upsert_paper(
+            paper_id="smoke_filter_1",
+            title="Retrieval Augmented Generation for Research Assistants",
+            authors=["Alice"],
+            user_id=user_id,
+            tags=["rag", "agent"],
+            year=2025,
+            read_at="2026-04-21T00:00:00+00:00",
+            rating=4.5,
+        ).id,
+        repo.upsert_paper(
+            paper_id="smoke_filter_2",
+            title="Memory-Aware Planning for Paper Ranking",
+            authors=["Bob"],
+            user_id=user_id,
+            tags=["memory", "planning"],
+            year=2024,
+            read_at="2026-04-22T00:00:00+00:00",
+            rating=4.2,
+        ).id,
+        repo.upsert_paper(
+            paper_id="smoke_filter_3",
+            title="A Survey of Vision Transformers",
+            authors=["Carol"],
+            user_id=user_id,
+            tags=["vision"],
+            year=2023,
+            read_at="2026-04-23T00:00:00+00:00",
+            rating=3.8,
+        ).id,
+    ]
+
+    submit = client.post(
+        "/v1/tasks/run",
+        json={
+            "kind": "filter-papers",
+            "user_id": user_id,
+            "params": {
+                "query": "RAG agent shortlist",
+                "candidate_paper_ids": paper_ids,
+                "top_n": 2,
+                "max_iter": 2,
+            },
+        },
+        timeout=30.0,
+    )
+    _check_response(submit)
+    task_id = str(submit.json()["task_id"])
+    task_job = _wait_for_job(
+        client,
+        task_id,
+        status_path="/v1/tasks/{job_id}",
+        timeout_seconds=180.0,
+    )
+    if task_job.get("state") != "done":
+        _fail(f"filter_papers task failed: {task_job.get('error')}")
+    result = task_job.get("result")
+    if not isinstance(result, dict):
+        _fail(f"filter_papers result missing: {task_job}")
+    selected = result.get("selected_papers")
+    if not isinstance(selected, list) or len(selected) != 2:
+        _fail(f"filter_papers did not return two papers: {result}")
+    artifact_md = result.get("artifact_markdown_oss_key")
+    if not isinstance(artifact_md, str) or not artifact_md:
+        _fail(f"filter_papers markdown artifact missing: {result}")
+    local_report = OssClient.from_settings().get_file(
+        artifact_md,
+        get_settings().oss_cache_dir / "smoke" / f"{task_id}.filter.md",
+    )
+    markdown = local_report.read_text(encoding="utf-8")
+    if "## Selected Papers" not in markdown:
+        _fail(f"filter_papers markdown missing expected section: {artifact_md}")
+    print(f"[step 6] filter_papers ok artifact={artifact_md}")
+
+
 def build_parser() -> argparse.ArgumentParser:
     settings = get_settings()
     parser = argparse.ArgumentParser(description="ResearchMate milestone smoke tests.")
-    parser.add_argument("--steps", default="1,2", help="Comma-separated steps, e.g. 1,2,3,4,5.")
+    parser.add_argument(
+        "--steps",
+        default="1,2",
+        help="Comma-separated steps, e.g. 1,2,3,4,5,6.",
+    )
     parser.add_argument(
         "--base-url",
         default=f"http://{settings.research_agent_bind}",
@@ -320,7 +403,7 @@ def build_parser() -> argparse.ArgumentParser:
 def main() -> None:
     args = build_parser().parse_args()
     requested_steps = _parse_steps(str(args.steps))
-    unsupported = [step for step in requested_steps if step not in {1, 2, 3, 4, 5}]
+    unsupported = [step for step in requested_steps if step not in {1, 2, 3, 4, 5, 6}]
     if unsupported:
         _fail(f"steps {unsupported} are not implemented until later milestones")
     with httpx.Client(
@@ -346,6 +429,8 @@ def main() -> None:
                 user_id=str(args.user_id),
                 sample_pdf=Path(str(args.sample_pdf)),
             )
+        if 6 in requested_steps:
+            step_6_filter_papers(client, user_id=str(args.user_id))
 
 
 if __name__ == "__main__":

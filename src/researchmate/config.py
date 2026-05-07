@@ -28,6 +28,10 @@ class Settings(BaseSettings):
         default="deepseek/deepseek-chat",
         alias="RESEARCHMATE_LLM_MODEL",
     )
+    researchmate_llm_fallback_models: str = Field(
+        default="qwen/qwen-max,openai/gpt-4.1-mini",
+        alias="RESEARCHMATE_LLM_FALLBACK_MODELS",
+    )
 
     oss_access_key_id: str | None = Field(default=None, alias="OSS_ACCESS_KEY_ID")
     oss_access_key_secret: SecretStr | None = Field(
@@ -81,6 +85,17 @@ class Settings(BaseSettings):
     rag_dense_k: int = Field(default=20, alias="RAG_DENSE_K", ge=1, le=200)
     rag_sparse_k: int = Field(default=20, alias="RAG_SPARSE_K", ge=1, le=200)
     rag_final_k: int = Field(default=5, alias="RAG_FINAL_K", ge=1, le=50)
+    llm_token_soft_limit: int = Field(
+        default=200_000,
+        alias="LLM_TOKEN_SOFT_LIMIT",
+        ge=1_000,
+    )
+    llm_context_keep_recent: int = Field(
+        default=12,
+        alias="LLM_CONTEXT_KEEP_RECENT",
+        ge=1,
+        le=50,
+    )
 
     @field_validator("research_agent_bind")
     @classmethod
@@ -151,6 +166,18 @@ class Settings(BaseSettings):
         if self.oss_access_key_secret is None:
             return False
         return bool(self.oss_access_key_secret.get_secret_value().strip())
+
+    @property
+    def llm_fallback_models(self) -> list[str]:
+        seen: set[str] = set()
+        models: list[str] = []
+        for model in self.researchmate_llm_fallback_models.split(","):
+            clean = model.strip()
+            if not clean or clean in seen:
+                continue
+            seen.add(clean)
+            models.append(clean)
+        return models
 
 
 @lru_cache(maxsize=1)

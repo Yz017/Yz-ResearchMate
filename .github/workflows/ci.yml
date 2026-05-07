@@ -23,3 +23,5 @@ jobs:
         run: uv run mypy
       - name: Pytest
         run: uv run pytest tests/
+      - name: ADK eval
+        run: make eval

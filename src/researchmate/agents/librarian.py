@@ -1,8 +1,13 @@
 from __future__ import annotations
 
 from google.adk.agents import LlmAgent
-from google.adk.models.lite_llm import LiteLlm
 
+from researchmate.agents.llm_policy import (
+    after_model_callback,
+    before_model_callback,
+    build_agent_llm,
+    on_model_error_callback,
+)
 from researchmate.config import get_settings
 from researchmate.tools.search_kb import search_knowledge_base_tool
 
@@ -22,7 +27,10 @@ def build_librarian_agent() -> LlmAgent:
     return LlmAgent(
         name="librarian",
         description="Local RAG specialist for citation-grounded literature and note QA.",
-        model=LiteLlm(model=settings.researchmate_llm_model),
+        model=build_agent_llm(settings),
         instruction=_INSTRUCTION,
+        before_model_callback=before_model_callback,
+        after_model_callback=after_model_callback,
+        on_model_error_callback=on_model_error_callback,
         tools=[search_knowledge_base_tool],
     )

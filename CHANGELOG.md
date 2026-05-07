@@ -70,3 +70,17 @@
 - Added `weekly_report` task generation with local-first paper ranking, memory-aware context, Markdown artifact upload to OSS/local storage, and `recent_tasks` memory updates.
 - Added `rmcli task run/status/cancel`, `docs/task_kinds.md`, `docs/templates/weekly_report.md`, M4 demo notes, MVP release notes, refreshed OpenAPI, and smoke-test step 5.
 - Verified `ruff`, `black --check`, `mypy`, full pytest, and live `scripts/smoke_test.py --steps 1,2,3,4,5`.
+
+## 0.5.0 - M5
+
+- Added `PlanReActPlanner` to the Coordinator and Writer, with Plan/ReAct-compatible prompts and SSE `thinking` emission for planning/reasoning parts.
+- Added centralized LLM policy handling: request token soft-limit trimming, usage logging, fallback LiteLLM model chains, and standardized retryable LLM error payloads.
+- Added the `filter_papers` task kind with iterative score/prune/refine ranking, `papers.db` candidate loading, JSON/Markdown artifacts, memory updates, CLI support, and smoke-test step 6.
+- Added deterministic ADK eval regression assets under `eval/`, CI `make eval`, and `docs/eval_baseline.md`.
+- Added backup/restore support for `data/` archives through OSS/local object storage.
+- Expanded `rmcli`, curl examples, README, OpenAPI version metadata, architecture docs, contributing docs, and M5 demo notes.
+
+## Development Log - 2026-05-07 - M5
+
+- Verified M5 with `ruff`, `black --check`, `mypy`, full `pytest tests/`, `make eval` (20/20), live `scripts/smoke_test.py --steps 1,2,3,4,5,6`, backup creation, and restore extraction.
+- Updated `plan.md` for completed M5 development and kept release-only manual items unchecked: Windows Task Scheduler registration, demo video, clean-machine quick-start, and commit/tag.

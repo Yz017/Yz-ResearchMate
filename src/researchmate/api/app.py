@@ -32,6 +32,7 @@ from starlette.responses import Response
 
 from researchmate import __version__
 from researchmate.agent import root_agent
+from researchmate.agents.llm_policy import classify_llm_error
 from researchmate.api.schemas import (
     ChatRequest,
     DependencyStatus,
@@ -81,6 +82,13 @@ APP_NAME = "researchmate"
 _CHAT_TIMEOUT_SECONDS = 120.0
 _DEEP_HEALTH_TTL_SECONDS = 300.0
 _CITATION_RE = re.compile(r"\[source:\s*([^,\]]+),\s*p\.?(\d+)\]", re.IGNORECASE)
+_THOUGHT_PREFIXES = (
+    "/*PLANNING*/",
+    "/*REPLANNING*/",
+    "/*REASONING*/",
+    "/*ACTION*/",
+    "/*FINAL_ANSWER*/",
+)
 _TRACE_ID: contextvars.ContextVar[str] = contextvars.ContextVar("trace_id", default="")
 
 
@@ -309,22 +317,10 @@ async def _probe_llm(settings: Settings, *, force: bool) -> LlmStatus:
                 detail="DEEPSEEK_API_KEY is not configured",
             )
         else:
+            models = [settings.researchmate_llm_model, *settings.llm_fallback_models]
+            last_error: Exception | None = None
             try:
                 litellm = importlib.import_module("litellm")
-                await asyncio.wait_for(
-                    litellm.acompletion(
-                        model=settings.researchmate_llm_model,
-                        messages=[{"role": "user", "content": "ping"}],
-                        max_tokens=1,
-                    ),
-                    timeout=10.0,
-                )
-                status_payload = LlmStatus(
-                    ok=True,
-                    cached=False,
-                    checked_at=checked_at,
-                    detail="ok",
-                )
             except Exception as exc:
                 status_payload = LlmStatus(
                     ok=False,
@@ -332,6 +328,35 @@ async def _probe_llm(settings: Settings, *, force: bool) -> LlmStatus:
                     checked_at=checked_at,
                     detail=f"{type(exc).__name__}: {exc}",
                 )
+            else:
+                for model in models:
+                    try:
+                        await asyncio.wait_for(
+                            litellm.acompletion(
+                                model=model,
+                                messages=[{"role": "user", "content": "ping"}],
+                                max_tokens=1,
+                            ),
+                            timeout=10.0,
+                        )
+                    except Exception as exc:
+                        last_error = exc
+                        continue
+                    status_payload = LlmStatus(
+                        ok=True,
+                        cached=False,
+                        checked_at=checked_at,
+                        detail=f"ok ({model})",
+                    )
+                    break
+                else:
+                    assert last_error is not None
+                    status_payload = LlmStatus(
+                        ok=False,
+                        cached=False,
+                        checked_at=checked_at,
+                        detail=f"{type(last_error).__name__}: {last_error}",
+                    )
         _deep_health_cache.status = status_payload
         _deep_health_cache.expires_at = time.time() + _DEEP_HEALTH_TTL_SECONDS
         return status_payload
@@ -481,6 +506,29 @@ def _citations_from_text(text: str) -> list[dict[str, Any]]:
     return citations
 
 
+def _part_is_thinking(part: Any) -> bool:
+    if bool(getattr(part, "thought", False)):
+        return True
+    text = getattr(part, "text", None)
+    if not text:
+        return False
+    return str(text).lstrip().startswith(_THOUGHT_PREFIXES)
+
+
+def _part_text(part: Any) -> str:
+    text = getattr(part, "text", None)
+    return str(text) if text else ""
+
+
+def _llm_error_payload(error: Exception) -> dict[str, Any]:
+    code, message, retryable = classify_llm_error(error)
+    return {
+        "code": code,
+        "message": message,
+        "retryable": retryable,
+    }
+
+
 def _message_with_memory_context(
     *,
     memory_service: ResearchMemoryService,
@@ -555,15 +603,18 @@ async def _chat_event_stream(
                             },
                         )
 
-                    text_parts: list[str] = []
+                    final_parts: list[str] = []
                     if event.content and event.content.parts:
                         for part in event.content.parts:
-                            text = getattr(part, "text", None)
+                            text = _part_text(part)
                             if text:
-                                text_parts.append(str(text))
-                    if not text_parts:
+                                if _part_is_thinking(part):
+                                    yield _sse("thinking", {"text": text})
+                                else:
+                                    final_parts.append(text)
+                    if not final_parts:
                         continue
-                    text_delta = "".join(text_parts)
+                    text_delta = "".join(final_parts)
                     if text_delta:
                         full_text_parts.append(text_delta)
                         yield _sse("token", {"delta": text_delta})
@@ -605,13 +656,10 @@ async def _chat_event_stream(
         )
     except Exception as exc:
         logger.bind(session_id=session_id, event="chat_error").exception("chat failed")
+        error_payload = _llm_error_payload(exc)
         yield _sse(
             "error",
-            {
-                "code": "CHAT_FAILED",
-                "message": f"{type(exc).__name__}: {exc}",
-                "retryable": False,
-            },
+            error_payload,
         )
 
 

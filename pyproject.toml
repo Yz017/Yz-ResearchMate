@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "researchmate"
-version = "0.4.0"
+version = "0.5.0"
 description = "A local-first AI research assistant built with Google ADK."
 readme = "README.md"
 requires-python = ">=3.11,<3.13"
@@ -51,10 +51,13 @@ ocr = [
 dev = [
   "black>=25.1,<26.0",
   "mypy>=1.15,<2.0",
+  "pandas>=2.2.3,<4.0",
   "pre-commit>=4.0,<5.0",
   "pytest>=8.3,<9.0",
   "pytest-asyncio>=0.25,<2.0",
+  "rouge-score>=0.1.2,<1.0",
   "ruff>=0.9,<1.0",
+  "tabulate>=0.9,<1.0",
 ]
 
 [project.scripts]

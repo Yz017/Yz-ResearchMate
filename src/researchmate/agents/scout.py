@@ -3,8 +3,13 @@ from __future__ import annotations
 from typing import Any
 
 from google.adk.agents import LlmAgent, ParallelAgent
-from google.adk.models.lite_llm import LiteLlm
 
+from researchmate.agents.llm_policy import (
+    after_model_callback,
+    before_model_callback,
+    build_agent_llm,
+    on_model_error_callback,
+)
 from researchmate.config import get_settings
 from researchmate.tools.arxiv_search import build_arxiv_mcp_toolset, search_arxiv_tool
 from researchmate.tools.s2_search import search_semantic_scholar_tool
@@ -34,17 +39,23 @@ def build_scout_agent() -> LlmAgent:
             LlmAgent(
                 name="arxiv_searcher",
                 description="arXiv-only search worker.",
-                model=LiteLlm(model=settings.researchmate_llm_model),
+                model=build_agent_llm(settings),
                 instruction="Search arXiv for candidate papers and return concise metadata.",
+                before_model_callback=before_model_callback,
+                after_model_callback=after_model_callback,
+                on_model_error_callback=on_model_error_callback,
                 tools=[search_arxiv_tool],
             ),
             LlmAgent(
                 name="s2_searcher",
                 description="Semantic Scholar-only search worker.",
-                model=LiteLlm(model=settings.researchmate_llm_model),
+                model=build_agent_llm(settings),
                 instruction=(
                     "Search Semantic Scholar for candidate papers and return concise metadata."
                 ),
+                before_model_callback=before_model_callback,
+                after_model_callback=after_model_callback,
+                on_model_error_callback=on_model_error_callback,
                 tools=[search_semantic_scholar_tool],
             ),
         ],
@@ -54,8 +65,11 @@ def build_scout_agent() -> LlmAgent:
         description=(
             "External academic search specialist for arXiv, Semantic Scholar, and web pages."
         ),
-        model=LiteLlm(model=settings.researchmate_llm_model),
+        model=build_agent_llm(settings),
         instruction=_INSTRUCTION,
+        before_model_callback=before_model_callback,
+        after_model_callback=after_model_callback,
+        on_model_error_callback=on_model_error_callback,
         tools=tools,
         sub_agents=[parallel_search],
     )

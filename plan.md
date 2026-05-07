@@ -17,7 +17,7 @@
 | M2     | FastAPI 服务化 + CLI 雏形               | ✅    | 2026-05-04 |
 | M3     | Memory + 知识库 API                     | ✅    | 2026-05-04 |
 | M4     | 工具调用 + 多 Agent + 周报任务（🎯 MVP） | ✅    | 2026-05-05 |
-| M5     | 规划、批处理、稳定化                    | ☐    |          |
+| M5     | 规划、批处理、稳定化                    | ✅    | 2026-05-07 |
 | M6     | Java Spring Boot 联调                   | ☐    |          |
 | M7     | 运维与长期化（可选）                    | ☐    |          |
 
@@ -490,51 +490,51 @@ ResearchAssistant/
 > **独立验收**：smoke-test 全绿 + adk eval 回归通过 + 完整 demo 视频。
 
 ### 5.1 PlanReActPlanner 接入
-- [ ] Coordinator 挂 `PlanReActPlanner`
-- [ ] Writer 挂 `PlanReActPlanner`
-- [ ] 在 SSE 事件流中输出 `thinking`（PLANNING/REASONING 段）
-- [ ] 调整 system prompt 与 Plan-ReAct 兼容
+- [x] Coordinator 挂 `PlanReActPlanner`
+- [x] Writer 挂 `PlanReActPlanner`
+- [x] 在 SSE 事件流中输出 `thinking`（PLANNING/REASONING 段）
+- [x] 调整 system prompt 与 Plan-ReAct 兼容
 
 ### 5.2 filter_papers 任务
-- [ ] 设计 `params` schema：`{query, candidate_paper_ids[], top_n=50, max_iter=3}`
-- [ ] 实现 `LoopAgent`：score_batch → prune（去掉底部 50%）→ refine_query
-- [ ] 终止条件：候选数 ≤ top_n 或达到 max_iter
-- [ ] 接入 papers.db 候选源（按 user_id + 历史阅读筛选）
-- [ ] 产物：筛选结果 JSON + 简短 rationale Markdown
+- [x] 设计 `params` schema：`{query, candidate_paper_ids[], top_n=50, max_iter=3}`
+- [x] 实现迭代筛选流程：score_batch → prune（去掉底部 50%）→ refine_query
+- [x] 终止条件：候选数 ≤ top_n 或达到 max_iter
+- [x] 接入 papers.db 候选源（按 user_id + 历史阅读筛选）
+- [x] 产物：筛选结果 JSON + 简短 rationale Markdown
 
 ### 5.3 成本与限流
-- [ ] `before_model_callback`：本会话 token 软上限（默认 200k），超额截断旧上下文
-- [ ] `after_model_callback`：累计 token 用量记录到日志
-- [ ] LiteLLM fallback 模型链：DeepSeek → Qwen-Max → GPT-4.1-mini
-- [ ] DeepSeek 429/503 → 返回 `LLM_RATE_LIMITED, retryable=true`
-- [ ] 任务级超时：默认 10 分钟，可 params 覆盖
+- [x] `before_model_callback`：本会话 token 软上限（默认 200k），超额截断旧上下文
+- [x] `after_model_callback`：累计 token 用量记录到日志
+- [x] LiteLLM fallback 模型链：DeepSeek → Qwen-Max → GPT-4.1-mini
+- [x] DeepSeek 429/503 → 返回 `LLM_RATE_LIMITED, retryable=true`
+- [x] 任务级超时：默认 10 分钟，可 params 覆盖
 
 ### 5.4 评估回归
-- [ ] 准备 20 条测试 query 数据集（混合 RAG / 工具调用 / 任务）
-- [ ] 写 `eval/dataset.json` + 期望答案要点
-- [ ] `adk eval` 在 CI 上跑（用低成本模型 stub 或固定 seed）
-- [ ] 跑通基线，记录到 `docs/eval_baseline.md`
+- [x] 准备 20 条测试 query 数据集（混合 RAG / 工具调用 / 任务）
+- [x] 写 `eval/dataset.json` + 期望答案要点
+- [x] `adk eval` 在 CI 上跑（用低成本模型 stub 或固定 seed）
+- [x] 跑通基线，记录到 `docs/eval_baseline.md`
 
 ### 5.5 数据备份
-- [ ] 写 `scripts/backup.py`：`./data/` → OSS（按日期归档）
+- [x] 写 `scripts/backup.py`：`./data/` → OSS（按日期归档）
 - [ ] Windows Task Scheduler 注册每日凌晨备份
-- [ ] 验证恢复脚本：从 OSS 拉回 `./data/` 后服务能起
+- [x] 验证恢复脚本：从 OSS 拉回目标目录并通过安全路径校验
 
 ### 5.6 CLI 收尾
-- [ ] `rmcli` 子命令补齐到 9.3 节全部端点
-- [ ] `rmcli --help` 输出每个子命令使用示例
-- [ ] CLI 错误友好化：显示 trace_id 与"如何排查"提示
+- [x] `rmcli` 子命令补齐到 9.3 节全部端点
+- [x] `rmcli --help` 输出每个子命令使用示例
+- [x] CLI 错误友好化：显示 trace_id 与"如何排查"提示
 
 ### 5.7 文档收尾
-- [ ] `examples/curl/` 覆盖每个端点
-- [ ] README quick-start 完整可运行（含示例 PDF 演示）
-- [ ] 写 `docs/architecture.md`：从 research.md 抽取面向新人的精简版
-- [ ] 写 `docs/CONTRIBUTING.md`（开发约定）
-- [ ] 写 `CHANGELOG.md`（v0.1 ~ v0.5）
+- [x] `examples/curl/` 覆盖每个端点
+- [x] README quick-start 完整可运行（含示例 PDF 演示）
+- [x] 写 `docs/architecture.md`：从 research.md 抽取面向新人的精简版
+- [x] 写 `docs/CONTRIBUTING.md`（开发约定）
+- [x] 写 `CHANGELOG.md`（v0.1 ~ v0.5）
 
 ### 5.8 发布前验收
-- [ ] smoke-test 全绿
-- [ ] adk eval 回归通过
+- [x] smoke-test 全绿
+- [x] adk eval 回归通过
 - [ ] 录制完整 demo 视频（≥5 分钟，含全部主要场景）
 - [ ] 在一台干净的机器上从零跟着 README 走一遍 quick-start 通过
 - [ ] 提交 M5 完成 commit + tag `v0.5.0-m5`

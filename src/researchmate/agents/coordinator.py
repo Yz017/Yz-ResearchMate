@@ -1,9 +1,15 @@
 from __future__ import annotations
 
 from google.adk.agents import LlmAgent
-from google.adk.models.lite_llm import LiteLlm
+from google.adk.planners import PlanReActPlanner
 
 from researchmate.agents.librarian import build_librarian_agent
+from researchmate.agents.llm_policy import (
+    after_model_callback,
+    before_model_callback,
+    build_agent_llm,
+    on_model_error_callback,
+)
 from researchmate.agents.scout import build_scout_agent
 from researchmate.agents.writer import build_writer_agent
 from researchmate.config import get_settings
@@ -36,6 +42,9 @@ Google Scholar 在 MVP 阶段不直接抓取；需要时说明以 arXiv + Semant
 提示使用 /v1/tasks/run 或 rmcli task run weekly-report。
 
 当用户只是询问系统能力或如何导入文档时，可以不调用工具，直接给出简短操作说明。
+
+当任务需要多步规划时，遵循 PlanReActPlanner 的 /*PLANNING*/、/*REASONING*/、
+/*ACTION*/ 和 /*FINAL_ANSWER*/ 结构，不要把计划与最终回答混在一起。
 """.strip()
 
 
@@ -43,8 +52,12 @@ def build_root_agent() -> LlmAgent:
     settings = get_settings()
     return LlmAgent(
         name="researchmate",
-        model=LiteLlm(model=settings.researchmate_llm_model),
+        model=build_agent_llm(settings),
         instruction=_INSTRUCTION,
+        planner=PlanReActPlanner(),
+        before_model_callback=before_model_callback,
+        after_model_callback=after_model_callback,
+        on_model_error_callback=on_model_error_callback,
         tools=[search_knowledge_base_tool, load_memory_tool, save_preference_tool],
         sub_agents=[
             build_librarian_agent(),

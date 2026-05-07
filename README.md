@@ -1,6 +1,6 @@
 # ResearchMate
 
-ResearchMate 是一个本地优先的个人科研助手，基于 Google ADK 构建。当前已完成 M4 MVP：可以通过 FastAPI 暴露本地 HTTP/SSE 服务，并用 `rmcli` 完成探活、session 管理、对话、知识库入库、长期记忆、论文元数据和周报任务管理。
+ResearchMate 是一个本地优先的个人科研助手，基于 Google ADK 构建。当前已完成 M5 稳定化开发：可以通过 FastAPI 暴露本地 HTTP/SSE 服务，并用 `rmcli` 完成探活、session 管理、对话、知识库入库、长期记忆、论文元数据、批处理任务、备份和 eval 回归。
 
 ## Quick Start
 
@@ -82,10 +82,10 @@ ResearchMate 是一个本地优先的个人科研助手，基于 Google ADK 构�
 
    没有配置阿里云 OSS 凭据时，`rmcli ingest` 会把文件写入 `OSS_LOCAL_DIR`，再通过同一套 OSS key 流程提交 `/v1/knowledge/ingest`。配置 `OSS_ACCESS_KEY_ID`、`OSS_ACCESS_KEY_SECRET`、`OSS_BUCKET`、`OSS_ENDPOINT` 后会自动切换到真实 OSS。
 
-   需要完整 M4 冒烟验证时，在服务运行后执行：
+   需要完整 M5 冒烟验证时，在服务运行后执行：
 
    ```bash
-   uv run python scripts/smoke_test.py --steps 1,2,3,4,5
+   uv run python scripts/smoke_test.py --steps 1,2,3,4,5,6
    ```
 
 ## Directory Layout
@@ -167,7 +167,25 @@ uv run rmcli papers ls --user-id local
 uv run rmcli papers update rag_basics --rating 4.5 --tag weekly --tag read
 uv run rmcli task run weekly-report --week 2026-W17 --paper-count 5 --focus-keyword RAG
 uv run rmcli task status <task_id> --no-watch
+uv run rmcli task run filter-papers --query "RAG agent shortlist" --candidate-paper-id paper_1 --top-n 50
+uv run rmcli task kinds
 uv run python scripts/smoke_test.py --steps 1,2,3,4,5
 ```
 
 `weekly_report` 默认只使用本地知识库和 `papers.db`，因此可以离线验收；需要外部候选论文时加 `--include-external`，会调用 arXiv 和 Semantic Scholar。Google Scholar 在 M4 不直接抓取，详见 `docs/task_kinds.md`。
+
+## M5 Stability Commands
+
+```bash
+uv run rmcli livez
+uv run rmcli version
+uv run rmcli memory update <memory_id> --content "..."
+uv run rmcli kb job <job_id>
+uv run rmcli kb cancel <job_id>
+uv run python scripts/backup.py
+uv run python scripts/backup.py --restore-key backups/data/<timestamp>.zip --target-dir data-restored
+uv run python scripts/smoke_test.py --steps 1,2,3,4,5,6
+make eval
+```
+
+M5 adds `PlanReActPlanner` on the Coordinator and Writer, `filter_papers` batch ranking, token-budget trimming, model fallback, backup/restore tooling, and an eval seed dataset under `eval/`.

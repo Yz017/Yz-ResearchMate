@@ -71,9 +71,59 @@ Generated Markdown must include:
 - evidence/citation lines
 - `## Citations`
 
+## `filter_papers`
+
+Rank a paper candidate set and prune it into a relevant shortlist.
+
+Request:
+
+```json
+{
+  "kind": "filter_papers",
+  "user_id": "local",
+  "params": {
+    "query": "RAG agent shortlist",
+    "candidate_paper_ids": ["paper_a", "paper_b"],
+    "top_n": 50,
+    "max_iter": 3,
+    "timeout_seconds": 600
+  }
+}
+```
+
+Parameters:
+
+| Field | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `query` | `string` | required | Relevance target used for scoring and query refinement. |
+| `candidate_paper_ids` | `string[]` | `[]` | Optional explicit candidate set. Empty means load the user's local paper history from `papers.db`. |
+| `top_n` | `integer` | `50` | Range `1..200`. |
+| `max_iter` | `integer` | `3` | Range `1..10`; each round scores, prunes the lower half, and refines the query. |
+| `timeout_seconds` | `number` | `600` | Range `10..3600`; enforced with `asyncio.wait_for`. |
+
+Final task result:
+
+```json
+{
+  "result": {
+    "artifact_json_oss_key": "artifacts/filter_papers/local/<task_id>.json",
+    "artifact_markdown_oss_key": "artifacts/filter_papers/local/<task_id>.md",
+    "paper_count": 50,
+    "selected_papers": [
+      {
+        "id": "paper_id",
+        "title": "Paper title",
+        "score": 4.5,
+        "rationale": "title overlap=2; tags overlap=1; memory overlap=0"
+      }
+    ]
+  }
+}
+```
+
 ## Google Scholar Policy
 
-MVP does not directly scrape Google Scholar. Scholar has no official public API and `scholarly`-style scraping is brittle and likely to trigger IP blocks. ResearchMate uses arXiv plus Semantic Scholar for M4. If Scholar becomes a hard requirement, M5 should add a paid SerpAPI-backed `scholar_serpapi` tool.
+ResearchMate does not directly scrape Google Scholar. Scholar has no official public API and `scholarly`-style scraping is brittle and likely to trigger IP blocks. ResearchMate uses arXiv plus Semantic Scholar by default. If Scholar becomes a hard requirement, add a paid SerpAPI-backed `scholar_serpapi` tool as a separate task kind/tool.
 
 ## arXiv MCP Policy
 

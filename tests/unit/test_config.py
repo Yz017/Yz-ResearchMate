@@ -21,6 +21,8 @@ def test_settings_parse_bind_and_token() -> None:
     assert settings.memory_collection == "memory_records"
     assert settings.jobs_db_path.as_posix().endswith("data/jobs.db")
     assert settings.rag_final_k == 5
+    assert settings.llm_fallback_models == ["qwen/qwen-max", "openai/gpt-4.1-mini"]
+    assert settings.llm_token_soft_limit == 200_000
 
 
 def test_settings_reject_short_token() -> None:
