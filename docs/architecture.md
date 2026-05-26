@@ -7,7 +7,7 @@ Core layers:
 - `src/researchmate/agent.py`: ADK entrypoint that exports `root_agent`.
 - `src/researchmate/agents/`: Coordinator and specialist sub-agents for RAG, search, writing, and memory extraction.
 - `src/researchmate/api/`: FastAPI service surface for sessions, chat, memory, knowledge, papers, and tasks.
-- `src/researchmate/services/`: Pure business logic for storage, jobs, papers, memory, retrieval, and task orchestration.
+- `src/researchmate/services/`: Pure business logic for storage, jobs, documents, papers, memory, retrieval, parsing, and task orchestration.
 - `src/researchmate/tools/`: Function tools exposed to ADK agents.
 - `scripts/`: Operational helpers such as ingest, smoke tests, and backups.
 
@@ -15,7 +15,7 @@ Runtime storage:
 
 - SQLite for sessions, jobs, and papers.
 - Chroma for knowledge chunks and long-term memory.
-- OSS or local object storage for uploaded PDFs and generated artifacts.
+- OSS or local object storage for uploaded documents and generated artifacts.
 
 Operational model:
 

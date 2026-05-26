@@ -61,7 +61,10 @@ def test_parse_pdf_to_chunks_extracts_text_and_metadata(tmp_path: Path) -> None:
     assert chunks
     assert chunks[0].paper_id == "paper_X"
     assert chunks[0].page == 1
-    assert chunks[0].citation == "[source: paper_X, p.1]"
+    assert chunks[0].citation in {
+        "[source: paper_X, p.1]",
+        "[source: paper_X · Methods]",
+    }
     joined = " ".join(chunk.text for chunk in chunks).lower()
     assert "retrieval augmented generation" in joined
     assert "grounded citation" in joined

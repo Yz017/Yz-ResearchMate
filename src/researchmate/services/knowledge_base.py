@@ -7,9 +7,9 @@ from pathlib import Path
 from typing import TypeVar
 
 from researchmate.config import Settings, get_settings
-from researchmate.services.documents import MetadataValue, RetrievedChunk
+from researchmate.services.documents import MetadataValue, RetrievedChunk, infer_paper_id
 from researchmate.services.embeddings import EmbeddingBackend, create_embedding_backend
-from researchmate.services.pdf_parser import parse_pdf_to_chunks
+from researchmate.services.parsers import parse_document_to_chunks
 from researchmate.services.vector_store import KnowledgeVectorStore
 
 _T = TypeVar("_T")
@@ -70,7 +70,7 @@ class KnowledgeBaseService:
     def from_settings(cls, settings: Settings | None = None) -> KnowledgeBaseService:
         return cls(settings=settings or get_settings())
 
-    def ingest_pdf(
+    def ingest_document(
         self,
         path: str | Path,
         *,
@@ -83,7 +83,21 @@ class KnowledgeBaseService:
     ) -> IngestedDocument:
         clean_tags = [tag.strip() for tag in tags or () if tag.strip()]
         timestamp = ingested_at or datetime.now(UTC).isoformat()
-        chunks = parse_pdf_to_chunks(
+        source_path = str(Path(path))
+        resolved_paper_id = paper_id or infer_paper_id(path)
+        existing = self.store.list_chunks(filters={"paper_id": resolved_paper_id})
+        source_paths = {
+            str(chunk.metadata.get("source_path", ""))
+            for chunk in existing
+            if str(chunk.metadata.get("source_path", ""))
+        }
+        if source_paths and source_paths != {source_path}:
+            msg = (
+                f"paper_id {resolved_paper_id} already exists for a different source_path; "
+                "use --paper-id to override or delete the existing document first"
+            )
+            raise ValueError(msg)
+        chunks = parse_document_to_chunks(
             path,
             paper_id=paper_id,
             title=title,
@@ -175,3 +189,5 @@ class KnowledgeBaseService:
         chunks = self.store.list_chunks(filters={"paper_id": doc_id})
         self.store.delete_where({"paper_id": doc_id})
         return len(chunks)
+
+    ingest_pdf = ingest_document

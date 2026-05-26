@@ -21,6 +21,8 @@ Examples:
   rmcli session create --user-id local
   rmcli chat --user-id local "请简短说明 ResearchMate 当前能力。"
   rmcli ingest examples/pdfs/rag_basics.pdf --user-id local --tag sample
+  rmcli ingest README.md --user-id local --tag docs
+  rmcli ingest /path/to/notes.docx --user-id local --tag notes
   rmcli kb ls --user-id local
   rmcli kb job <job_id>
   rmcli kb events <job_id>
@@ -190,8 +192,11 @@ def _render_sse_event(event: str, payload: dict[str, object]) -> bool:
     elif event == "tool_result":
         typer.secho(f"[tool_result] {payload.get('tool')}", fg=typer.colors.YELLOW)
     elif event == "citation":
+        section = payload.get("section")
+        page = payload.get("page")
+        location = f"· {section}" if section else f"p.{page}"
         typer.secho(
-            f"\n[citation] {payload.get('paper_id')} p.{payload.get('page')}",
+            f"\n[citation] {payload.get('paper_id')} {location}",
             fg=typer.colors.GREEN,
         )
     elif event == "token":
@@ -408,7 +413,7 @@ def chat(
 @app.command()
 def ingest(
     ctx: typer.Context,
-    pdf_paths: Annotated[list[Path], typer.Argument(help="Local PDF path(s) to ingest.")],
+    paths: Annotated[list[Path], typer.Argument(help="Local document path(s) to ingest.")],
     user_id: Annotated[str, typer.Option("--user-id", help="Owner user id.")] = "local",
     tag: Annotated[
         list[str] | None,
@@ -416,27 +421,27 @@ def ingest(
     ] = None,
     paper_id: Annotated[
         str | None,
-        typer.Option("--paper-id", help="Override paper_id. Only valid with one PDF."),
+        typer.Option("--paper-id", help="Override paper_id. Only valid with one document."),
     ] = None,
     title: Annotated[
         str | None,
-        typer.Option("--title", help="Override title. Only valid with one PDF."),
+        typer.Option("--title", help="Override title. Only valid with one document."),
     ] = None,
     wait: Annotated[bool, typer.Option("--wait/--no-wait", help="Stream job progress.")] = True,
 ) -> None:
-    """Upload local PDFs to OSS/local store and submit a knowledge ingest job."""
-    if len(pdf_paths) > 1 and (paper_id or title):
+    """Upload local documents to OSS/local store and submit a knowledge ingest job."""
+    if len(paths) > 1 and (paper_id or title):
         typer.secho(
-            "--paper-id/--title can only be used with one PDF",
+            "--paper-id/--title can only be used with one document",
             fg=typer.colors.RED,
             err=True,
         )
         raise typer.Exit(1)
     oss_client = OssClient.from_settings()
     oss_keys: list[str] = []
-    for path in pdf_paths:
+    for path in paths:
         if not path.exists():
-            typer.secho(f"PDF not found: {path}", fg=typer.colors.RED, err=True)
+            typer.secho(f"document not found: {path}", fg=typer.colors.RED, err=True)
             raise typer.Exit(1)
         key = oss_client.put_file(path)
         oss_keys.append(key)

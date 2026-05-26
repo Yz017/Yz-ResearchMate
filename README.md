@@ -1,6 +1,6 @@
 # ResearchMate
 
-ResearchMate 是一个本地优先的个人科研助手，基于 Google ADK 构建。当前已完成 M5 稳定化开发：可以通过 FastAPI 暴露本地 HTTP/SSE 服务，并用 `rmcli` 完成探活、session 管理、对话、知识库入库、长期记忆、论文元数据、批处理任务、备份和 eval 回归。
+ResearchMate 是一个本地优先的个人科研助手，基于 Google ADK 构建。当前已完成 M5 稳定化开发：可以通过 FastAPI 暴露本地 HTTP/SSE 服务，并用 `rmcli` 完成探活、session 管理、对话、文档入库、长期记忆、论文元数据、批处理任务、备份和 eval 回归。
 
 ## Quick Start
 
@@ -32,13 +32,19 @@ ResearchMate 是一个本地优先的个人科研助手，基于 Google ADK 构�
    uv run pytest tests/
    ```
 
-5. 手动导入你的 PDF 到本地知识库：
+5. 手动导入你的文档到本地知识库：
 
    ```bash
    uv run python scripts/ingest.py /path/to/your-paper.pdf --paper-id paper_X --title "Paper Title"
    ```
 
-   需要一次导入多篇 PDF 时：
+   也可以导入 `.txt` / `.md` / `.docx` / `.html` / `.htm`：
+
+   ```bash
+   uv run python scripts/ingest.py README.md notes.txt report.docx page.html
+   ```
+
+   需要一次导入多篇文档时：
 
    ```bash
    uv run python scripts/ingest.py /path/to/paper-a.pdf /path/to/paper-b.pdf
@@ -70,7 +76,7 @@ ResearchMate 是一个本地优先的个人科研助手，基于 Google ADK 构�
 
    `rmcli` 默认读取 `.env` 中的 `RESEARCH_AGENT_BIND` 和 `RESEARCH_AGENT_TOKEN`，请求头使用 `X-Internal-Token`。
 
-8. 通过服务 API 导入 PDF、保存长期记忆并生成周报：
+8. 通过服务 API 导入文档、保存长期记忆并生成周报：
 
    ```bash
    uv run rmcli ingest examples/pdfs/rag_basics.pdf --user-id local --tag sample
@@ -93,7 +99,7 @@ ResearchMate 是一个本地优先的个人科研助手，基于 Google ADK 构�
 - `src/researchmate/`：主包，包含 ADK 入口、API、CLI、服务层和工具包装。
 - `scripts/`：开发和运维脚本，不参与打包。
 - `tests/`：pytest 测试。
-- `docs/`：架构、性能基线和开发日志。
+- `docs/`：架构、开发总结、demo、任务说明、性能基线、评测和 OpenAPI 等文档。
 - `examples/`：curl 示例和样例 PDF。
 - `data/`、`logs/`：运行时数据，已被 `.gitignore` 忽略。
 
@@ -115,7 +121,7 @@ uv run python scripts/check_embeddings.py
 uv run python scripts/ingest.py /path/to/your-paper.pdf --paper-id paper_X --title "Paper Title"
 uv run python scripts/check_m1_rag_agent.py \
   --prompt "Use the local knowledge base. What does paper_X say about its method?" \
-  --expect-citation "[source: paper_X, p.1]"
+  --expect-citation "[source:"
 uv run adk web src/
 ```
 
@@ -172,7 +178,7 @@ uv run rmcli task kinds
 uv run python scripts/smoke_test.py --steps 1,2,3,4,5
 ```
 
-`weekly_report` 默认只使用本地知识库和 `papers.db`，因此可以离线验收；需要外部候选论文时加 `--include-external`，会调用 arXiv 和 Semantic Scholar。Google Scholar 在 M4 不直接抓取，详见 `docs/task_kinds.md`。
+`weekly_report` 默认只使用本地知识库和 `papers.db`，因此可以离线验收；需要外部候选论文时加 `--include-external`，会调用 arXiv 和 Semantic Scholar。Google Scholar 在当前版本不直接抓取，详见 `docs/task_kinds.md`。
 
 ## M5 Stability Commands
 

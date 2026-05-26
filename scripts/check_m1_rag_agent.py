@@ -15,7 +15,8 @@ USER_ID = "m1-user"
 SESSION_ID = "m1-rag-session"
 DEFAULT_PROMPT = (
     "Use the local knowledge base. What does the RAG basics paper say about "
-    "grounded answers? Include source citations in the form [source: paper_id, p.N]."
+    "grounded answers? Include source citations in the form [source: paper_id, p.N] "
+    "or [source: paper_id · Section]."
 )
 
 
@@ -58,7 +59,10 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--expect-citation",
-        help="Optional exact citation to require, for example '[source: paper_X, p.1]'.",
+        help=(
+            "Optional exact citation to require, for example "
+            "'[source: paper_X, p.1]' or '[source: paper_X · Methods]'."
+        ),
     )
     return parser
 

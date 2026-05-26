@@ -11,6 +11,14 @@ def test_settings_parse_bind_and_token() -> None:
         RESEARCH_AGENT_TOKEN=SecretStr("x" * 32),
         RESEARCH_AGENT_BIND="127.0.0.1:8000",
         ADK_SESSION_DB_URL="sqlite+aiosqlite:///./data/sessions.db",
+        EMBEDDING_DEVICE="auto",
+        EMBEDDING_BACKEND="auto",
+        KB_COLLECTION="kb_chunks",
+        MEMORY_COLLECTION="memory_records",
+        JOBS_DB_PATH="./data/jobs.db",
+        RAG_FINAL_K=5,
+        RESEARCHMATE_LLM_FALLBACK_MODELS="qwen/qwen-max,openai/gpt-4.1-mini",
+        LLM_TOKEN_SOFT_LIMIT=200_000,
     )
 
     assert settings.bind_host == "127.0.0.1"

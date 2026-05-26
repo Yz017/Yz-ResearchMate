@@ -18,3 +18,15 @@ __pycache__/
 htmlcov/
 dist/
 build/
+
+# Local notes and unrelated documents
+CHANGELOG.md
+cost_info.md
+demands.txt
+instruction.md
+plan.md
+research.md
+说明.txt
+
+examples/pdfs/ML/
+非项目文件/

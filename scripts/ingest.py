@@ -9,7 +9,7 @@ from researchmate.services.knowledge_base import IngestedDocument, KnowledgeBase
 from researchmate.services.vector_store import KnowledgeVectorStore
 
 
-def ingest_pdf_paths(
+def ingest_document_paths(
     paths: Sequence[str | Path],
     *,
     paper_id: str | None = None,
@@ -32,10 +32,10 @@ def ingest_pdf_paths(
         service.store.reset()
     results: list[IngestedDocument] = []
     for raw_path in paths:
-        pdf_path = Path(raw_path)
+        document_path = Path(raw_path)
         results.append(
-            service.ingest_pdf(
-                pdf_path,
+            service.ingest_document(
+                document_path,
                 paper_id=paper_id,
                 title=title,
             )
@@ -43,11 +43,14 @@ def ingest_pdf_paths(
     return results
 
 
+ingest_pdf_paths = ingest_document_paths
+
+
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Ingest local PDF files into Chroma.")
-    parser.add_argument("pdf", nargs="+", help="PDF path(s) to ingest.")
-    parser.add_argument("--paper-id", help="Override paper_id. Use only for one PDF.")
-    parser.add_argument("--title", help="Override title. Use only for one PDF.")
+    parser = argparse.ArgumentParser(description="Ingest local documents into Chroma.")
+    parser.add_argument("path", nargs="+", help="Document path(s) to ingest.")
+    parser.add_argument("--paper-id", help="Override paper_id. Use only for one document.")
+    parser.add_argument("--title", help="Override title. Use only for one document.")
     parser.add_argument(
         "--reset", action="store_true", help="Reset the kb collection before ingest."
     )
@@ -59,10 +62,10 @@ def build_parser() -> argparse.ArgumentParser:
 def main() -> None:
     parser = build_parser()
     args = parser.parse_args()
-    if len(args.pdf) > 1 and (args.paper_id or args.title):
-        parser.error("--paper-id/--title can only be used with one PDF")
-    results = ingest_pdf_paths(
-        args.pdf,
+    if len(args.path) > 1 and (args.paper_id or args.title):
+        parser.error("--paper-id/--title can only be used with one document")
+    results = ingest_document_paths(
+        args.path,
         paper_id=args.paper_id,
         title=args.title,
         reset=bool(args.reset),

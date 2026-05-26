@@ -20,4 +20,4 @@
 ## Milestones
 
 - Update `plan.md` when milestone scope changes.
-- Append a new entry to `CHANGELOG.md` without rewriting earlier history.
+- If `CHANGELOG.md` exists and is part of the current release flow, append a new entry without rewriting earlier history.

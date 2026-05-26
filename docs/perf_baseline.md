@@ -1,25 +1,18 @@
 # Performance Baseline
 
-- Generated at: `2026-05-04T00:00:00+08:00`
+- Generated at: `2026-05-25T14:40:43+00:00`
 - Python: `3.12.3`
 - Torch installed: `True`
-- CUDA available: `False`
-- Runtime mode: `CPU`
-- Device: `cpu`
-- EMBEDDING_DEVICE: `auto`
-- EMBEDDING_BACKEND: `auto` with cached BGE preferred and offline fallback
-- RERANK_BACKEND: `auto` with cached BGE preferred and lexical fallback
+- CUDA available: `True`
+- Runtime mode: `GPU`
+- Device: `NVIDIA GeForce RTX 2060`
+- EMBEDDING_DEVICE: `cuda`
 
-## M1 RAG Baseline
+Runtime detection records the current Python/Torch mode. RAG-specific embedding and retrieval notes are appended in docs/perf_baseline.md.
 
-- RAG extra dependencies installed: `torch`, `sentence-transformers`, `FlagEmbedding`, `transformers<5`
-- CUDA status: unavailable on this machine because the installed NVIDIA driver is too old for the synced torch CUDA build
-- Model cache status: `BAAI/bge-m3` and `BAAI/bge-reranker-v2-m3` are cached locally via `https://hf-mirror.com`
-- Active embedding path: `BAAI/bge-m3` on CPU
-- Active rerank path: `BAAI/bge-reranker-v2-m3` on CPU
-- Embedding sanity check: related cosine `0.5190`, unrelated cosine `0.2781`
-- Rerank sanity check: related pair `0.6654`, unrelated pair `0.0000`
-- Sample ingest verification: 3 generated PDFs, 9 chunks total in local Chroma
-- Retrieval verification query: `grounded citation answers` returned top chunk `[source: rag_basics, p.1]`
-- Low-confidence query check: `image classification` returned `NONE`
-- ADK Runner verification: `scripts/check_m1_rag_agent.py` passed and produced `[source: rag_basics, p.1]`
+## RAG Runtime Notes
+
+- `EMBEDDING_BACKEND=auto` prefers cached `BAAI/bge-m3`; if unavailable, it falls back to the local hashing backend.
+- `RERANK_BACKEND=auto` prefers cached `BAAI/bge-reranker-v2-m3`; if unavailable, it falls back to lexical reranking.
+- Supported ingest formats are `.pdf`, `.txt`, `.md`, `.markdown`, `.docx`, `.html`, and `.htm`.
+- Scanned PDFs still need OCR before ingest; HTML ingest parses local file content only and does not crawl linked pages.

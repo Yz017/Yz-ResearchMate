@@ -54,7 +54,8 @@ def search_knowledge_base(
 
     Returns:
         A JSON object with retrieved chunks. Each result includes a citation string
-        like [source: paper_id, p.N]. Use those citation strings verbatim in answers.
+        like [source: paper_id, p.N] or [source: paper_id · Section]. Use those
+        citation strings verbatim in answers.
     """
     clean_query = query.strip()
     if not clean_query:
@@ -74,7 +75,10 @@ def search_knowledge_base(
         "query": clean_query,
         "count": len(results),
         "results": [result.to_tool_payload() for result in results],
-        "citation_rule": "Answer only from these chunks and cite as [source: paper_id, p.N].",
+        "citation_rule": (
+            "Answer only from these chunks and cite as [source: paper_id, p.N] "
+            "or [source: paper_id · Section]."
+        ),
         "warning": warning,
     }
 

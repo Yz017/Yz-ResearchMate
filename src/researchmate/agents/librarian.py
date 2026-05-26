@@ -17,7 +17,7 @@ _INSTRUCTION = """
 规则：
 1. 回答任何论文事实前必须调用 search_knowledge_base。
 2. 只能基于检索片段回答，不得用外部常识补齐缺失事实。
-3. 每个关键结论必须带 [source: paper_id, p.N] 引用。
+3. 每个关键结论必须带 [source: paper_id, p.N] 或 [source: paper_id · Section] 引用。
 4. 检索证据不足时，明确说明当前知识库无法确认。
 """.strip()
 

@@ -13,6 +13,10 @@ def test_local_oss_roundtrip(tmp_path: Path) -> None:
         RESEARCH_AGENT_TOKEN=SecretStr("x" * 32),
         OSS_LOCAL_DIR=tmp_path / "oss",
     )
+    settings.oss_access_key_id = ""
+    settings.oss_access_key_secret = SecretStr("")
+    settings.oss_bucket = ""
+    settings.oss_endpoint = ""
     source = tmp_path / "source.txt"
     source.write_text("researchmate oss roundtrip", encoding="utf-8")
 
@@ -30,6 +34,10 @@ def test_default_key_preserves_pdf_suffix(tmp_path: Path) -> None:
         RESEARCH_AGENT_TOKEN=SecretStr("x" * 32),
         OSS_LOCAL_DIR=tmp_path / "oss",
     )
+    settings.oss_access_key_id = ""
+    settings.oss_access_key_secret = SecretStr("")
+    settings.oss_bucket = ""
+    settings.oss_endpoint = ""
     source = tmp_path / "rag basics.pdf"
     source.write_bytes(b"%PDF-1.4\n")
 

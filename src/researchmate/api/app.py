@@ -71,6 +71,7 @@ from researchmate.services.knowledge_base import IngestedDocument, KnowledgeBase
 from researchmate.services.memory_service import MemoryRecord, ResearchMemoryService
 from researchmate.services.oss_client import OssClient
 from researchmate.services.paper_repo import PaperRecord, PaperRepository
+from researchmate.services.parsers import UnsupportedFormatError
 from researchmate.services.task_kinds import (
     normalize_task_kind,
     register_task_handlers,
@@ -81,7 +82,11 @@ from researchmate.services.task_kinds import (
 APP_NAME = "researchmate"
 _CHAT_TIMEOUT_SECONDS = 120.0
 _DEEP_HEALTH_TTL_SECONDS = 300.0
-_CITATION_RE = re.compile(r"\[source:\s*([^,\]]+),\s*p\.?(\d+)\]", re.IGNORECASE)
+_CITATION_RE = re.compile(
+    r"\[source:\s*(?P<paper_id>[^,\]·]+?)\s*"
+    r"(?:,\s*p\.?\s*(?P<page>\d+)|·\s*(?P<section>[^\]]+?))\]",
+    re.IGNORECASE,
+)
 _THOUGHT_PREFIXES = (
     "/*PLANNING*/",
     "/*REPLANNING*/",
@@ -496,10 +501,13 @@ def _sse(event: str, data: dict[str, Any]) -> str:
 def _citations_from_text(text: str) -> list[dict[str, Any]]:
     citations: list[dict[str, Any]] = []
     for match in _CITATION_RE.finditer(text):
+        page = match.group("page")
+        section = match.group("section")
         citations.append(
             {
-                "paper_id": match.group(1).strip(),
-                "page": int(match.group(2)),
+                "paper_id": match.group("paper_id").strip(),
+                "page": int(page) if page else None,
+                "section": section.strip() if section else None,
                 "oss_key": None,
             }
         )
@@ -562,7 +570,7 @@ async def _chat_event_stream(
 ) -> AsyncIterator[str]:
     invocation_id = _new_uuid7()
     full_text_parts: list[str] = []
-    emitted_citations: set[tuple[str, int]] = set()
+    emitted_citations: set[tuple[str, str]] = set()
     message_for_agent = _message_with_memory_context(
         memory_service=runtime.memory_service,
         user_id=user_id,
@@ -619,7 +627,10 @@ async def _chat_event_stream(
                         full_text_parts.append(text_delta)
                         yield _sse("token", {"delta": text_delta})
                         for citation in _citations_from_text(text_delta):
-                            key = (str(citation["paper_id"]), int(citation["page"]))
+                            page = citation.get("page")
+                            section = citation.get("section")
+                            location = f"p:{page}" if page is not None else f"s:{section}"
+                            key = (str(citation["paper_id"]), location)
                             if key not in emitted_citations:
                                 emitted_citations.add(key)
                                 yield _sse("citation", citation)
@@ -665,7 +676,12 @@ async def _chat_event_stream(
 
 def _cache_path_for_oss_key(settings: Settings, key: str) -> Path:
     digest = uuid.uuid5(uuid.NAMESPACE_URL, key).hex[:16]
-    name = Path(key).name or f"{digest}.pdf"
+    key_path = Path(key)
+    suffix = key_path.suffix.lower()
+    if not suffix:
+        msg = f"OSS key must include a supported file extension: {key}"
+        raise UnsupportedFormatError(msg)
+    name = key_path.name or f"{digest}{suffix}"
     return settings.oss_cache_dir / digest / name
 
 
@@ -700,7 +716,7 @@ def _build_ingest_handler(
 
             await context.progress(base_progress + 20.0 / total, f"ingesting {oss_key}")
             document = await asyncio.to_thread(
-                kb_service.ingest_pdf,
+                kb_service.ingest_document,
                 local_path,
                 paper_id=str(paper_id) if paper_id else None,
                 title=str(title) if title else None,

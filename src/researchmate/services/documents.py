@@ -14,7 +14,7 @@ _WHITESPACE_RE = re.compile(r"\s+")
 
 @dataclass(frozen=True, slots=True)
 class ParsedPage:
-    """Text extracted from one PDF page."""
+    """Text extracted from one logical document page."""
 
     page_number: int
     text: str
@@ -74,7 +74,7 @@ class KnowledgeChunk:
 
     @property
     def citation(self) -> str:
-        return f"[source: {self.paper_id}, p.{self.page}]"
+        return _format_citation(self.paper_id, self.page, self.section)
 
     def metadata(self, *, embedding_model: str | None = None) -> dict[str, MetadataValue]:
         payload: dict[str, MetadataValue] = {
@@ -130,7 +130,11 @@ class RetrievedChunk:
         value = self.metadata.get("citation")
         if isinstance(value, str) and value:
             return value
-        return f"[source: {self.paper_id}, p.{self.page}]"
+        section = self.section
+        page = self.page
+        if isinstance(page, int):
+            return _format_citation(self.paper_id, page, section)
+        return f"[source: {self.paper_id}, p.{page}]"
 
     def to_tool_payload(self) -> dict[str, Any]:
         return {
@@ -152,6 +156,13 @@ class RetrievedChunk:
 
 def normalize_text(text: str) -> str:
     return _WHITESPACE_RE.sub(" ", text).strip()
+
+
+def _format_citation(paper_id: str, page: int, section: str) -> str:
+    clean_section = normalize_text(section)
+    if page <= 1 and clean_section and clean_section.lower() != "unknown":
+        return f"[source: {paper_id} · {clean_section}]"
+    return f"[source: {paper_id}, p.{page}]"
 
 
 def infer_paper_id(path: str | Path) -> str:

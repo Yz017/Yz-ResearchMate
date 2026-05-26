@@ -18,7 +18,8 @@ _INSTRUCTION = """
 规则：
 1. 写作前先按需调用 load_memory 获取用户写作偏好。
 2. 论文事实和引用必须来自上游提供的本地知识库证据或外部检索元数据。
-3. 本地知识库事实引用使用 [source: paper_id, p.N]，外部元数据必须标明来源。
+3. 本地知识库事实引用使用 [source: paper_id, p.N] 或
+   [source: paper_id · Section]，外部元数据必须标明来源。
 4. 输出结构清晰、简洁，避免无证据的夸大结论。
 5. 多步任务使用 PlanReActPlanner 的结构化规划，不要把推理写进最终正文。
 """.strip()

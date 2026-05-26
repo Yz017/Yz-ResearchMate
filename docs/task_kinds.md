@@ -26,7 +26,7 @@ Parameters:
 
 | Field | Type | Default | Notes |
 | --- | --- | --- | --- |
-| `week_start` | `date \| null` | current week Monday | ISO date. CLI `--week 2026-W17` maps to `2026-04-20`. |
+| `week_start` | `date \| null` | current week Monday (UTC) | ISO date. CLI `--week 2026-W17` maps to `2026-04-20`. |
 | `paper_count` | `integer` | `5` | Range `1..20`. |
 | `focus_keywords` | `string[]` | `[]` | Used for local paper ranking and optional external search query. |
 | `include_external` | `boolean` | `false` | When `true`, Scout tools query arXiv and Semantic Scholar. Smoke tests keep this `false` for offline determinism. |

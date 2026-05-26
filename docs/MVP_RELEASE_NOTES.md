@@ -4,7 +4,7 @@ M4 turns ResearchMate into a minimum viable local research assistant.
 
 ## Included Capabilities
 
-- Local RAG over ingested PDFs with citation-grounded answers.
+- Local RAG over ingested documents with citation-grounded answers.
 - Long-term memory for research direction, advisor requirements, writing style, and recent tasks.
 - External search tools for arXiv, Semantic Scholar, and web-page text extraction.
 - Multi-agent Coordinator with Librarian, Scout, and Writer sub-agents.
@@ -15,7 +15,7 @@ M4 turns ResearchMate into a minimum viable local research assistant.
 
 ## MVP Limits
 
-- Google Scholar is intentionally not scraped in M4; use arXiv and Semantic Scholar, with SerpAPI left for M5 if needed.
+- Google Scholar is intentionally not scraped; use arXiv and Semantic Scholar. If Scholar becomes mandatory, add a SerpAPI-backed tool/task separately.
 - `weekly_report` is deterministic and local-first by default. Set `include_external=true` to query external sources.
 - Generated weekly reports are Markdown artifacts; DOCX/PDF export remains future work.
 

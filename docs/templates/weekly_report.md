@@ -28,6 +28,6 @@ Focus: {{ focus }}
 
 ## Next Actions
 
-- Ingest full PDFs for external-only candidates before detailed review.
+- Ingest full documents for external-only candidates before detailed review.
 - Update read status and rating after reading.
 - Carry unresolved questions into next week's task list.
