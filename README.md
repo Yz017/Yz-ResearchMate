@@ -56,6 +56,8 @@ ResearchMate 是一个本地优先的个人科研助手，基于 Google ADK 构�
    uv run python scripts/ingest.py /path/to/your-paper.pdf --reset
    ```
 
+   扫描版或大量图片页 PDF 可选择打开入库期 OCR，详见下方“OCR 入库（可选）”。
+
 6. 启动 ADK 调试 UI：
 
    ```bash
@@ -131,6 +133,29 @@ uv run adk web src/
 uv run python -c "from huggingface_hub import snapshot_download; snapshot_download('BAAI/bge-m3', endpoint='https://hf-mirror.com', ignore_patterns=['imgs/*'])"
 uv run python -c "from huggingface_hub import snapshot_download; snapshot_download('BAAI/bge-reranker-v2-m3', endpoint='https://hf-mirror.com')"
 ```
+
+### OCR 入库（可选）
+
+OCR 默认关闭；关闭时 PDF 入库行为保持原样。需要让扫描版 PDF 或图片页进入知识库时，先安装可选 Python 依赖：
+
+```bash
+uv sync --extra ocr
+```
+
+还需要安装 Tesseract 引擎本体和语言包 `chi_sim`、`eng`。Windows 可安装 `tesseract-ocr`，并把安装目录加入 `PATH`；如果不加入 `PATH`，在 `.env` 中设置：
+
+```env
+TESSERACT_CMD=C:\Program Files\Tesseract-OCR\tesseract.exe
+```
+
+打开 OCR：
+
+```env
+INGEST_OCR_ENABLED=true
+OCR_LANGUAGES=chi_sim+eng
+```
+
+OCR 只在入库期逐页兜底：正常文本页会跳过，抽不出文字的图片页会渲染后交给 Tesseract 识别，并保留原 PDF 页码用于引用。公式页 OCR 效果有限，这是当前已知局限。
 
 ## M2 Service Commands
 

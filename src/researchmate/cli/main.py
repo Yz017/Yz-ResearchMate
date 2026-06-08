@@ -282,6 +282,8 @@ def config() -> None:
         "rerank_backend": settings.rerank_backend,
         "reranker_model": settings.reranker_model,
         "rerank_allow_download": settings.rerank_allow_download,
+        "rerank_device": settings.rerank_device,
+        "rerank_batch_size": settings.rerank_batch_size,
         "chroma_dir": str(settings.chroma_dir),
         "kb_collection": settings.kb_collection,
         "llm_model": settings.researchmate_llm_model,

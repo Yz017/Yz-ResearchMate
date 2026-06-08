@@ -1,0 +1,2197 @@
+{
+  "n_cases": 22,
+  "rerank_backend": "flagembedding",
+  "reranker_model": "BAAI/bge-reranker-v2-m3",
+  "metrics": {
+    "recall": {
+      "@5": 0.8181818181818182,
+      "@10": 0.8181818181818182
+    },
+    "mrr": {
+      "@10": 0.6363636363636364
+    },
+    "ndcg": {
+      "@5": 0.5431778391318695,
+      "scored_cases": 22
+    }
+  },
+  "cases": [
+    {
+      "qid": "q001",
+      "gold_targets": [
+        {
+          "paper_id": "Lecture3",
+          "pages": [
+            41
+          ],
+          "chunk_ids": []
+        }
+      ],
+      "first_hit_rank": 1,
+      "hit_ranks": [
+        1
+      ],
+      "retrieved": [
+        {
+          "paper_id": "Lecture3",
+          "page": 41,
+          "score": 0.01639344262295082,
+          "rerank_score": 0.23323366171374532
+        },
+        {
+          "paper_id": "Lecture3",
+          "page": 42,
+          "score": 0.015384615384615385,
+          "rerank_score": 0.026813194428802138
+        },
+        {
+          "paper_id": "Lecture4",
+          "page": 42,
+          "score": 0.015625,
+          "rerank_score": 0.009841688725481992
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 32,
+          "score": 0.014925373134328358,
+          "rerank_score": 0.007565771959914069
+        },
+        {
+          "paper_id": "Lecture3",
+          "page": 43,
+          "score": 0.015151515151515152,
+          "rerank_score": 0.007385497673677835
+        },
+        {
+          "paper_id": "Lecture5",
+          "page": 13,
+          "score": 0.014492753623188406,
+          "rerank_score": 0.006452484755130888
+        },
+        {
+          "paper_id": "Lecture3",
+          "page": 50,
+          "score": 0.03252247488101534,
+          "rerank_score": 0.00428410129239263
+        },
+        {
+          "paper_id": "Lecture3",
+          "page": 51,
+          "score": 0.03200204813108039,
+          "rerank_score": 0.00428410129239263
+        },
+        {
+          "paper_id": "Lecture3",
+          "page": 47,
+          "score": 0.015625,
+          "rerank_score": 0.0030440890302807235
+        },
+        {
+          "paper_id": "Lecture3",
+          "page": 48,
+          "score": 0.015384615384615385,
+          "rerank_score": 0.0030440890302807235
+        },
+        {
+          "paper_id": "Lecture8",
+          "page": 12,
+          "score": 0.014705882352941176,
+          "rerank_score": 0.002713098548014063
+        },
+        {
+          "paper_id": "Lecture7",
+          "page": 40,
+          "score": 0.014285714285714285,
+          "rerank_score": 0.001918992675760901
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 36,
+          "score": 0.029857397504456328,
+          "rerank_score": 0.00070222426561114
+        },
+        {
+          "paper_id": "Lecture6",
+          "page": 55,
+          "score": 0.015873015873015872,
+          "rerank_score": 0.0003690606163479003
+        },
+        {
+          "paper_id": "Lecture3",
+          "page": 3,
+          "score": 0.014492753623188406,
+          "rerank_score": 0.0003590012442810631
+        },
+        {
+          "paper_id": "Lecture11",
+          "page": 32,
+          "score": 0.014285714285714285,
+          "rerank_score": 0.0002078963708897366
+        },
+        {
+          "paper_id": "Lecture4",
+          "page": 20,
+          "score": 0.014925373134328358,
+          "rerank_score": 0.0001887648782991072
+        }
+      ]
+    },
+    {
+      "qid": "q002",
+      "gold_targets": [
+        {
+          "paper_id": "Lecture3",
+          "pages": [
+            26,
+            27,
+            28
+          ],
+          "chunk_ids": []
+        }
+      ],
+      "first_hit_rank": 3,
+      "hit_ranks": [
+        3
+      ],
+      "retrieved": [
+        {
+          "paper_id": "Lecture4",
+          "page": 46,
+          "score": 0.01639344262295082,
+          "rerank_score": 0.09825935101432087
+        },
+        {
+          "paper_id": "Lecture7",
+          "page": 6,
+          "score": 0.014925373134328358,
+          "rerank_score": 0.0914503239781976
+        },
+        {
+          "paper_id": "Lecture3",
+          "page": 27,
+          "score": 0.014492753623188406,
+          "rerank_score": 0.0781568541175043
+        },
+        {
+          "paper_id": "Lecture3",
+          "page": 30,
+          "score": 0.014285714285714285,
+          "rerank_score": 0.048420741630769544
+        },
+        {
+          "paper_id": "Lecture2",
+          "page": 41,
+          "score": 0.015151515151515152,
+          "rerank_score": 0.0101961684474499
+        },
+        {
+          "paper_id": "Lecture3",
+          "page": 47,
+          "score": 0.015625,
+          "rerank_score": 0.008303275235905069
+        },
+        {
+          "paper_id": "Lecture3",
+          "page": 48,
+          "score": 0.015384615384615385,
+          "rerank_score": 0.008303275235905069
+        },
+        {
+          "paper_id": "Lecture2",
+          "page": 39,
+          "score": 0.016129032258064516,
+          "rerank_score": 0.006998246030496375
+        },
+        {
+          "paper_id": "Lecture2",
+          "page": 40,
+          "score": 0.015873015873015872,
+          "rerank_score": 0.006998246030496375
+        },
+        {
+          "paper_id": "Lecture3",
+          "page": 50,
+          "score": 0.032018442622950824,
+          "rerank_score": 0.001871992403776931
+        },
+        {
+          "paper_id": "Lecture3",
+          "page": 51,
+          "score": 0.0315136476426799,
+          "rerank_score": 0.001871992403776931
+        },
+        {
+          "paper_id": "Lecture4",
+          "page": 42,
+          "score": 0.014705882352941176,
+          "rerank_score": 0.0017675354012849686
+        },
+        {
+          "paper_id": "Lecture4",
+          "page": 20,
+          "score": 0.014925373134328358,
+          "rerank_score": 0.0011982220031245205
+        },
+        {
+          "paper_id": "Lecture8",
+          "page": 12,
+          "score": 0.014705882352941176,
+          "rerank_score": 0.0010567623471390217
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 36,
+          "score": 0.015151515151515152,
+          "rerank_score": 0.0005192142891242029
+        },
+        {
+          "paper_id": "Lecture3",
+          "page": 3,
+          "score": 0.014492753623188406,
+          "rerank_score": 0.00032979787310735947
+        },
+        {
+          "paper_id": "Lecture6",
+          "page": 55,
+          "score": 0.015873015873015872,
+          "rerank_score": 0.0002330051883982803
+        },
+        {
+          "paper_id": "Lecture11",
+          "page": 32,
+          "score": 0.014285714285714285,
+          "rerank_score": 7.148347097796757e-05
+        }
+      ]
+    },
+    {
+      "qid": "q003",
+      "gold_targets": [
+        {
+          "paper_id": "Lecture1",
+          "pages": [
+            4
+          ],
+          "chunk_ids": []
+        }
+      ],
+      "first_hit_rank": 3,
+      "hit_ranks": [
+        3
+      ],
+      "retrieved": [
+        {
+          "paper_id": "Lecture1",
+          "page": 1,
+          "score": 0.016129032258064516,
+          "rerank_score": 0.20521643632408929
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 11,
+          "score": 0.01639344262295082,
+          "rerank_score": 0.04088377716798792
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 4,
+          "score": 0.016129032258064516,
+          "rerank_score": 0.021072527333476004
+        },
+        {
+          "paper_id": "lec1",
+          "page": 24,
+          "score": 0.014492753623188406,
+          "rerank_score": 0.0199274101395856
+        },
+        {
+          "paper_id": "lec1",
+          "page": 27,
+          "score": 0.014925373134328358,
+          "rerank_score": 0.010536351561285294
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 34,
+          "score": 0.015873015873015872,
+          "rerank_score": 0.006302450094568043
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 6,
+          "score": 0.01639344262295082,
+          "rerank_score": 0.004277028558647439
+        },
+        {
+          "paper_id": "DDA5001_25fall_final",
+          "page": 1,
+          "score": 0.015625,
+          "rerank_score": 0.004257294782176148
+        },
+        {
+          "paper_id": "DDA5001_25fall_final_slu",
+          "page": 1,
+          "score": 0.015384615384615385,
+          "rerank_score": 0.004257294782176148
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 51,
+          "score": 0.014705882352941176,
+          "rerank_score": 0.004155495893731378
+        },
+        {
+          "paper_id": "MachineLearning_project",
+          "page": 16,
+          "score": 0.014705882352941176,
+          "rerank_score": 0.002917416728670861
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 50,
+          "score": 0.014285714285714285,
+          "rerank_score": 0.002216451934635183
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 41,
+          "score": 0.03149801587301587,
+          "rerank_score": 0.0011009858368309893
+        },
+        {
+          "paper_id": "Lecture3",
+          "page": 49,
+          "score": 0.014285714285714285,
+          "rerank_score": 0.00043041755621768015
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 45,
+          "score": 0.015384615384615385,
+          "rerank_score": 0.0002888990862101781
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 46,
+          "score": 0.015151515151515152,
+          "rerank_score": 0.0002888990862101781
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 49,
+          "score": 0.03007688828584351,
+          "rerank_score": 0.00023061465808556504
+        },
+        {
+          "paper_id": "Lecture3",
+          "page": 14,
+          "score": 0.014492753623188406,
+          "rerank_score": 0.00022097749357863404
+        }
+      ]
+    },
+    {
+      "qid": "q004",
+      "gold_targets": [
+        {
+          "paper_id": "Lecture1",
+          "pages": [
+            17,
+            18
+          ],
+          "chunk_ids": []
+        },
+        {
+          "paper_id": "Lecture7",
+          "pages": [
+            2,
+            3,
+            4
+          ],
+          "chunk_ids": []
+        }
+      ],
+      "first_hit_rank": 1,
+      "hit_ranks": [
+        1,
+        2,
+        6
+      ],
+      "retrieved": [
+        {
+          "paper_id": "Lecture7",
+          "page": 4,
+          "score": 0.01639344262295082,
+          "rerank_score": 0.995469972948266
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 18,
+          "score": 0.016129032258064516,
+          "rerank_score": 0.9847065908823703
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 19,
+          "score": 0.015384615384615385,
+          "rerank_score": 0.8857929797115955
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 29,
+          "score": 0.03007688828584351,
+          "rerank_score": 0.8754924856926463
+        },
+        {
+          "paper_id": "Lecture4",
+          "page": 2,
+          "score": 0.029631255487269532,
+          "rerank_score": 0.8754924856926463
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 17,
+          "score": 0.015873015873015872,
+          "rerank_score": 0.8373051339014997
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 37,
+          "score": 0.03125,
+          "rerank_score": 0.741716765128507
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 30,
+          "score": 0.016129032258064516,
+          "rerank_score": 0.5858710771755077
+        },
+        {
+          "paper_id": "Lecture4",
+          "page": 3,
+          "score": 0.015873015873015872,
+          "rerank_score": 0.5858710771755077
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 20,
+          "score": 0.01639344262295082,
+          "rerank_score": 0.5009767698736992
+        },
+        {
+          "paper_id": "Lecture7",
+          "page": 16,
+          "score": 0.014492753623188406,
+          "rerank_score": 0.3976528829748088
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 16,
+          "score": 0.014705882352941176,
+          "rerank_score": 0.2877288103108575
+        },
+        {
+          "paper_id": "Lecture4",
+          "page": 56,
+          "score": 0.014285714285714285,
+          "rerank_score": 0.23136208975916667
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 27,
+          "score": 0.014492753623188406,
+          "rerank_score": 0.03435218766624164
+        },
+        {
+          "paper_id": "Lecture7",
+          "page": 21,
+          "score": 0.015384615384615385,
+          "rerank_score": 0.03131379760012183
+        },
+        {
+          "paper_id": "Lecture7",
+          "page": 6,
+          "score": 0.014285714285714285,
+          "rerank_score": 0.013100873513761394
+        },
+        {
+          "paper_id": "Lecture7",
+          "page": 13,
+          "score": 0.015151515151515152,
+          "rerank_score": 0.008465408111426055
+        }
+      ]
+    },
+    {
+      "qid": "q005",
+      "gold_targets": [
+        {
+          "paper_id": "Lecture1",
+          "pages": [
+            19,
+            20
+          ],
+          "chunk_ids": []
+        }
+      ],
+      "first_hit_rank": 1,
+      "hit_ranks": [
+        1
+      ],
+      "retrieved": [
+        {
+          "paper_id": "Lecture1",
+          "page": 19,
+          "score": 0.01639344262295082,
+          "rerank_score": 0.5054530844420709
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 29,
+          "score": 0.016129032258064516,
+          "rerank_score": 0.39903755589524653
+        },
+        {
+          "paper_id": "Lecture4",
+          "page": 2,
+          "score": 0.015873015873015872,
+          "rerank_score": 0.39903755589524653
+        },
+        {
+          "paper_id": "lec6",
+          "page": 27,
+          "score": 0.015151515151515152,
+          "rerank_score": 0.01400027549955192
+        },
+        {
+          "paper_id": "Lecture13",
+          "page": 2,
+          "score": 0.015384615384615385,
+          "rerank_score": 0.0006755096157183645
+        },
+        {
+          "paper_id": "lec22",
+          "page": 2,
+          "score": 0.014705882352941176,
+          "rerank_score": 0.0006678256756433303
+        },
+        {
+          "paper_id": "lec18",
+          "page": 21,
+          "score": 0.014492753623188406,
+          "rerank_score": 0.00035549130773629444
+        },
+        {
+          "paper_id": "DDA5001_25fall_final",
+          "page": 3,
+          "score": 0.014285714285714285,
+          "rerank_score": 0.0003277554864615623
+        },
+        {
+          "paper_id": "sample_final_slu",
+          "page": 4,
+          "score": 0.014925373134328358,
+          "rerank_score": 0.00015548252518017512
+        },
+        {
+          "paper_id": "Lecture4",
+          "page": 46,
+          "score": 0.015625,
+          "rerank_score": 6.0408911783884615e-05
+        }
+      ]
+    },
+    {
+      "qid": "q006",
+      "gold_targets": [
+        {
+          "paper_id": "Lecture11",
+          "pages": [
+            2
+          ],
+          "chunk_ids": []
+        },
+        {
+          "paper_id": "Lecture10",
+          "pages": [
+            63,
+            64,
+            65,
+            66,
+            67,
+            68
+          ],
+          "chunk_ids": []
+        },
+        {
+          "paper_id": "lec2",
+          "pages": [
+            52,
+            53,
+            54
+          ],
+          "chunk_ids": []
+        },
+        {
+          "paper_id": "lec3",
+          "pages": [
+            2,
+            3
+          ],
+          "chunk_ids": []
+        }
+      ],
+      "first_hit_rank": 2,
+      "hit_ranks": [
+        2,
+        3,
+        6,
+        7,
+        12,
+        13,
+        14,
+        16
+      ],
+      "retrieved": [
+        {
+          "paper_id": "lec5",
+          "page": 3,
+          "score": 0.01639344262295082,
+          "rerank_score": 0.9877268921558535
+        },
+        {
+          "paper_id": "Lecture11",
+          "page": 2,
+          "score": 0.015873015873015872,
+          "rerank_score": 0.9863194879473374
+        },
+        {
+          "paper_id": "lec3",
+          "page": 2,
+          "score": 0.014925373134328358,
+          "rerank_score": 0.9863194879473374
+        },
+        {
+          "paper_id": "Lecture10",
+          "page": 58,
+          "score": 0.015384615384615385,
+          "rerank_score": 0.952655166247231
+        },
+        {
+          "paper_id": "lec2",
+          "page": 44,
+          "score": 0.015873015873015872,
+          "rerank_score": 0.9410851819271463
+        },
+        {
+          "paper_id": "Lecture10",
+          "page": 67,
+          "score": 0.01639344262295082,
+          "rerank_score": 0.8939370681162576
+        },
+        {
+          "paper_id": "lec2",
+          "page": 53,
+          "score": 0.015384615384615385,
+          "rerank_score": 0.8939370681162576
+        },
+        {
+          "paper_id": "lec26",
+          "page": 3,
+          "score": 0.015151515151515152,
+          "rerank_score": 0.8907986848325332
+        },
+        {
+          "paper_id": "lec26",
+          "page": 2,
+          "score": 0.015625,
+          "rerank_score": 0.39589113960147837
+        },
+        {
+          "paper_id": "lec1",
+          "page": 18,
+          "score": 0.016129032258064516,
+          "rerank_score": 0.2638727752804968
+        },
+        {
+          "paper_id": "Lecture11",
+          "page": 3,
+          "score": 0.014705882352941176,
+          "rerank_score": 0.21029644848202628
+        },
+        {
+          "paper_id": "lec3",
+          "page": 3,
+          "score": 0.014285714285714285,
+          "rerank_score": 0.21029644848202628
+        },
+        {
+          "paper_id": "Lecture10",
+          "page": 68,
+          "score": 0.016129032258064516,
+          "rerank_score": 0.1837223066212729
+        },
+        {
+          "paper_id": "lec2",
+          "page": 54,
+          "score": 0.015151515151515152,
+          "rerank_score": 0.1837223066212729
+        },
+        {
+          "paper_id": "lec24",
+          "page": 7,
+          "score": 0.014492753623188406,
+          "rerank_score": 0.1335407150586087
+        },
+        {
+          "paper_id": "Lecture10",
+          "page": 63,
+          "score": 0.014285714285714285,
+          "rerank_score": 0.11660084730491752
+        },
+        {
+          "paper_id": "lec15",
+          "page": 25,
+          "score": 0.015625,
+          "rerank_score": 0.030021859849778048
+        },
+        {
+          "paper_id": "lec25_1",
+          "page": 9,
+          "score": 0.014925373134328358,
+          "rerank_score": 0.02389717057879049
+        },
+        {
+          "paper_id": "lec21",
+          "page": 28,
+          "score": 0.014705882352941176,
+          "rerank_score": 0.009665705735221316
+        },
+        {
+          "paper_id": "lec1",
+          "page": 1,
+          "score": 0.014492753623188406,
+          "rerank_score": 0.0001039164228119557
+        }
+      ]
+    },
+    {
+      "qid": "q007",
+      "gold_targets": [
+        {
+          "paper_id": "Lecture9",
+          "pages": [
+            2
+          ],
+          "chunk_ids": []
+        }
+      ],
+      "first_hit_rank": 3,
+      "hit_ranks": [
+        3
+      ],
+      "retrieved": [
+        {
+          "paper_id": "Lecture1",
+          "page": 41,
+          "score": 0.01639344262295082,
+          "rerank_score": 0.9986269665414311
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 39,
+          "score": 0.015873015873015872,
+          "rerank_score": 0.8347410179451172
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 2,
+          "score": 0.014925373134328358,
+          "rerank_score": 0.5763340934341064
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 40,
+          "score": 0.014492753623188406,
+          "rerank_score": 0.4658304530964797
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 49,
+          "score": 0.016129032258064516,
+          "rerank_score": 0.34081219309380445
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 47,
+          "score": 0.014285714285714285,
+          "rerank_score": 0.08146607501412702
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 45,
+          "score": 0.015625,
+          "rerank_score": 0.026474462173756468
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 46,
+          "score": 0.015384615384615385,
+          "rerank_score": 0.026474462173756468
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 6,
+          "score": 0.014705882352941176,
+          "rerank_score": 0.02301609392316351
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 37,
+          "score": 0.015151515151515152,
+          "rerank_score": 0.021459208518426386
+        }
+      ]
+    },
+    {
+      "qid": "q008",
+      "gold_targets": [
+        {
+          "paper_id": "Lecture9",
+          "pages": [
+            35,
+            36,
+            37
+          ],
+          "chunk_ids": []
+        }
+      ],
+      "first_hit_rank": 1,
+      "hit_ranks": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "retrieved": [
+        {
+          "paper_id": "Lecture9",
+          "page": 36,
+          "score": 0.015384615384615385,
+          "rerank_score": 0.6488129149500874
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 37,
+          "score": 0.01639344262295082,
+          "rerank_score": 0.2227313002856687
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 36,
+          "score": 0.016129032258064516,
+          "rerank_score": 0.07954613439975947
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 35,
+          "score": 0.014285714285714285,
+          "rerank_score": 0.04242189736157779
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 6,
+          "score": 0.014925373134328358,
+          "rerank_score": 0.001619726002334698
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 38,
+          "score": 0.015151515151515152,
+          "rerank_score": 0.0013735422202998126
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 51,
+          "score": 0.015384615384615385,
+          "rerank_score": 0.0012957050882868159
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 16,
+          "score": 0.014285714285714285,
+          "rerank_score": 0.0012266465630258135
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 22,
+          "score": 0.015151515151515152,
+          "rerank_score": 0.0012207208285144773
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 41,
+          "score": 0.032266458495966696,
+          "rerank_score": 0.0010766119724994778
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 49,
+          "score": 0.03125,
+          "rerank_score": 0.0010575942430318737
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 47,
+          "score": 0.014925373134328358,
+          "rerank_score": 0.0009134083998002235
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 50,
+          "score": 0.014492753623188406,
+          "rerank_score": 0.0005080167894097592
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 45,
+          "score": 0.030834914611005692,
+          "rerank_score": 0.00015649409448382582
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 46,
+          "score": 0.03036576949620428,
+          "rerank_score": 0.00015649409448382582
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 48,
+          "score": 0.014705882352941176,
+          "rerank_score": 3.9138229367152235e-05
+        }
+      ]
+    },
+    {
+      "qid": "q009",
+      "gold_targets": [
+        {
+          "paper_id": "Lecture9",
+          "pages": [
+            40,
+            41,
+            42,
+            43,
+            44,
+            45,
+            46,
+            47,
+            48,
+            49
+          ],
+          "chunk_ids": []
+        }
+      ],
+      "first_hit_rank": 1,
+      "hit_ranks": [
+        1
+      ],
+      "retrieved": [
+        {
+          "paper_id": "Lecture9",
+          "page": 40,
+          "score": 0.015873015873015872,
+          "rerank_score": 0.9750519466725424
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 51,
+          "score": 0.01639344262295082,
+          "rerank_score": 0.901891947583793
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 41,
+          "score": 0.015625,
+          "rerank_score": 0.07028574430927458
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 8,
+          "score": 0.014925373134328358,
+          "rerank_score": 0.037779887938642724
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 23,
+          "score": 0.014705882352941176,
+          "rerank_score": 0.03508208235525047
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 42,
+          "score": 0.014492753623188406,
+          "rerank_score": 0.016127438343087167
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 43,
+          "score": 0.014285714285714285,
+          "rerank_score": 0.016127438343087167
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 49,
+          "score": 0.016129032258064516,
+          "rerank_score": 0.016124389472470708
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 45,
+          "score": 0.015384615384615385,
+          "rerank_score": 0.014002520271185684
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 46,
+          "score": 0.015151515151515152,
+          "rerank_score": 0.014002520271185684
+        }
+      ]
+    },
+    {
+      "qid": "q010",
+      "gold_targets": [
+        {
+          "paper_id": "lec3",
+          "pages": [
+            36
+          ],
+          "chunk_ids": []
+        },
+        {
+          "paper_id": "lec4",
+          "pages": [
+            9
+          ],
+          "chunk_ids": []
+        }
+      ],
+      "first_hit_rank": null,
+      "hit_ranks": [],
+      "retrieved": [
+        {
+          "paper_id": "lec4",
+          "page": 12,
+          "score": 0.014925373134328358,
+          "rerank_score": 0.4560015231394465
+        },
+        {
+          "paper_id": "lec3",
+          "page": 40,
+          "score": 0.015625,
+          "rerank_score": 0.3597120512208121
+        },
+        {
+          "paper_id": "Lecture11",
+          "page": 40,
+          "score": 0.015384615384615385,
+          "rerank_score": 0.3561148737721641
+        },
+        {
+          "paper_id": "lec3",
+          "page": 39,
+          "score": 0.014705882352941176,
+          "rerank_score": 0.3049679120387416
+        },
+        {
+          "paper_id": "Lecture11",
+          "page": 39,
+          "score": 0.015151515151515152,
+          "rerank_score": 0.30156894849590216
+        },
+        {
+          "paper_id": "lec26",
+          "page": 8,
+          "score": 0.014492753623188406,
+          "rerank_score": 0.19087259237494641
+        },
+        {
+          "paper_id": "lec5",
+          "page": 2,
+          "score": 0.016129032258064516,
+          "rerank_score": 0.14126961494107124
+        },
+        {
+          "paper_id": "lec16",
+          "page": 16,
+          "score": 0.015873015873015872,
+          "rerank_score": 0.1393402722190468
+        },
+        {
+          "paper_id": "lec3",
+          "page": 35,
+          "score": 0.014285714285714285,
+          "rerank_score": 0.10607468722453198
+        },
+        {
+          "paper_id": "lec16",
+          "page": 15,
+          "score": 0.01639344262295082,
+          "rerank_score": 0.04635965102675594
+        }
+      ]
+    },
+    {
+      "qid": "q011",
+      "gold_targets": [
+        {
+          "paper_id": "lec4",
+          "pages": [
+            32
+          ],
+          "chunk_ids": []
+        }
+      ],
+      "first_hit_rank": 2,
+      "hit_ranks": [
+        2
+      ],
+      "retrieved": [
+        {
+          "paper_id": "Lecture11",
+          "page": 59,
+          "score": 0.01639344262295082,
+          "rerank_score": 0.972411398356349
+        },
+        {
+          "paper_id": "lec4",
+          "page": 32,
+          "score": 0.016129032258064516,
+          "rerank_score": 0.9705211442409893
+        },
+        {
+          "paper_id": "lec26",
+          "page": 9,
+          "score": 0.015384615384615385,
+          "rerank_score": 0.9575403049556312
+        },
+        {
+          "paper_id": "DDA5001_25fall_final_slu",
+          "page": 3,
+          "score": 0.014925373134328358,
+          "rerank_score": 0.32149550711663877
+        },
+        {
+          "paper_id": "DDA5001_25fall_final",
+          "page": 3,
+          "score": 0.014492753623188406,
+          "rerank_score": 0.2800170684483072
+        },
+        {
+          "paper_id": "lec14",
+          "page": 26,
+          "score": 0.014705882352941176,
+          "rerank_score": 0.1632949374125967
+        },
+        {
+          "paper_id": "lec15",
+          "page": 20,
+          "score": 0.015625,
+          "rerank_score": 0.048787361331318606
+        },
+        {
+          "paper_id": "lec26",
+          "page": 7,
+          "score": 0.015873015873015872,
+          "rerank_score": 0.02133291941050526
+        },
+        {
+          "paper_id": "Lecture11",
+          "page": 28,
+          "score": 0.014285714285714285,
+          "rerank_score": 0.015746389411596118
+        },
+        {
+          "paper_id": "Lecture6",
+          "page": 11,
+          "score": 0.015151515151515152,
+          "rerank_score": 0.005632921960106065
+        }
+      ]
+    },
+    {
+      "qid": "q012",
+      "gold_targets": [
+        {
+          "paper_id": "lec8",
+          "pages": [
+            27
+          ],
+          "chunk_ids": []
+        }
+      ],
+      "first_hit_rank": 1,
+      "hit_ranks": [
+        1
+      ],
+      "retrieved": [
+        {
+          "paper_id": "lec8",
+          "page": 27,
+          "score": 0.015151515151515152,
+          "rerank_score": 0.9565540444377784
+        },
+        {
+          "paper_id": "lec3",
+          "page": 23,
+          "score": 0.016129032258064516,
+          "rerank_score": 0.954216509541535
+        },
+        {
+          "paper_id": "Lecture11",
+          "page": 23,
+          "score": 0.015873015873015872,
+          "rerank_score": 0.9519588132377435
+        },
+        {
+          "paper_id": "lec3",
+          "page": 24,
+          "score": 0.015625,
+          "rerank_score": 0.9408664400832533
+        },
+        {
+          "paper_id": "Lecture11",
+          "page": 24,
+          "score": 0.015384615384615385,
+          "rerank_score": 0.9392743073565264
+        },
+        {
+          "paper_id": "lec21",
+          "page": 20,
+          "score": 0.01639344262295082,
+          "rerank_score": 0.8692205905227784
+        },
+        {
+          "paper_id": "sample_final_slu",
+          "page": 2,
+          "score": 0.014925373134328358,
+          "rerank_score": 0.8075162026388578
+        },
+        {
+          "paper_id": "sample_final",
+          "page": 2,
+          "score": 0.014492753623188406,
+          "rerank_score": 0.36963975570185253
+        },
+        {
+          "paper_id": "sample_final",
+          "page": 3,
+          "score": 0.014285714285714285,
+          "rerank_score": 0.006818724638796341
+        },
+        {
+          "paper_id": "DDA5001_25fall_final",
+          "page": 4,
+          "score": 0.014705882352941176,
+          "rerank_score": 0.004395722105303471
+        }
+      ]
+    },
+    {
+      "qid": "q013",
+      "gold_targets": [
+        {
+          "paper_id": "lec9",
+          "pages": [
+            13
+          ],
+          "chunk_ids": []
+        }
+      ],
+      "first_hit_rank": 1,
+      "hit_ranks": [
+        1
+      ],
+      "retrieved": [
+        {
+          "paper_id": "lec9",
+          "page": 13,
+          "score": 0.015873015873015872,
+          "rerank_score": 0.9725961999762909
+        },
+        {
+          "paper_id": "lec10",
+          "page": 14,
+          "score": 0.015384615384615385,
+          "rerank_score": 0.41710907821762633
+        },
+        {
+          "paper_id": "DDA5001_25fall_final_slu",
+          "page": 3,
+          "score": 0.014705882352941176,
+          "rerank_score": 0.2211796671106737
+        },
+        {
+          "paper_id": "lec9",
+          "page": 14,
+          "score": 0.014925373134328358,
+          "rerank_score": 0.04904296069490512
+        },
+        {
+          "paper_id": "lec9",
+          "page": 15,
+          "score": 0.015151515151515152,
+          "rerank_score": 0.031443553379281605
+        },
+        {
+          "paper_id": "lec14",
+          "page": 23,
+          "score": 0.015625,
+          "rerank_score": 0.006833423753958984
+        },
+        {
+          "paper_id": "Lecture4",
+          "page": 32,
+          "score": 0.01639344262295082,
+          "rerank_score": 0.0018970374429049686
+        },
+        {
+          "paper_id": "Lecture4",
+          "page": 40,
+          "score": 0.016129032258064516,
+          "rerank_score": 0.0005161679649314302
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 45,
+          "score": 0.014492753623188406,
+          "rerank_score": 2.044582570307554e-05
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 46,
+          "score": 0.014285714285714285,
+          "rerank_score": 2.044582570307554e-05
+        }
+      ]
+    },
+    {
+      "qid": "q014",
+      "gold_targets": [
+        {
+          "paper_id": "lec9",
+          "pages": [
+            24,
+            25,
+            26,
+            27,
+            28
+          ],
+          "chunk_ids": []
+        },
+        {
+          "paper_id": "lec10",
+          "pages": [
+            3
+          ],
+          "chunk_ids": []
+        }
+      ],
+      "first_hit_rank": 2,
+      "hit_ranks": [
+        2,
+        3,
+        4
+      ],
+      "retrieved": [
+        {
+          "paper_id": "lec9",
+          "page": 23,
+          "score": 0.014925373134328358,
+          "rerank_score": 0.9655754203624833
+        },
+        {
+          "paper_id": "lec9",
+          "page": 28,
+          "score": 0.016129032258064516,
+          "rerank_score": 0.9536356687270675
+        },
+        {
+          "paper_id": "lec9",
+          "page": 24,
+          "score": 0.015625,
+          "rerank_score": 0.8944322104348564
+        },
+        {
+          "paper_id": "lec9",
+          "page": 27,
+          "score": 0.015873015873015872,
+          "rerank_score": 0.8891297871588165
+        },
+        {
+          "paper_id": "lec13",
+          "page": 17,
+          "score": 0.014285714285714285,
+          "rerank_score": 0.607924621972134
+        },
+        {
+          "paper_id": "lec12",
+          "page": 21,
+          "score": 0.014492753623188406,
+          "rerank_score": 0.5914095850014424
+        },
+        {
+          "paper_id": "lec20",
+          "page": 5,
+          "score": 0.014705882352941176,
+          "rerank_score": 0.37569688995041994
+        },
+        {
+          "paper_id": "lec20",
+          "page": 7,
+          "score": 0.015384615384615385,
+          "rerank_score": 0.34912894947224893
+        },
+        {
+          "paper_id": "DDA5001_25fall_final_slu",
+          "page": 5,
+          "score": 0.01639344262295082,
+          "rerank_score": 0.3237443750452068
+        },
+        {
+          "paper_id": "lec13",
+          "page": 25,
+          "score": 0.015151515151515152,
+          "rerank_score": 0.23344365445140264
+        }
+      ]
+    },
+    {
+      "qid": "q015",
+      "gold_targets": [
+        {
+          "paper_id": "lec10",
+          "pages": [
+            7
+          ],
+          "chunk_ids": []
+        }
+      ],
+      "first_hit_rank": 1,
+      "hit_ranks": [
+        1
+      ],
+      "retrieved": [
+        {
+          "paper_id": "lec10",
+          "page": 7,
+          "score": 0.01639344262295082,
+          "rerank_score": 0.9910894584905005
+        },
+        {
+          "paper_id": "lec10",
+          "page": 13,
+          "score": 0.016129032258064516,
+          "rerank_score": 0.8695301552795829
+        },
+        {
+          "paper_id": "lec11",
+          "page": 14,
+          "score": 0.014705882352941176,
+          "rerank_score": 0.3901335861871633
+        },
+        {
+          "paper_id": "DDA5001_25fall_final",
+          "page": 4,
+          "score": 0.015873015873015872,
+          "rerank_score": 0.14821855241600718
+        },
+        {
+          "paper_id": "lec20",
+          "page": 27,
+          "score": 0.015151515151515152,
+          "rerank_score": 0.06422748038509513
+        },
+        {
+          "paper_id": "Lecture12",
+          "page": 57,
+          "score": 0.015625,
+          "rerank_score": 0.05716800927319957
+        },
+        {
+          "paper_id": "lec19",
+          "page": 31,
+          "score": 0.015384615384615385,
+          "rerank_score": 0.055682928857529616
+        },
+        {
+          "paper_id": "Lecture10",
+          "page": 66,
+          "score": 0.014492753623188406,
+          "rerank_score": 0.05166154806843575
+        },
+        {
+          "paper_id": "lec2",
+          "page": 52,
+          "score": 0.014285714285714285,
+          "rerank_score": 0.05166154806843575
+        },
+        {
+          "paper_id": "lec19",
+          "page": 9,
+          "score": 0.014925373134328358,
+          "rerank_score": 0.01734262504292285
+        }
+      ]
+    },
+    {
+      "qid": "q016",
+      "gold_targets": [
+        {
+          "paper_id": "lec10",
+          "pages": [
+            14
+          ],
+          "chunk_ids": []
+        }
+      ],
+      "first_hit_rank": null,
+      "hit_ranks": [],
+      "retrieved": [
+        {
+          "paper_id": "lec9",
+          "page": 13,
+          "score": 0.015151515151515152,
+          "rerank_score": 0.2353547977206322
+        },
+        {
+          "paper_id": "lec16",
+          "page": 3,
+          "score": 0.014705882352941176,
+          "rerank_score": 0.15538613550643707
+        },
+        {
+          "paper_id": "lec16",
+          "page": 4,
+          "score": 0.014492753623188406,
+          "rerank_score": 0.15014798294484838
+        },
+        {
+          "paper_id": "lec16",
+          "page": 5,
+          "score": 0.015384615384615385,
+          "rerank_score": 0.07657077697275705
+        },
+        {
+          "paper_id": "lec16",
+          "page": 6,
+          "score": 0.014925373134328358,
+          "rerank_score": 0.05562893327054227
+        },
+        {
+          "paper_id": "Lecture4",
+          "page": 32,
+          "score": 0.016129032258064516,
+          "rerank_score": 0.004596203853432748
+        },
+        {
+          "paper_id": "Lecture4",
+          "page": 33,
+          "score": 0.01639344262295082,
+          "rerank_score": 0.00278111670509575
+        },
+        {
+          "paper_id": "Lecture4",
+          "page": 40,
+          "score": 0.015625,
+          "rerank_score": 0.001357113771839994
+        },
+        {
+          "paper_id": "Lecture7",
+          "page": 20,
+          "score": 0.014285714285714285,
+          "rerank_score": 0.0011988436261056966
+        },
+        {
+          "paper_id": "Lecture4",
+          "page": 41,
+          "score": 0.015873015873015872,
+          "rerank_score": 0.0007202951969027039
+        }
+      ]
+    },
+    {
+      "qid": "q017",
+      "gold_targets": [
+        {
+          "paper_id": "lec11",
+          "pages": [
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "chunk_ids": []
+        }
+      ],
+      "first_hit_rank": 1,
+      "hit_ranks": [
+        1,
+        5
+      ],
+      "retrieved": [
+        {
+          "paper_id": "lec11",
+          "page": 5,
+          "score": 0.01639344262295082,
+          "rerank_score": 0.9518620708997196
+        },
+        {
+          "paper_id": "lec26",
+          "page": 19,
+          "score": 0.016129032258064516,
+          "rerank_score": 0.9114277084900315
+        },
+        {
+          "paper_id": "lec12",
+          "page": 2,
+          "score": 0.015625,
+          "rerank_score": 0.762822309904553
+        },
+        {
+          "paper_id": "lec13",
+          "page": 9,
+          "score": 0.014492753623188406,
+          "rerank_score": 0.6290156600170537
+        },
+        {
+          "paper_id": "lec11",
+          "page": 7,
+          "score": 0.015873015873015872,
+          "rerank_score": 0.5857367871830271
+        },
+        {
+          "paper_id": "lec4",
+          "page": 11,
+          "score": 0.014925373134328358,
+          "rerank_score": 0.5739677839326573
+        },
+        {
+          "paper_id": "lec11",
+          "page": 13,
+          "score": 0.014705882352941176,
+          "rerank_score": 0.22932323897867476
+        },
+        {
+          "paper_id": "lec11",
+          "page": 12,
+          "score": 0.015151515151515152,
+          "rerank_score": 0.19573845211051707
+        },
+        {
+          "paper_id": "lec11",
+          "page": 11,
+          "score": 0.015384615384615385,
+          "rerank_score": 0.15934428501006448
+        },
+        {
+          "paper_id": "lec11",
+          "page": 10,
+          "score": 0.014285714285714285,
+          "rerank_score": 0.06599408819585745
+        }
+      ]
+    },
+    {
+      "qid": "q018",
+      "gold_targets": [
+        {
+          "paper_id": "lec12",
+          "pages": [
+            18,
+            19,
+            20
+          ],
+          "chunk_ids": []
+        }
+      ],
+      "first_hit_rank": 2,
+      "hit_ranks": [
+        2,
+        6,
+        8
+      ],
+      "retrieved": [
+        {
+          "paper_id": "lec13",
+          "page": 28,
+          "score": 0.014705882352941176,
+          "rerank_score": 0.841104014218228
+        },
+        {
+          "paper_id": "lec12",
+          "page": 18,
+          "score": 0.01639344262295082,
+          "rerank_score": 0.8163584864906723
+        },
+        {
+          "paper_id": "lec13",
+          "page": 13,
+          "score": 0.016129032258064516,
+          "rerank_score": 0.8122683605511754
+        },
+        {
+          "paper_id": "lec13",
+          "page": 11,
+          "score": 0.015625,
+          "rerank_score": 0.7354076590776211
+        },
+        {
+          "paper_id": "lec13",
+          "page": 12,
+          "score": 0.015873015873015872,
+          "rerank_score": 0.7278963829355223
+        },
+        {
+          "paper_id": "lec12",
+          "page": 19,
+          "score": 0.014285714285714285,
+          "rerank_score": 0.5588357432096444
+        },
+        {
+          "paper_id": "lec13",
+          "page": 29,
+          "score": 0.014492753623188406,
+          "rerank_score": 0.555376321445517
+        },
+        {
+          "paper_id": "lec12",
+          "page": 20,
+          "score": 0.015151515151515152,
+          "rerank_score": 0.3106768697240438
+        },
+        {
+          "paper_id": "lec13",
+          "page": 15,
+          "score": 0.014925373134328358,
+          "rerank_score": 0.3094019532204273
+        },
+        {
+          "paper_id": "lec13",
+          "page": 19,
+          "score": 0.015384615384615385,
+          "rerank_score": 0.13559495297965998
+        }
+      ]
+    },
+    {
+      "qid": "q019",
+      "gold_targets": [
+        {
+          "paper_id": "lec22",
+          "pages": [
+            20
+          ],
+          "chunk_ids": []
+        }
+      ],
+      "first_hit_rank": null,
+      "hit_ranks": [],
+      "retrieved": [
+        {
+          "paper_id": "DDA5001_25fall_final",
+          "page": 6,
+          "score": 0.014285714285714285,
+          "rerank_score": 0.890135544931238
+        },
+        {
+          "paper_id": "DDA5001_25fall_final",
+          "page": 3,
+          "score": 0.015151515151515152,
+          "rerank_score": 0.8663457380795865
+        },
+        {
+          "paper_id": "lec22",
+          "page": 5,
+          "score": 0.015384615384615385,
+          "rerank_score": 0.814037935716634
+        },
+        {
+          "paper_id": "Lecture13",
+          "page": 5,
+          "score": 0.015625,
+          "rerank_score": 0.8128372870611941
+        },
+        {
+          "paper_id": "DDA5001_25fall_final_slu",
+          "page": 4,
+          "score": 0.014492753623188406,
+          "rerank_score": 0.5749666586381114
+        },
+        {
+          "paper_id": "lec26",
+          "page": 34,
+          "score": 0.015873015873015872,
+          "rerank_score": 0.4768724823925493
+        },
+        {
+          "paper_id": "Lecture13",
+          "page": 2,
+          "score": 0.014925373134328358,
+          "rerank_score": 0.2848454792967001
+        },
+        {
+          "paper_id": "lec22",
+          "page": 2,
+          "score": 0.014705882352941176,
+          "rerank_score": 0.2848454792967001
+        },
+        {
+          "paper_id": "Lecture13",
+          "page": 2,
+          "score": 0.01639344262295082,
+          "rerank_score": 0.16388393288378955
+        },
+        {
+          "paper_id": "lec22",
+          "page": 2,
+          "score": 0.016129032258064516,
+          "rerank_score": 0.16388393288378955
+        },
+        {
+          "paper_id": "Lecture13",
+          "page": 32,
+          "score": 0.014492753623188406,
+          "rerank_score": 0.003919903116626703
+        },
+        {
+          "paper_id": "Lecture13",
+          "page": 4,
+          "score": 0.014705882352941176,
+          "rerank_score": 0.0037556242523781994
+        },
+        {
+          "paper_id": "lec24",
+          "page": 2,
+          "score": 0.014285714285714285,
+          "rerank_score": 0.00023555228873464403
+        },
+        {
+          "paper_id": "Lecture13",
+          "page": 33,
+          "score": 0.015873015873015872,
+          "rerank_score": 0.0002207942657949392
+        },
+        {
+          "paper_id": "lec23",
+          "page": 6,
+          "score": 0.015151515151515152,
+          "rerank_score": 0.00020960830592713892
+        },
+        {
+          "paper_id": "Lecture13",
+          "page": 42,
+          "score": 0.015625,
+          "rerank_score": 0.00016831891603988897
+        },
+        {
+          "paper_id": "lec23",
+          "page": 15,
+          "score": 0.014925373134328358,
+          "rerank_score": 0.00015898328878096498
+        },
+        {
+          "paper_id": "lec23",
+          "page": 5,
+          "score": 0.015384615384615385,
+          "rerank_score": 0.00014691855698382997
+        },
+        {
+          "paper_id": "Lecture13",
+          "page": 43,
+          "score": 0.01639344262295082,
+          "rerank_score": 0.00010134444416687023
+        },
+        {
+          "paper_id": "lec23",
+          "page": 16,
+          "score": 0.016129032258064516,
+          "rerank_score": 0.00010134444416687023
+        }
+      ]
+    },
+    {
+      "qid": "q020",
+      "gold_targets": [
+        {
+          "paper_id": "lec22",
+          "pages": [
+            18
+          ],
+          "chunk_ids": []
+        }
+      ],
+      "first_hit_rank": null,
+      "hit_ranks": [],
+      "retrieved": [
+        {
+          "paper_id": "lec22",
+          "page": 16,
+          "score": 0.01639344262295082,
+          "rerank_score": 0.7971489160913268
+        },
+        {
+          "paper_id": "Lecture13",
+          "page": 16,
+          "score": 0.016129032258064516,
+          "rerank_score": 0.7917812561943924
+        },
+        {
+          "paper_id": "Lecture13",
+          "page": 15,
+          "score": 0.014492753623188406,
+          "rerank_score": 0.6725280038736511
+        },
+        {
+          "paper_id": "lec22",
+          "page": 15,
+          "score": 0.014285714285714285,
+          "rerank_score": 0.6518700735603481
+        },
+        {
+          "paper_id": "lec22",
+          "page": 17,
+          "score": 0.015873015873015872,
+          "rerank_score": 0.6413311820810685
+        },
+        {
+          "paper_id": "Lecture13",
+          "page": 17,
+          "score": 0.015625,
+          "rerank_score": 0.6362395478445155
+        },
+        {
+          "paper_id": "lec22",
+          "page": 13,
+          "score": 0.014705882352941176,
+          "rerank_score": 0.17536084015535316
+        },
+        {
+          "paper_id": "Lecture13",
+          "page": 13,
+          "score": 0.014925373134328358,
+          "rerank_score": 0.16588351042870034
+        },
+        {
+          "paper_id": "lec22",
+          "page": 14,
+          "score": 0.015151515151515152,
+          "rerank_score": 0.16420853419286005
+        },
+        {
+          "paper_id": "Lecture13",
+          "page": 14,
+          "score": 0.015384615384615385,
+          "rerank_score": 0.1551331490916745
+        }
+      ]
+    },
+    {
+      "qid": "999",
+      "gold_targets": [
+        {
+          "paper_id": "memory_notes",
+          "pages": [
+            1
+          ],
+          "chunk_ids": []
+        }
+      ],
+      "first_hit_rank": 1,
+      "hit_ranks": [
+        1,
+        2
+      ],
+      "retrieved": [
+        {
+          "paper_id": "memory_notes",
+          "page": 1,
+          "score": 0.016129032258064516,
+          "rerank_score": 0.7911756410473834
+        },
+        {
+          "paper_id": "memory_notes",
+          "page": 1,
+          "score": 0.01639344262295082,
+          "rerank_score": 0.674237250965551
+        },
+        {
+          "paper_id": "Lecture7",
+          "page": 19,
+          "score": 0.015384615384615385,
+          "rerank_score": 0.002425072299381636
+        },
+        {
+          "paper_id": "Lecture2",
+          "page": 41,
+          "score": 0.015873015873015872,
+          "rerank_score": 0.0019381635289053227
+        },
+        {
+          "paper_id": "weekly_report",
+          "page": 1,
+          "score": 0.015625,
+          "rerank_score": 0.0003319776575405661
+        },
+        {
+          "paper_id": "Lecture3",
+          "page": 27,
+          "score": 0.014705882352941176,
+          "rerank_score": 0.0003278257996471548
+        },
+        {
+          "paper_id": "rag_basics",
+          "page": 1,
+          "score": 0.014492753623188406,
+          "rerank_score": 0.00019647542809160138
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 18,
+          "score": 0.014285714285714285,
+          "rerank_score": 0.00014725095010095454
+        },
+        {
+          "paper_id": "Lecture2",
+          "page": 39,
+          "score": 0.015151515151515152,
+          "rerank_score": 0.00014334198946701563
+        },
+        {
+          "paper_id": "Lecture2",
+          "page": 40,
+          "score": 0.014925373134328358,
+          "rerank_score": 0.00014334198946701563
+        }
+      ]
+    },
+    {
+      "qid": "998",
+      "gold_targets": [
+        {
+          "paper_id": "weekly_report",
+          "pages": [
+            1
+          ],
+          "chunk_ids": []
+        }
+      ],
+      "first_hit_rank": 1,
+      "hit_ranks": [
+        1,
+        2,
+        3
+      ],
+      "retrieved": [
+        {
+          "paper_id": "weekly_report",
+          "page": 1,
+          "score": 0.03278688524590164,
+          "rerank_score": 0.8173392404822405
+        },
+        {
+          "paper_id": "weekly_report",
+          "page": 1,
+          "score": 0.015873015873015872,
+          "rerank_score": 0.0724248548303052
+        },
+        {
+          "paper_id": "weekly_report",
+          "page": 1,
+          "score": 0.03225806451612903,
+          "rerank_score": 0.003436472032412075
+        },
+        {
+          "paper_id": "MachineLearning_project",
+          "page": 4,
+          "score": 0.015151515151515152,
+          "rerank_score": 0.0012008814254055725
+        },
+        {
+          "paper_id": "MachineLearning_project",
+          "page": 8,
+          "score": 0.014925373134328358,
+          "rerank_score": 0.0007923677141754732
+        },
+        {
+          "paper_id": "lec1",
+          "page": 27,
+          "score": 0.014285714285714285,
+          "rerank_score": 0.00038164339685087126
+        },
+        {
+          "paper_id": "rag_basics",
+          "page": 1,
+          "score": 0.03125763125763126,
+          "rerank_score": 0.00038026843872873017
+        },
+        {
+          "paper_id": "memory_notes",
+          "page": 1,
+          "score": 0.03055037313432836,
+          "rerank_score": 0.0002327855763982763
+        },
+        {
+          "paper_id": "lec1",
+          "page": 25,
+          "score": 0.014492753623188406,
+          "rerank_score": 0.0001320835361802434
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 11,
+          "score": 0.014705882352941176,
+          "rerank_score": 4.176698566191798e-05
+        },
+        {
+          "paper_id": "lec13",
+          "page": 43,
+          "score": 0.015384615384615385,
+          "rerank_score": 2.084547659533282e-05
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 16,
+          "score": 0.015625,
+          "rerank_score": 1.6442557282081863e-05
+        },
+        {
+          "paper_id": "Lecture3",
+          "page": 14,
+          "score": 0.014285714285714285,
+          "rerank_score": 1.6264782282866993e-05
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 21,
+          "score": 0.014705882352941176,
+          "rerank_score": 1.608171957566658e-05
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 12,
+          "score": 0.015151515151515152,
+          "rerank_score": 1.6022644881081383e-05
+        },
+        {
+          "paper_id": "Lecture11",
+          "page": 35,
+          "score": 0.014492753623188406,
+          "rerank_score": 1.5916480298793465e-05
+        }
+      ]
+    }
+  ]
+}

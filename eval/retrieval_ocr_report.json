@@ -1,0 +1,3355 @@
+{
+  "n_cases": 22,
+  "rerank_backend": "flagembedding",
+  "reranker_model": "BAAI/bge-reranker-v2-m3",
+  "multi_query": {
+    "enabled": true,
+    "variants": 3
+  },
+  "hyde": {
+    "enabled": true,
+    "docs": 1
+  },
+  "metrics": {
+    "recall": {
+      "@5": 0.8181818181818182,
+      "@10": 0.8181818181818182
+    },
+    "mrr": {
+      "@10": 0.6174242424242423
+    },
+    "ndcg": {
+      "@5": 0.5378327412877708,
+      "scored_cases": 22
+    }
+  },
+  "cases": [
+    {
+      "qid": "q001",
+      "query": "C语言中的地址是指什么",
+      "variants": [
+        "C语言中的地址指的是什么",
+        "在C语言里地址的含义是什么",
+        "C语言中地址的概念是什么"
+      ],
+      "hyde_documents": [
+        "在C语言中，地址是指内存中每个存储单元（通常为字节）所对应的唯一编号，用于标识数据在内存中的存放位置。变量被定义后，系统会为其分配一块连续的内存空间，该空间的首字节编号即为该变量的地址。通过取地址运算符可以获取变量的地址，而指针变量则专门用于存储这种地址值。理解地址是掌握指针、动态内存管理和数组操作等核心概念的基础。"
+      ],
+      "gold_targets": [
+        {
+          "paper_id": "Lecture3",
+          "pages": [
+            41
+          ],
+          "chunk_ids": []
+        }
+      ],
+      "first_hit_rank": 2,
+      "hit_ranks": [
+        2
+      ],
+      "retrieved": [
+        {
+          "paper_id": "Lecture3",
+          "page": 55,
+          "score": 0.07990074441687345,
+          "rerank_score": 0.05654813492876745
+        },
+        {
+          "paper_id": "Lecture3",
+          "page": 41,
+          "score": 0.07873166522864539,
+          "rerank_score": 0.23300752342477682
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 32,
+          "score": 0.07375834097027321,
+          "rerank_score": 0.007547923375900623
+        },
+        {
+          "paper_id": "Lecture3",
+          "page": 47,
+          "score": 0.07210511827181998,
+          "rerank_score": 0.8654516767364072
+        },
+        {
+          "paper_id": "Lecture3",
+          "page": 30,
+          "score": 0.07107628142533226,
+          "rerank_score": 0.0027149854690051763
+        },
+        {
+          "paper_id": "Lecture8",
+          "page": 12,
+          "score": 0.07080953819183711,
+          "rerank_score": 0.0027255826592286025
+        },
+        {
+          "paper_id": "Lecture3",
+          "page": 42,
+          "score": 0.06349206349206349,
+          "rerank_score": 0.02665773968397867
+        },
+        {
+          "paper_id": "Lecture3",
+          "page": 43,
+          "score": 0.06154574592074592,
+          "rerank_score": 0.011597361823632971
+        },
+        {
+          "paper_id": "Lecture5",
+          "page": 13,
+          "score": 0.061079545454545456,
+          "rerank_score": 0.0072890775835919245
+        },
+        {
+          "paper_id": "Lecture7",
+          "page": 24,
+          "score": 0.055386746825102987,
+          "rerank_score": 0.0022961590064970627
+        },
+        {
+          "paper_id": "Lecture7",
+          "page": 40,
+          "score": 0.055386746825102987,
+          "rerank_score": 0.002641946843331163
+        },
+        {
+          "paper_id": "Lecture3",
+          "page": 52,
+          "score": 0.0537593984962406,
+          "rerank_score": 0.0012943680354542695
+        },
+        {
+          "paper_id": "lec3",
+          "page": 33,
+          "score": 0.051132578281145896,
+          "rerank_score": 0.0007096703991005881
+        },
+        {
+          "paper_id": "Lecture11",
+          "page": 33,
+          "score": 0.05112803862803862,
+          "rerank_score": 0.0007014082876992124
+        },
+        {
+          "paper_id": "Lecture3",
+          "page": 48,
+          "score": 0.042909717557028944,
+          "rerank_score": 0.0033244368916556374
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 37,
+          "score": 0.04232777553673076,
+          "rerank_score": 0.003510649113774665
+        },
+        {
+          "paper_id": "Lecture7",
+          "page": 9,
+          "score": 0.04111647051257316,
+          "rerank_score": 0.0021322616859826855
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 35,
+          "score": 0.039140859140859144,
+          "rerank_score": 0.0013096056548252163
+        },
+        {
+          "paper_id": "Lecture7",
+          "page": 29,
+          "score": 0.0390005265005265,
+          "rerank_score": 0.0016484829418512883
+        },
+        {
+          "paper_id": "lec4",
+          "page": 6,
+          "score": 0.03833333333333333,
+          "rerank_score": 0.0007208380258812108
+        }
+      ]
+    },
+    {
+      "qid": "q002",
+      "query": "C语言中的存储结构是什么样的",
+      "variants": [
+        "C语言中的存储结构是怎样的",
+        "C语言的存储结构如何组织",
+        "C语言中存储结构的具体形式是什么"
+      ],
+      "hyde_documents": [
+        "C语言中的存储结构通常指程序运行时变量和数据在内存中的组织方式，主要分为代码区、静态存储区、栈区和堆区。代码区存放程序指令，静态存储区用于存储全局变量和静态变量，其生命周期贯穿整个程序运行。栈区用于存储函数调用时的局部变量和参数，遵循后进先出的管理方式，空间由系统自动分配和回收。堆区则用于动态内存分配，由程序员通过标准库函数手动申请和释放，灵活性高但需注意内存管理。这种分层结构有效平衡了程序执行的效率与数据访问的灵活性。"
+      ],
+      "gold_targets": [
+        {
+          "paper_id": "Lecture3",
+          "pages": [
+            26,
+            27,
+            28
+          ],
+          "chunk_ids": []
+        }
+      ],
+      "first_hit_rank": 3,
+      "hit_ranks": [
+        3,
+        6,
+        7
+      ],
+      "retrieved": [
+        {
+          "paper_id": "Lecture3",
+          "page": 55,
+          "score": 0.07890710382513662,
+          "rerank_score": 0.43758314841204154
+        },
+        {
+          "paper_id": "Lecture3",
+          "page": 29,
+          "score": 0.07889959502862728,
+          "rerank_score": 0.9758085141318649
+        },
+        {
+          "paper_id": "Lecture3",
+          "page": 26,
+          "score": 0.07821475916924436,
+          "rerank_score": 0.16092425588380682
+        },
+        {
+          "paper_id": "Lecture3",
+          "page": 47,
+          "score": 0.07601187680478726,
+          "rerank_score": 0.03628829766475822
+        },
+        {
+          "paper_id": "Lecture7",
+          "page": 6,
+          "score": 0.07583325136074497,
+          "rerank_score": 0.09170696264527785
+        },
+        {
+          "paper_id": "Lecture3",
+          "page": 28,
+          "score": 0.07543263603744134,
+          "rerank_score": 0.05975658640044865
+        },
+        {
+          "paper_id": "Lecture3",
+          "page": 27,
+          "score": 0.07534615706054706,
+          "rerank_score": 0.05823862531097582
+        },
+        {
+          "paper_id": "Lecture3",
+          "page": 30,
+          "score": 0.07511365299172587,
+          "rerank_score": 0.9548162433273092
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 22,
+          "score": 0.07238271156996624,
+          "rerank_score": 0.9814534354878828
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 35,
+          "score": 0.06740714398609135,
+          "rerank_score": 0.0032603461032026495
+        },
+        {
+          "paper_id": "Lecture4",
+          "page": 20,
+          "score": 0.0652009628908363,
+          "rerank_score": 0.8916224556614933
+        },
+        {
+          "paper_id": "Lecture3",
+          "page": 48,
+          "score": 0.058184143222506396,
+          "rerank_score": 0.034229322578385644
+        },
+        {
+          "paper_id": "Lecture3",
+          "page": 50,
+          "score": 0.05482024277798926,
+          "rerank_score": 0.006877107658230662
+        },
+        {
+          "paper_id": "Lecture3",
+          "page": 52,
+          "score": 0.05373128660799893,
+          "rerank_score": 0.003123648599853311
+        },
+        {
+          "paper_id": "Lecture8",
+          "page": 12,
+          "score": 0.05145714822596901,
+          "rerank_score": 0.0026626127171173355
+        },
+        {
+          "paper_id": "Lecture2",
+          "page": 40,
+          "score": 0.04167202606812871,
+          "rerank_score": 0.008644177936723585
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 16,
+          "score": 0.03847402597402598,
+          "rerank_score": 0.001085944368942709
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 38,
+          "score": 0.029211087420042643,
+          "rerank_score": 0.9377830186906096
+        },
+        {
+          "paper_id": "Lecture7",
+          "page": 16,
+          "score": 0.026500526500526502,
+          "rerank_score": 0.0032099613758647793
+        },
+        {
+          "paper_id": "Lecture3",
+          "page": 53,
+          "score": 0.02631578947368421,
+          "rerank_score": 0.0011073389850898953
+        }
+      ]
+    },
+    {
+      "qid": "q003",
+      "query": "Embedded systems and IoT这门课的评分细则是什么",
+      "variants": [
+        "Embedded systems and IoT这门课的评分细则有哪些？",
+        "请问Embedded systems and IoT课程的评分标准是什么？",
+        "能否提供Embedded systems and IoT这门课的评分规则？"
+      ],
+      "hyde_documents": [
+        "针对“Embedded Systems and IoT”课程，其评分细则通常涵盖多个维度以综合评估学生的理论掌握与实践能力。核心考核部分一般包括平时作业与实验报告，重点考察嵌入式系统编程、传感器数据采集及物联网通信协议的应用实现。此外，课程项目（如基于微控制器的智能终端设计）往往占据较大权重，用于评估系统集成、问题解决及文档撰写能力。期末笔试或理论测试则侧重于对嵌入式体系结构、实时操作系统及物联网架构等核心概念的理解。最终成绩由上述各部分按特定比例加权合成，具体比例需以当学期教学大纲为准。"
+      ],
+      "gold_targets": [
+        {
+          "paper_id": "Lecture1",
+          "pages": [
+            4
+          ],
+          "chunk_ids": []
+        }
+      ],
+      "first_hit_rank": 4,
+      "hit_ranks": [
+        4
+      ],
+      "retrieved": [
+        {
+          "paper_id": "Lecture1",
+          "page": 1,
+          "score": 0.0819672131147541,
+          "rerank_score": 0.20513692444762338
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 3,
+          "score": 0.07854582693292371,
+          "rerank_score": 0.0825493022640281
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 28,
+          "score": 0.07732855466130113,
+          "rerank_score": 0.0825493022640281
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 4,
+          "score": 0.07698939391133662,
+          "rerank_score": 0.01744248473620534
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 41,
+          "score": 0.07547747629083246,
+          "rerank_score": 0.03926875192716634
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 2,
+          "score": 0.07353781332571592,
+          "rerank_score": 0.03397199715737667
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 11,
+          "score": 0.07278265066072354,
+          "rerank_score": 0.040692953596653016
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 39,
+          "score": 0.06887426387426387,
+          "rerank_score": 0.015130728307193727
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 6,
+          "score": 0.068357669192128,
+          "rerank_score": 0.009412589587609823
+        },
+        {
+          "paper_id": "lec1",
+          "page": 24,
+          "score": 0.058421644882464235,
+          "rerank_score": 0.012336100420869753
+        },
+        {
+          "paper_id": "lec1",
+          "page": 27,
+          "score": 0.05755693581780538,
+          "rerank_score": 0.01052971212461742
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 59,
+          "score": 0.056325647300697314,
+          "rerank_score": 0.8570517499769504
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 34,
+          "score": 0.055365296803652965,
+          "rerank_score": 0.006314364670896371
+        },
+        {
+          "paper_id": "DDA5001_25fall_final",
+          "page": 1,
+          "score": 0.052991754570701946,
+          "rerank_score": 0.001661390673335242
+        },
+        {
+          "paper_id": "DDA5001_25fall_final_slu",
+          "page": 1,
+          "score": 0.05229875387770125,
+          "rerank_score": 0.001661390673335242
+        },
+        {
+          "paper_id": "Lecture4",
+          "page": 5,
+          "score": 0.0432712215320911,
+          "rerank_score": 0.005774929853444153
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 20,
+          "score": 0.042975879104911366,
+          "rerank_score": 0.8883720089593933
+        },
+        {
+          "paper_id": "MachineLearning_project",
+          "page": 16,
+          "score": 0.03915875434862777,
+          "rerank_score": 0.0013831174237397678
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 22,
+          "score": 0.03765822784810127,
+          "rerank_score": 0.0009850082967450694
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 45,
+          "score": 0.028373015873015873,
+          "rerank_score": 0.8785228379103606
+        }
+      ]
+    },
+    {
+      "qid": "q004",
+      "query": "RAM和ROM的区别是什么",
+      "variants": [
+        "RAM与ROM有何不同",
+        "RAM和ROM之间有什么区别"
+      ],
+      "hyde_documents": [
+        "RAM（随机存取存储器）和ROM（只读存储器）是计算机中两种主要的内部存储器，其核心区别在于数据存储的易失性与非易失性。RAM属于易失性存储器，断电后数据立即丢失，主要用于临时存储正在运行的程序和当前处理的数据，以实现高速读写。ROM属于非易失性存储器，断电后数据依然保留，通常用于存储固件或系统启动所需的固定指令。在功能上，RAM支持频繁的读写操作，而ROM在正常使用中主要进行读取，其内容在制造或特定编程后不易修改。"
+      ],
+      "gold_targets": [
+        {
+          "paper_id": "Lecture1",
+          "pages": [
+            17,
+            18
+          ],
+          "chunk_ids": []
+        },
+        {
+          "paper_id": "Lecture7",
+          "pages": [
+            2,
+            3,
+            4
+          ],
+          "chunk_ids": []
+        }
+      ],
+      "first_hit_rank": 1,
+      "hit_ranks": [
+        1,
+        2,
+        3,
+        5,
+        7
+      ],
+      "retrieved": [
+        {
+          "paper_id": "Lecture7",
+          "page": 4,
+          "score": 0.06505334374186833,
+          "rerank_score": 0.9954791819538289
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 18,
+          "score": 0.06374807987711213,
+          "rerank_score": 0.9971439874741471
+        },
+        {
+          "paper_id": "Lecture7",
+          "page": 3,
+          "score": 0.0633124699085219,
+          "rerank_score": 0.9905142868292047
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 19,
+          "score": 0.062259615384615385,
+          "rerank_score": 0.8856314738181876
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 17,
+          "score": 0.060517451733408764,
+          "rerank_score": 0.9976311257447729
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 29,
+          "score": 0.06041349954393433,
+          "rerank_score": 0.8753614294639163
+        },
+        {
+          "paper_id": "Lecture7",
+          "page": 2,
+          "score": 0.059962137840210705,
+          "rerank_score": 0.9958820823560408
+        },
+        {
+          "paper_id": "Lecture4",
+          "page": 2,
+          "score": 0.05951411772307295,
+          "rerank_score": 0.8753614294639163
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 37,
+          "score": 0.05825901151988109,
+          "rerank_score": 0.7791538447659502
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 20,
+          "score": 0.05662792306627923,
+          "rerank_score": 0.9924227587321393
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 30,
+          "score": 0.05655577299412916,
+          "rerank_score": 0.5852196833544826
+        },
+        {
+          "paper_id": "Lecture4",
+          "page": 3,
+          "score": 0.05576703464027408,
+          "rerank_score": 0.5852196833544826
+        },
+        {
+          "paper_id": "Lecture7",
+          "page": 16,
+          "score": 0.05537065620511501,
+          "rerank_score": 0.9896718474806949
+        },
+        {
+          "paper_id": "Lecture7",
+          "page": 15,
+          "score": 0.05097840755735493,
+          "rerank_score": 0.9840323465112041
+        },
+        {
+          "paper_id": "Lecture8",
+          "page": 2,
+          "score": 0.040360360360360364,
+          "rerank_score": 0.30002727795240997
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 16,
+          "score": 0.040180180180180186,
+          "rerank_score": 0.21967211902506864
+        },
+        {
+          "paper_id": "Lecture4",
+          "page": 56,
+          "score": 0.039473684210526314,
+          "rerank_score": 0.23126681205738464
+        },
+        {
+          "paper_id": "Lecture4",
+          "page": 58,
+          "score": 0.03896103896103896,
+          "rerank_score": 0.21239534653504916
+        },
+        {
+          "paper_id": "Lecture3",
+          "page": 55,
+          "score": 0.038141025641025644,
+          "rerank_score": 0.16968087821750136
+        },
+        {
+          "paper_id": "Lecture8",
+          "page": 3,
+          "score": 0.0379746835443038,
+          "rerank_score": 0.10725032589277456
+        }
+      ]
+    },
+    {
+      "qid": "q005",
+      "query": "冯诺依曼结构和哈佛结构的区别是什么",
+      "variants": [
+        "冯诺依曼结构和哈佛结构的区别有哪些",
+        "冯诺依曼结构与哈佛结构的不同之处",
+        "冯诺依曼架构和哈佛架构的差异是什么"
+      ],
+      "hyde_documents": [
+        "冯诺依曼结构与哈佛结构的主要区别在于存储器的组织方式。在冯诺依曼结构中，指令和数据共享同一个存储空间，通过单一的总线进行访问，因此无法同时读取指令和数据，存在“冯·诺依曼瓶颈”。而哈佛结构则将指令存储器和数据存储器物理上分离，各自拥有独立的总线，允许处理器在一个时钟周期内同时读取指令和数据，从而提高了执行效率。这种分离使得哈佛结构在需要高速数据处理的嵌入式系统和数字信号处理器中更为常见，而冯诺依曼结构因其设计简单、易于扩展，广泛应用于通用计算机中。"
+      ],
+      "gold_targets": [
+        {
+          "paper_id": "Lecture1",
+          "pages": [
+            19,
+            20
+          ],
+          "chunk_ids": []
+        }
+      ],
+      "first_hit_rank": 1,
+      "hit_ranks": [
+        1
+      ],
+      "retrieved": [
+        {
+          "paper_id": "Lecture1",
+          "page": 19,
+          "score": 0.0819672131147541,
+          "rerank_score": 0.5049055432761906
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 29,
+          "score": 0.08064516129032258,
+          "rerank_score": 0.39858199962571733
+        },
+        {
+          "paper_id": "Lecture4",
+          "page": 2,
+          "score": 0.07936507936507936,
+          "rerank_score": 0.39858199962571733
+        },
+        {
+          "paper_id": "Lecture8",
+          "page": 2,
+          "score": 0.078125,
+          "rerank_score": 0.11008788101422484
+        },
+        {
+          "paper_id": "Lecture13",
+          "page": 2,
+          "score": 0.059501666279159884,
+          "rerank_score": 0.001980039959665187
+        },
+        {
+          "paper_id": "lec19",
+          "page": 9,
+          "score": 0.05948865299172587,
+          "rerank_score": 0.0014953384533104661
+        },
+        {
+          "paper_id": "lec22",
+          "page": 2,
+          "score": 0.05862921417755941,
+          "rerank_score": 0.0019117693602301456
+        },
+        {
+          "paper_id": "Lecture12",
+          "page": 35,
+          "score": 0.05861676273364635,
+          "rerank_score": 0.0013045066466158164
+        },
+        {
+          "paper_id": "lec18",
+          "page": 21,
+          "score": 0.055968241883734844,
+          "rerank_score": 0.0004222328697668336
+        },
+        {
+          "paper_id": "DDA5001_25fall_final",
+          "page": 3,
+          "score": 0.0551964880732004,
+          "rerank_score": 0.0005336928427664175
+        },
+        {
+          "paper_id": "Lecture12",
+          "page": 21,
+          "score": 0.055,
+          "rerank_score": 0.0003379794251899563
+        },
+        {
+          "paper_id": "lec25_1",
+          "page": 11,
+          "score": 0.05231243389138126,
+          "rerank_score": 0.00020988308820313111
+        },
+        {
+          "paper_id": "sample_final_slu",
+          "page": 4,
+          "score": 0.051790148558969344,
+          "rerank_score": 0.0001559802763374382
+        },
+        {
+          "paper_id": "lec6",
+          "page": 27,
+          "score": 0.04592074592074592,
+          "rerank_score": 0.01124456072066409
+        },
+        {
+          "paper_id": "lec19",
+          "page": 10,
+          "score": 0.04073573573573574,
+          "rerank_score": 0.0003726376876619113
+        },
+        {
+          "paper_id": "lec13",
+          "page": 32,
+          "score": 0.03897857416844759,
+          "rerank_score": 0.00025315637215092633
+        },
+        {
+          "paper_id": "lec19",
+          "page": 3,
+          "score": 0.037500000000000006,
+          "rerank_score": 6.868318245725359e-05
+        },
+        {
+          "paper_id": "Lecture7",
+          "page": 23,
+          "score": 0.03076923076923077,
+          "rerank_score": 0.014172366191301682
+        },
+        {
+          "paper_id": "sample_final",
+          "page": 3,
+          "score": 0.02649122807017544,
+          "rerank_score": 0.0001740054355270893
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 30,
+          "score": 0.015384615384615385,
+          "rerank_score": 0.9849852519941804
+        }
+      ]
+    },
+    {
+      "qid": "q006",
+      "query": "supervised learning包含哪些组件",
+      "variants": [
+        "supervised learning的组件有哪些",
+        "supervised learning由哪些部分组成",
+        "supervised learning包括什么组件"
+      ],
+      "hyde_documents": [
+        "监督学习通常包含三个核心组件：输入特征、标签以及一个从输入到输出的映射函数。该映射函数通过一个模型来表示，其参数在训练过程中通过优化算法进行调整。训练过程依赖一个包含输入-标签对的标注数据集，并利用损失函数来量化模型预测与真实标签之间的差异。最终目标是学习一个能够对未见数据做出准确预测的模型。"
+      ],
+      "gold_targets": [
+        {
+          "paper_id": "Lecture11",
+          "pages": [
+            2
+          ],
+          "chunk_ids": []
+        },
+        {
+          "paper_id": "Lecture10",
+          "pages": [
+            63,
+            64,
+            65,
+            66,
+            67,
+            68
+          ],
+          "chunk_ids": []
+        },
+        {
+          "paper_id": "lec2",
+          "pages": [
+            52,
+            53,
+            54
+          ],
+          "chunk_ids": []
+        },
+        {
+          "paper_id": "lec3",
+          "pages": [
+            2,
+            3
+          ],
+          "chunk_ids": []
+        }
+      ],
+      "first_hit_rank": 4,
+      "hit_ranks": [
+        4,
+        5,
+        8,
+        9,
+        13,
+        14,
+        15,
+        16,
+        18
+      ],
+      "retrieved": [
+        {
+          "paper_id": "lec5",
+          "page": 3,
+          "score": 0.08118237599993285,
+          "rerank_score": 0.987711402470298
+        },
+        {
+          "paper_id": "lec26",
+          "page": 3,
+          "score": 0.0756626048332895,
+          "rerank_score": 0.9958175058144085
+        },
+        {
+          "paper_id": "lec26",
+          "page": 2,
+          "score": 0.0727517651430695,
+          "rerank_score": 0.05531065221599609
+        },
+        {
+          "paper_id": "Lecture11",
+          "page": 2,
+          "score": 0.06478053939714437,
+          "rerank_score": 0.9920002454916221
+        },
+        {
+          "paper_id": "lec3",
+          "page": 2,
+          "score": 0.06374807987711213,
+          "rerank_score": 0.9920002454916221
+        },
+        {
+          "paper_id": "Lecture10",
+          "page": 58,
+          "score": 0.0625,
+          "rerank_score": 0.9526622845323623
+        },
+        {
+          "paper_id": "lec2",
+          "page": 44,
+          "score": 0.06153846153846154,
+          "rerank_score": 0.9411153004600163
+        },
+        {
+          "paper_id": "Lecture10",
+          "page": 67,
+          "score": 0.060379918588873815,
+          "rerank_score": 0.8944211564084097
+        },
+        {
+          "paper_id": "lec2",
+          "page": 53,
+          "score": 0.05948200175592625,
+          "rerank_score": 0.8944211564084097
+        },
+        {
+          "paper_id": "lec1",
+          "page": 18,
+          "score": 0.05654482450257098,
+          "rerank_score": 0.2635993976091725
+        },
+        {
+          "paper_id": "lec2",
+          "page": 49,
+          "score": 0.05526969597907813,
+          "rerank_score": 0.2594501964701798
+        },
+        {
+          "paper_id": "Lecture11",
+          "page": 3,
+          "score": 0.05481510064955946,
+          "rerank_score": 0.2104415994810358
+        },
+        {
+          "paper_id": "Lecture10",
+          "page": 63,
+          "score": 0.054515129051822896,
+          "rerank_score": 0.2344066457818812
+        },
+        {
+          "paper_id": "Lecture10",
+          "page": 68,
+          "score": 0.05410348349958615,
+          "rerank_score": 0.23810700651390135
+        },
+        {
+          "paper_id": "lec3",
+          "page": 3,
+          "score": 0.05407381065275802,
+          "rerank_score": 0.2104415994810358
+        },
+        {
+          "paper_id": "lec2",
+          "page": 54,
+          "score": 0.053380809959757324,
+          "rerank_score": 0.23810700651390135
+        },
+        {
+          "paper_id": "lec24",
+          "page": 7,
+          "score": 0.05196558715546057,
+          "rerank_score": 0.13341521726397837
+        },
+        {
+          "paper_id": "Lecture10",
+          "page": 66,
+          "score": 0.05015822784810127,
+          "rerank_score": 0.06164962595497456
+        },
+        {
+          "paper_id": "lec15",
+          "page": 25,
+          "score": 0.02564102564102564,
+          "rerank_score": 0.048767095476989174
+        },
+        {
+          "paper_id": "lec1",
+          "page": 19,
+          "score": 0.02531645569620253,
+          "rerank_score": 0.04840595740372121
+        }
+      ]
+    },
+    {
+      "qid": "q007",
+      "query": "什么是物联网",
+      "variants": [
+        "物联网的定义是什么",
+        "物联网指的是什么",
+        "如何理解物联网这一概念"
+      ],
+      "hyde_documents": [
+        "物联网（Internet of Things，IoT）是指通过信息传感设备（如射频识别、红外感应器、全球定位系统、激光扫描器等）按约定的协议，将任何物品与互联网连接起来，进行信息交换和通信，以实现智能化识别、定位、跟踪、监控和管理的一种网络概念。其核心在于将物理世界的实体对象数字化，并赋予其网络通信与数据处理能力。典型的物联网系统通常包含感知层（负责数据采集）、网络层（负责数据传输）和应用层（负责数据解析与服务提供）三个基本层次。这一技术体系使得传统设备能够从“哑终端”转变为具备智能感知与远程控制能力的“智能终端”。"
+      ],
+      "gold_targets": [
+        {
+          "paper_id": "Lecture9",
+          "pages": [
+            2
+          ],
+          "chunk_ids": []
+        }
+      ],
+      "first_hit_rank": 4,
+      "hit_ranks": [
+        4
+      ],
+      "retrieved": [
+        {
+          "paper_id": "Lecture1",
+          "page": 40,
+          "score": 0.08072528564331843,
+          "rerank_score": 0.8967949426280529
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 13,
+          "score": 0.0769751513131388,
+          "rerank_score": 0.99832560069629
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 41,
+          "score": 0.07691834049531068,
+          "rerank_score": 0.7346909745190238
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 2,
+          "score": 0.07672574626865672,
+          "rerank_score": 0.5766015781009638
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 7,
+          "score": 0.07535797535797537,
+          "rerank_score": 0.4362017038099631
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 19,
+          "score": 0.07026537735355862,
+          "rerank_score": 0.9952816307449724
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 8,
+          "score": 0.0679531625413438,
+          "rerank_score": 0.02551660344798049
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 39,
+          "score": 0.06350006400409626,
+          "rerank_score": 0.8344068863691763
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 50,
+          "score": 0.0567518638400451,
+          "rerank_score": 0.0483160702678493
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 11,
+          "score": 0.05662390835638217,
+          "rerank_score": 0.07490527135477446
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 59,
+          "score": 0.054710623936630134,
+          "rerank_score": 0.01554364793077063
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 6,
+          "score": 0.05317687119417473,
+          "rerank_score": 0.022977369910025615
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 37,
+          "score": 0.05231243389138126,
+          "rerank_score": 0.002844909664979501
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 23,
+          "score": 0.051790148558969344,
+          "rerank_score": 0.006589771663080563
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 53,
+          "score": 0.05,
+          "rerank_score": 0.00131472456761498
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 40,
+          "score": 0.0454615036704589,
+          "rerank_score": 0.9967141667081211
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 4,
+          "score": 0.04391088038070517,
+          "rerank_score": 0.10320505737194699
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 56,
+          "score": 0.041682974559686885,
+          "rerank_score": 0.038683497086407705
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 55,
+          "score": 0.03829925348912691,
+          "rerank_score": 0.012479699745327845
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 42,
+          "score": 0.030679156908665108,
+          "rerank_score": 0.9987934102877537
+        }
+      ]
+    },
+    {
+      "qid": "q008",
+      "query": "黑客会怎么攻击IoT系统？怎么防范？",
+      "variants": [
+        "黑客如何对IoT系统发起攻击？有哪些防御措施？",
+        "IoT系统可能遭受哪些黑客攻击手段？如何加以防范？",
+        "针对IoT系统，黑客通常采用什么攻击方式？怎样进行安全防护？"
+      ],
+      "hyde_documents": [
+        "针对IoT系统的攻击通常从识别和利用设备固件漏洞、弱口令或默认凭证入手，通过扫描开放端口或协议（如MQTT、CoAP）实现远程入侵。攻击者可能进一步植入恶意软件构建僵尸网络，或篡改设备通信数据以窃取敏感信息。防范的核心在于实施设备身份认证与固件签名机制，确保所有通信采用加密协议，并定期更新补丁。此外，网络层面应部署分段隔离与异常流量检测，同时禁用不必要的服务和默认账户。最终，建立从设备出厂到运维的全生命周期安全管理规范，是抵御此类攻击的基础。"
+      ],
+      "gold_targets": [
+        {
+          "paper_id": "Lecture9",
+          "pages": [
+            35,
+            36,
+            37
+          ],
+          "chunk_ids": []
+        }
+      ],
+      "first_hit_rank": 1,
+      "hit_ranks": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "retrieved": [
+        {
+          "paper_id": "Lecture9",
+          "page": 36,
+          "score": 0.08095838587641867,
+          "rerank_score": 0.6481323579824042
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 37,
+          "score": 0.07892946939648914,
+          "rerank_score": 0.223377061783443
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 36,
+          "score": 0.07849684988534918,
+          "rerank_score": 0.17300858092675436
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 40,
+          "score": 0.07645687645687646,
+          "rerank_score": 0.006192990157855187
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 35,
+          "score": 0.0756578947368421,
+          "rerank_score": 0.04248320764466272
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 52,
+          "score": 0.07352941176470588,
+          "rerank_score": 0.0035657366623610266
+        },
+        {
+          "paper_id": "Lecture5",
+          "page": 53,
+          "score": 0.07321500605082695,
+          "rerank_score": 0.004038591571505557
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 11,
+          "score": 0.06981833826908125,
+          "rerank_score": 0.0023596606820630445
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 40,
+          "score": 0.06758603030879846,
+          "rerank_score": 0.8901033181214943
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 16,
+          "score": 0.06745163698833084,
+          "rerank_score": 0.0016809417013868685
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 59,
+          "score": 0.06720704220704221,
+          "rerank_score": 0.9038048371679412
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 6,
+          "score": 0.06680742226516874,
+          "rerank_score": 0.0016166499416422906
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 47,
+          "score": 0.06083916083916084,
+          "rerank_score": 0.007039045597401516
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 58,
+          "score": 0.055180397453212425,
+          "rerank_score": 0.004150080836220232
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 1,
+          "score": 0.05500535940146205,
+          "rerank_score": 0.0006693099618068044
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 22,
+          "score": 0.05147030185004868,
+          "rerank_score": 0.0012255674483830521
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 18,
+          "score": 0.042291981422416206,
+          "rerank_score": 0.0009326360013054127
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 38,
+          "score": 0.04208494208494208,
+          "rerank_score": 0.0021997980436915168
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 5,
+          "score": 0.0387945387945388,
+          "rerank_score": 0.0007793660930208434
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 39,
+          "score": 0.038636635405456185,
+          "rerank_score": 0.000529541811423226
+        }
+      ]
+    },
+    {
+      "qid": "q009",
+      "query": "物联网主要应用在哪些领域，简要介绍一下",
+      "variants": [
+        "物联网主要应用在哪些领域，简单说明一下",
+        "物联网通常用在哪些行业，做个简要介绍",
+        "物联网的主要应用场景有哪些，简述一下"
+      ],
+      "hyde_documents": [
+        "物联网的主要应用领域涵盖智能家居、智慧城市、工业自动化、医疗健康、农业监测和交通物流等。在智能家居中，设备通过互联实现远程控制与自动化管理；智慧城市利用传感器网络优化公共资源调度与环境监测；工业物联网通过实时数据采集提升生产效率和设备维护水平。医疗健康领域借助可穿戴设备实现远程监护与慢性病管理，而农业物联网则通过环境感知实现精准灌溉与作物生长调控。此外，车联网与物流追踪系统也依赖物联网技术实现路径优化与资产全流程可视化。"
+      ],
+      "gold_targets": [
+        {
+          "paper_id": "Lecture9",
+          "pages": [
+            40,
+            41,
+            42,
+            43,
+            44,
+            45,
+            46,
+            47,
+            48,
+            49
+          ],
+          "chunk_ids": []
+        }
+      ],
+      "first_hit_rank": 1,
+      "hit_ranks": [
+        1
+      ],
+      "retrieved": [
+        {
+          "paper_id": "Lecture9",
+          "page": 40,
+          "score": 0.0819672131147541,
+          "rerank_score": 0.9750597460625842
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 51,
+          "score": 0.0793810803891449,
+          "rerank_score": 0.11716746932535989
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 50,
+          "score": 0.0740257510484668,
+          "rerank_score": 0.04922211319719861
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 59,
+          "score": 0.07123319627912401,
+          "rerank_score": 0.8539127529517043
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 23,
+          "score": 0.06898436363167502,
+          "rerank_score": 0.033273941086340214
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 55,
+          "score": 0.06834812151248386,
+          "rerank_score": 0.01923425896199301
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 8,
+          "score": 0.06705568151134121,
+          "rerank_score": 0.037892426629607394
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 20,
+          "score": 0.060881928528987356,
+          "rerank_score": 0.07531230632362354
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 16,
+          "score": 0.060653884159318945,
+          "rerank_score": 0.037892426629607394
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 25,
+          "score": 0.05890814301838311,
+          "rerank_score": 0.07572137207533139
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 4,
+          "score": 0.05782263924744424,
+          "rerank_score": 0.02377998443666076
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 22,
+          "score": 0.05560386473429952,
+          "rerank_score": 0.017712298703411445
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 39,
+          "score": 0.05319169134958609,
+          "rerank_score": 0.01337660322737745
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 37,
+          "score": 0.05079925348912691,
+          "rerank_score": 0.007121428745735101
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 11,
+          "score": 0.050795196364816615,
+          "rerank_score": 0.00498226973042126
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 40,
+          "score": 0.04640914640914641,
+          "rerank_score": 0.07807816514495095
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 19,
+          "score": 0.04349680170575693,
+          "rerank_score": 0.06766981098181626
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 11,
+          "score": 0.039862914862914864,
+          "rerank_score": 0.010013570623173138
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 6,
+          "score": 0.037987012987012986,
+          "rerank_score": 0.009268013380914326
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 13,
+          "score": 0.03149801587301587,
+          "rerank_score": 0.11182182391242389
+        }
+      ]
+    },
+    {
+      "qid": "q010",
+      "query": "最小二乘法在什么情况下具有唯一解",
+      "variants": [
+        "最小二乘法在什么条件下有唯一解",
+        "最小二乘法唯一解存在的条件是什么",
+        "何时最小二乘法的解是唯一的"
+      ],
+      "hyde_documents": [
+        "最小二乘法在求解线性回归模型时，其解的唯一性取决于设计矩阵的列向量是否线性无关。当设计矩阵满秩时，正规方程存在唯一解，此时最小二乘估计是唯一的。反之，若设计矩阵存在列线性相关（即秩亏），则解不唯一，存在无穷多个参数估计值都能使残差平方和达到最小。因此，确保特征之间不存在多重共线性是获得唯一最小二乘解的关键条件。"
+      ],
+      "gold_targets": [
+        {
+          "paper_id": "lec3",
+          "pages": [
+            36
+          ],
+          "chunk_ids": []
+        },
+        {
+          "paper_id": "lec4",
+          "pages": [
+            9
+          ],
+          "chunk_ids": []
+        }
+      ],
+      "first_hit_rank": null,
+      "hit_ranks": [],
+      "retrieved": [
+        {
+          "paper_id": "lec3",
+          "page": 40,
+          "score": 0.07090366824305824,
+          "rerank_score": 0.20657374614669016
+        },
+        {
+          "paper_id": "lec5",
+          "page": 2,
+          "score": 0.07081053958164223,
+          "rerank_score": 0.8261514726455292
+        },
+        {
+          "paper_id": "Lecture11",
+          "page": 40,
+          "score": 0.07023731609333013,
+          "rerank_score": 0.20260091368731914
+        },
+        {
+          "paper_id": "lec12",
+          "page": 17,
+          "score": 0.0640445165035329,
+          "rerank_score": 0.594963165457098
+        },
+        {
+          "paper_id": "lec4",
+          "page": 12,
+          "score": 0.06255457315908136,
+          "rerank_score": 0.2254166158350767
+        },
+        {
+          "paper_id": "lec16",
+          "page": 16,
+          "score": 0.06082927726763343,
+          "rerank_score": 0.29007505954906804
+        },
+        {
+          "paper_id": "lec26",
+          "page": 8,
+          "score": 0.05932651993132523,
+          "rerank_score": 0.2328330425476563
+        },
+        {
+          "paper_id": "lec3",
+          "page": 39,
+          "score": 0.05842800693409864,
+          "rerank_score": 0.11124120650754304
+        },
+        {
+          "paper_id": "lec10",
+          "page": 9,
+          "score": 0.05726774322169059,
+          "rerank_score": 0.166539809467368
+        },
+        {
+          "paper_id": "Lecture11",
+          "page": 39,
+          "score": 0.057166199813258635,
+          "rerank_score": 0.10650458901723904
+        },
+        {
+          "paper_id": "lec16",
+          "page": 15,
+          "score": 0.054341202407788156,
+          "rerank_score": 0.18520921262641926
+        },
+        {
+          "paper_id": "lec16",
+          "page": 13,
+          "score": 0.05434029347072825,
+          "rerank_score": 0.09653531477640952
+        },
+        {
+          "paper_id": "lec16",
+          "page": 12,
+          "score": 0.05164085914085914,
+          "rerank_score": 0.025226825379287925
+        },
+        {
+          "paper_id": "lec13",
+          "page": 10,
+          "score": 0.04838709677419355,
+          "rerank_score": 0.5938448384231803
+        },
+        {
+          "paper_id": "Lecture11",
+          "page": 35,
+          "score": 0.04230390290870821,
+          "rerank_score": 0.19012183026908458
+        },
+        {
+          "paper_id": "lec3",
+          "page": 35,
+          "score": 0.04171497584541063,
+          "rerank_score": 0.19012183026908458
+        },
+        {
+          "paper_id": "lec3",
+          "page": 38,
+          "score": 0.029957522915269395,
+          "rerank_score": 0.5429238691443825
+        },
+        {
+          "paper_id": "lec4",
+          "page": 13,
+          "score": 0.02964426877470356,
+          "rerank_score": 0.44176331446336203
+        },
+        {
+          "paper_id": "Lecture11",
+          "page": 38,
+          "score": 0.029513888888888888,
+          "rerank_score": 0.5383765218689693
+        },
+        {
+          "paper_id": "lec17",
+          "page": 15,
+          "score": 0.029513888888888888,
+          "rerank_score": 0.19946388773023033
+        }
+      ]
+    },
+    {
+      "qid": "q011",
+      "query": "线性回归问题中，在高斯噪声假设下，最小二乘法估计的参数量是最大似然估计吗。",
+      "variants": [
+        "线性回归问题中，在高斯噪声假设下，最小二乘法估计的参数是否等价于最大似然估计？",
+        "在高斯噪声假设下，线性回归的最小二乘估计是否就是最大似然估计？",
+        "对于线性回归，当噪声服从高斯分布时，最小二乘法得到的参数估计是否等于最大似然估计？"
+      ],
+      "hyde_documents": [
+        "是的，在高斯噪声假设下，线性回归的最小二乘法估计与最大似然估计在参数估计量上是等价的。这是因为当误差项服从独立同分布的高斯分布时，似然函数取对数后，其最大化问题等价于最小化残差平方和。因此，最小二乘法在该假设下自然成为最大似然估计的一种特例，两者得到的参数估计值完全相同。这一结论依赖于噪声分布的正态性假设，若噪声服从其他分布，则两者不再等价。"
+      ],
+      "gold_targets": [
+        {
+          "paper_id": "lec4",
+          "pages": [
+            32
+          ],
+          "chunk_ids": []
+        }
+      ],
+      "first_hit_rank": 2,
+      "hit_ranks": [
+        2
+      ],
+      "retrieved": [
+        {
+          "paper_id": "Lecture11",
+          "page": 59,
+          "score": 0.08006652411499168,
+          "rerank_score": 0.9724147177732099
+        },
+        {
+          "paper_id": "lec4",
+          "page": 32,
+          "score": 0.07880184331797235,
+          "rerank_score": 0.9705764200363561
+        },
+        {
+          "paper_id": "lec15",
+          "page": 20,
+          "score": 0.07088675266424627,
+          "rerank_score": 0.027428542704283878
+        },
+        {
+          "paper_id": "lec26",
+          "page": 9,
+          "score": 0.06277056277056277,
+          "rerank_score": 0.9575167923553374
+        },
+        {
+          "paper_id": "sample_final",
+          "page": 2,
+          "score": 0.06039352804058687,
+          "rerank_score": 0.3166861676932197
+        },
+        {
+          "paper_id": "lec4",
+          "page": 4,
+          "score": 0.058753501400560224,
+          "rerank_score": 0.04940524518550734
+        },
+        {
+          "paper_id": "lec26",
+          "page": 7,
+          "score": 0.056613489822445046,
+          "rerank_score": 0.02931223075135632
+        },
+        {
+          "paper_id": "Lecture11",
+          "page": 28,
+          "score": 0.0536936936936937,
+          "rerank_score": 0.006363573696064028
+        },
+        {
+          "paper_id": "lec3",
+          "page": 28,
+          "score": 0.052636135794030536,
+          "rerank_score": 0.010448625445116806
+        },
+        {
+          "paper_id": "Lecture11",
+          "page": 29,
+          "score": 0.051790148558969344,
+          "rerank_score": 0.006589771663080563
+        },
+        {
+          "paper_id": "lec3",
+          "page": 29,
+          "score": 0.051128038628038636,
+          "rerank_score": 0.006388320909721285
+        },
+        {
+          "paper_id": "lec21",
+          "page": 20,
+          "score": 0.04266176770769545,
+          "rerank_score": 0.04742587317756678
+        },
+        {
+          "paper_id": "lec5",
+          "page": 18,
+          "score": 0.04080485724321341,
+          "rerank_score": 0.01990878845878449
+        },
+        {
+          "paper_id": "DDA5001_25fall_final_slu",
+          "page": 2,
+          "score": 0.0379746835443038,
+          "rerank_score": 0.00600359579657149
+        },
+        {
+          "paper_id": "Lecture6",
+          "page": 11,
+          "score": 0.037820512820512825,
+          "rerank_score": 0.005060332031966209
+        },
+        {
+          "paper_id": "sample_final_slu",
+          "page": 2,
+          "score": 0.03125,
+          "rerank_score": 0.744284789133903
+        },
+        {
+          "paper_id": "DDA5001_25fall_final_slu",
+          "page": 3,
+          "score": 0.031009615384615385,
+          "rerank_score": 0.3202895634965386
+        },
+        {
+          "paper_id": "lec14",
+          "page": 26,
+          "score": 0.03007688828584351,
+          "rerank_score": 0.10989668187850567
+        },
+        {
+          "paper_id": "lec13",
+          "page": 23,
+          "score": 0.028169014084507043,
+          "rerank_score": 0.042087727915618836
+        },
+        {
+          "paper_id": "lec9",
+          "page": 10,
+          "score": 0.027972027972027972,
+          "rerank_score": 0.2101172597064404
+        }
+      ]
+    },
+    {
+      "qid": "q012",
+      "query": "机器学习中，回归和分类的区别是什么",
+      "variants": [
+        "机器学习中，回归与分类的区别有哪些",
+        "在机器学习领域，回归和分类有什么不同",
+        "回归和分类在机器学习中的区别是什么"
+      ],
+      "hyde_documents": [
+        "回归与分类是机器学习中两类核心的监督学习任务，其主要区别在于输出变量的类型与目标。回归任务旨在预测一个连续的数值输出，例如房价或温度，其核心是拟合输入与输出之间的函数关系。分类任务则用于将输入数据划分到离散的有限类别中，例如判断邮件是否为垃圾邮件，其目标是学习一个决策边界。在评估指标上，回归常用均方误差等衡量预测值与真实值的偏差，而分类则依赖准确率、精确率等指标来评估类别预测的正确性。简言之，回归处理“是多少”的问题，分类处理“是哪一类”的问题。"
+      ],
+      "gold_targets": [
+        {
+          "paper_id": "lec8",
+          "pages": [
+            27
+          ],
+          "chunk_ids": []
+        }
+      ],
+      "first_hit_rank": 1,
+      "hit_ranks": [
+        1
+      ],
+      "retrieved": [
+        {
+          "paper_id": "lec8",
+          "page": 27,
+          "score": 0.08144678636481915,
+          "rerank_score": 0.9567151548042914
+        },
+        {
+          "paper_id": "lec3",
+          "page": 24,
+          "score": 0.07788461538461539,
+          "rerank_score": 0.9408984532892479
+        },
+        {
+          "paper_id": "lec3",
+          "page": 23,
+          "score": 0.07751153599910872,
+          "rerank_score": 0.9340350623884195
+        },
+        {
+          "paper_id": "Lecture11",
+          "page": 24,
+          "score": 0.07716346153846154,
+          "rerank_score": 0.9840323465112041
+        },
+        {
+          "paper_id": "Lecture11",
+          "page": 23,
+          "score": 0.07716199099900288,
+          "rerank_score": 0.8623516556954771
+        },
+        {
+          "paper_id": "lec3",
+          "page": 25,
+          "score": 0.07647907647907648,
+          "rerank_score": 0.9880849780328519
+        },
+        {
+          "paper_id": "Lecture11",
+          "page": 25,
+          "score": 0.07583052479537794,
+          "rerank_score": 0.9882221573114803
+        },
+        {
+          "paper_id": "lec21",
+          "page": 20,
+          "score": 0.07167573402201857,
+          "rerank_score": 0.8696038838927893
+        },
+        {
+          "paper_id": "sample_final_slu",
+          "page": 2,
+          "score": 0.05777006454755815,
+          "rerank_score": 0.7911764288611264
+        },
+        {
+          "paper_id": "lec26",
+          "page": 31,
+          "score": 0.05634361725911022,
+          "rerank_score": 0.40438983148614704
+        },
+        {
+          "paper_id": "sample_final",
+          "page": 2,
+          "score": 0.05594679186228482,
+          "rerank_score": 0.3690876463175275
+        },
+        {
+          "paper_id": "Lecture12",
+          "page": 35,
+          "score": 0.054609403924472416,
+          "rerank_score": 0.20625381039683044
+        },
+        {
+          "paper_id": "lec3",
+          "page": 10,
+          "score": 0.05248278925161004,
+          "rerank_score": 0.013325147705881427
+        },
+        {
+          "paper_id": "sample_final",
+          "page": 3,
+          "score": 0.051615051615051616,
+          "rerank_score": 0.009268013380914326
+        },
+        {
+          "paper_id": "sample_final_slu",
+          "page": 4,
+          "score": 0.051123981503728336,
+          "rerank_score": 0.0072890775835919245
+        },
+        {
+          "paper_id": "DDA5001_25fall_final_slu",
+          "page": 4,
+          "score": 0.050636968516715355,
+          "rerank_score": 0.004101929257867252
+        },
+        {
+          "paper_id": "DDA5001_25fall_final",
+          "page": 4,
+          "score": 0.05048701298701298,
+          "rerank_score": 0.0031974869372464253
+        },
+        {
+          "paper_id": "lec8",
+          "page": 25,
+          "score": 0.04390451832907076,
+          "rerank_score": 0.8824278664544911
+        },
+        {
+          "paper_id": "lec17",
+          "page": 8,
+          "score": 0.04173290937996821,
+          "rerank_score": 0.9673486215396555
+        },
+        {
+          "paper_id": "lec19",
+          "page": 9,
+          "score": 0.0411010325393887,
+          "rerank_score": 0.208662272986599
+        }
+      ]
+    },
+    {
+      "qid": "q013",
+      "query": "凸优化问题具有哪些优势？",
+      "variants": [
+        "凸优化问题有哪些优点？",
+        "凸优化问题的优势体现在哪些方面？",
+        "凸优化问题具备什么长处？"
+      ],
+      "hyde_documents": [
+        "凸优化问题的主要优势在于其全局最优性保证：由于目标函数和约束条件均为凸集上的凸函数，任何局部最优解必然也是全局最优解，这避免了非凸问题中常见的局部陷阱。此外，凸优化问题的求解过程通常具有高效性，许多成熟的算法（如梯度类方法）能够以多项式时间收敛到精确解，且对初始点的选择不敏感。从工程角度看，凸优化模型具有良好的可解释性和稳定性，其解对输入数据的微小扰动具有鲁棒性，便于实际部署与理论分析。最后，凸优化理论为许多机器学习、信号处理等领域的核心问题提供了统一的数学框架，使得复杂问题可以转化为标准形式并利用现成求解器高效处理。"
+      ],
+      "gold_targets": [
+        {
+          "paper_id": "lec9",
+          "pages": [
+            13
+          ],
+          "chunk_ids": []
+        }
+      ],
+      "first_hit_rank": 1,
+      "hit_ranks": [
+        1
+      ],
+      "retrieved": [
+        {
+          "paper_id": "lec9",
+          "page": 13,
+          "score": 0.0819672131147541,
+          "rerank_score": 0.9726235112216486
+        },
+        {
+          "paper_id": "DDA5001_25fall_final",
+          "page": 3,
+          "score": 0.07783258691936565,
+          "rerank_score": 0.16304525679011833
+        },
+        {
+          "paper_id": "DDA5001_25fall_final_slu",
+          "page": 3,
+          "score": 0.07714093701996927,
+          "rerank_score": 0.23917159840433075
+        },
+        {
+          "paper_id": "lec9",
+          "page": 7,
+          "score": 0.0765368028968492,
+          "rerank_score": 0.8415654047865821
+        },
+        {
+          "paper_id": "lec9",
+          "page": 14,
+          "score": 0.07648603469498992,
+          "rerank_score": 0.7492707188143424
+        },
+        {
+          "paper_id": "lec9",
+          "page": 15,
+          "score": 0.07489323987968871,
+          "rerank_score": 0.014842417234248268
+        },
+        {
+          "paper_id": "lec10",
+          "page": 14,
+          "score": 0.062168778801843315,
+          "rerank_score": 0.4162033137828925
+        },
+        {
+          "paper_id": "lec16",
+          "page": 32,
+          "score": 0.057568857304097394,
+          "rerank_score": 0.006168994922681432
+        },
+        {
+          "paper_id": "lec14",
+          "page": 23,
+          "score": 0.05735572857434462,
+          "rerank_score": 0.002992665245354638
+        },
+        {
+          "paper_id": "lec16",
+          "page": 31,
+          "score": 0.0550158609313539,
+          "rerank_score": 0.002341340651047526
+        },
+        {
+          "paper_id": "Lecture8",
+          "page": 26,
+          "score": 0.05319169134958608,
+          "rerank_score": 0.0005838324581912443
+        },
+        {
+          "paper_id": "lec21",
+          "page": 14,
+          "score": 0.05266405068135421,
+          "rerank_score": 0.00043224150570179065
+        },
+        {
+          "paper_id": "lec19",
+          "page": 31,
+          "score": 0.040910773787486115,
+          "rerank_score": 0.003160352815071338
+        },
+        {
+          "paper_id": "Lecture12",
+          "page": 57,
+          "score": 0.04073573573573574,
+          "rerank_score": 0.0031850608214494783
+        },
+        {
+          "paper_id": "lec24",
+          "page": 19,
+          "score": 0.03846575365562707,
+          "rerank_score": 0.0002199533724320648
+        },
+        {
+          "paper_id": "Lecture8",
+          "page": 19,
+          "score": 0.038141025641025644,
+          "rerank_score": 0.00043393251701919963
+        },
+        {
+          "paper_id": "lec14",
+          "page": 26,
+          "score": 0.037820512820512825,
+          "rerank_score": 0.0002115288734611408
+        },
+        {
+          "paper_id": "lec25_1",
+          "page": 13,
+          "score": 0.03781645569620253,
+          "rerank_score": 0.00037702856669512123
+        },
+        {
+          "paper_id": "DDA5001_25fall_final",
+          "page": 4,
+          "score": 0.03076923076923077,
+          "rerank_score": 0.13869494365279594
+        },
+        {
+          "paper_id": "Lecture12",
+          "page": 37,
+          "score": 0.029631255487269532,
+          "rerank_score": 0.046378205994811086
+        }
+      ]
+    },
+    {
+      "qid": "q014",
+      "query": "梯度下降算法的公式表述是什么",
+      "variants": [
+        "梯度下降法的数学公式是怎样的",
+        "请给出梯度下降算法的公式形式"
+      ],
+      "hyde_documents": [
+        "梯度下降算法是一种通过迭代更新参数来最小化目标函数的优化方法。其核心公式为：参数的新值等于当前参数值减去学习率乘以目标函数在该点的梯度。其中，梯度指向函数增长最快的方向，因此沿负梯度方向更新可使函数值下降。学习率作为步长控制参数，决定了每次更新的幅度，需合理选择以避免收敛过慢或发散。这一过程重复进行，直至梯度接近零或达到预设的迭代次数。"
+      ],
+      "gold_targets": [
+        {
+          "paper_id": "lec9",
+          "pages": [
+            24,
+            25,
+            26,
+            27,
+            28
+          ],
+          "chunk_ids": []
+        },
+        {
+          "paper_id": "lec10",
+          "pages": [
+            3
+          ],
+          "chunk_ids": []
+        }
+      ],
+      "first_hit_rank": 1,
+      "hit_ranks": [
+        1,
+        2,
+        6
+      ],
+      "retrieved": [
+        {
+          "paper_id": "lec9",
+          "page": 24,
+          "score": 0.06350006400409626,
+          "rerank_score": 0.9897513980768414
+        },
+        {
+          "paper_id": "lec9",
+          "page": 27,
+          "score": 0.06255457315908136,
+          "rerank_score": 0.9954615682752046
+        },
+        {
+          "paper_id": "lec20",
+          "page": 7,
+          "score": 0.05729702606812871,
+          "rerank_score": 0.9202179865359069
+        },
+        {
+          "paper_id": "DDA5001_25fall_final_slu",
+          "page": 5,
+          "score": 0.0557789027860499,
+          "rerank_score": 0.46174483159526664
+        },
+        {
+          "paper_id": "lec9",
+          "page": 23,
+          "score": 0.04918032786885246,
+          "rerank_score": 0.9654463760327956
+        },
+        {
+          "paper_id": "lec9",
+          "page": 28,
+          "score": 0.048131080389144903,
+          "rerank_score": 0.953621794005189
+        },
+        {
+          "paper_id": "lec10",
+          "page": 7,
+          "score": 0.04639423076923077,
+          "rerank_score": 0.7939060198898384
+        },
+        {
+          "paper_id": "lec20",
+          "page": 6,
+          "score": 0.04246614955433081,
+          "rerank_score": 0.3947257993999315
+        },
+        {
+          "paper_id": "lec13",
+          "page": 25,
+          "score": 0.04167202606812871,
+          "rerank_score": 0.622574072245029
+        },
+        {
+          "paper_id": "Lecture11",
+          "page": 28,
+          "score": 0.040004741583688955,
+          "rerank_score": 0.1507775460708185
+        },
+        {
+          "paper_id": "lec3",
+          "page": 28,
+          "score": 0.039833859833859835,
+          "rerank_score": 0.09384395939201788
+        },
+        {
+          "paper_id": "Lecture11",
+          "page": 29,
+          "score": 0.03896542054436791,
+          "rerank_score": 0.06992183699783601
+        },
+        {
+          "paper_id": "lec3",
+          "page": 29,
+          "score": 0.03880313557195636,
+          "rerank_score": 0.04256272864849986
+        },
+        {
+          "paper_id": "lec26",
+          "page": 7,
+          "score": 0.03765822784810127,
+          "rerank_score": 0.010408314101072437
+        },
+        {
+          "paper_id": "lec13",
+          "page": 24,
+          "score": 0.030303030303030304,
+          "rerank_score": 0.6135839238924606
+        },
+        {
+          "paper_id": "lec13",
+          "page": 42,
+          "score": 0.029631255487269532,
+          "rerank_score": 0.8419556382496595
+        },
+        {
+          "paper_id": "lec13",
+          "page": 17,
+          "score": 0.029418126757516764,
+          "rerank_score": 0.6075467532455364
+        },
+        {
+          "paper_id": "lec12",
+          "page": 21,
+          "score": 0.029411764705882353,
+          "rerank_score": 0.591428301725868
+        },
+        {
+          "paper_id": "lec20",
+          "page": 5,
+          "score": 0.02857142857142857,
+          "rerank_score": 0.3767377702982982
+        },
+        {
+          "paper_id": "lec15",
+          "page": 21,
+          "score": 0.026153846153846153,
+          "rerank_score": 0.13511791798795325
+        }
+      ]
+    },
+    {
+      "qid": "q015",
+      "query": "机器学习的学习率如何选择",
+      "variants": [
+        "机器学习的学习率如何选取",
+        "机器学习中学习率的设定方法",
+        "如何确定机器学习的学习率"
+      ],
+      "hyde_documents": [
+        "学习率是控制模型参数更新步长的关键超参数，其选择直接影响训练收敛速度与最终性能。通常，学习率过大会导致损失函数震荡甚至发散，而过小则会使收敛缓慢或陷入局部最优。实践中常采用网格搜索、随机搜索或基于验证集性能的调参策略，也可使用学习率预热、余弦退火或自适应方法（如根据梯度历史动态调整）来提升训练稳定性。一个合理的初始学习率通常需结合数据规模、模型复杂度与优化器类型综合确定，建议从常用经验区间（如0.1至0.0001）开始尝试，并观察损失曲线变化来逐步调整。"
+      ],
+      "gold_targets": [
+        {
+          "paper_id": "lec10",
+          "pages": [
+            7
+          ],
+          "chunk_ids": []
+        }
+      ],
+      "first_hit_rank": 1,
+      "hit_ranks": [
+        1
+      ],
+      "retrieved": [
+        {
+          "paper_id": "lec10",
+          "page": 7,
+          "score": 0.07985948477751757,
+          "rerank_score": 0.991118324899153
+        },
+        {
+          "paper_id": "lec10",
+          "page": 13,
+          "score": 0.07750314201927105,
+          "rerank_score": 0.8691603027446185
+        },
+        {
+          "paper_id": "DDA5001_25fall_final",
+          "page": 4,
+          "score": 0.05937983671258319,
+          "rerank_score": 0.1471870593121902
+        },
+        {
+          "paper_id": "lec20",
+          "page": 27,
+          "score": 0.05905709547500593,
+          "rerank_score": 0.21469141911224196
+        },
+        {
+          "paper_id": "lec19",
+          "page": 9,
+          "score": 0.056613489822445046,
+          "rerank_score": 0.07504072453849712
+        },
+        {
+          "paper_id": "lec24",
+          "page": 7,
+          "score": 0.05617572818287529,
+          "rerank_score": 0.041384718846844165
+        },
+        {
+          "paper_id": "Lecture12",
+          "page": 57,
+          "score": 0.05582235286551433,
+          "rerank_score": 0.05717659415987708
+        },
+        {
+          "paper_id": "Lecture12",
+          "page": 35,
+          "score": 0.05525135933677433,
+          "rerank_score": 0.06596493761158062
+        },
+        {
+          "paper_id": "lec19",
+          "page": 31,
+          "score": 0.055053050762432915,
+          "rerank_score": 0.05551511408876056
+        },
+        {
+          "paper_id": "MachineLearning_project",
+          "page": 6,
+          "score": 0.052465254044201416,
+          "rerank_score": 0.014117893425204942
+        },
+        {
+          "paper_id": "lec20",
+          "page": 14,
+          "score": 0.046649531024531024,
+          "rerank_score": 0.6003640999887943
+        },
+        {
+          "paper_id": "lec11",
+          "page": 14,
+          "score": 0.045011529386529386,
+          "rerank_score": 0.3897787829120459
+        },
+        {
+          "paper_id": "Lecture10",
+          "page": 66,
+          "score": 0.04222303518078166,
+          "rerank_score": 0.07682220445294782
+        },
+        {
+          "paper_id": "lec2",
+          "page": 52,
+          "score": 0.04163477484373007,
+          "rerank_score": 0.07682220445294782
+        },
+        {
+          "paper_id": "lec21",
+          "page": 4,
+          "score": 0.04159898072941551,
+          "rerank_score": 0.20801799791839662
+        },
+        {
+          "paper_id": "lec8",
+          "page": 19,
+          "score": 0.040664494984803186,
+          "rerank_score": 0.06164962595497456
+        },
+        {
+          "paper_id": "lec10",
+          "page": 25,
+          "score": 0.029857397504456328,
+          "rerank_score": 0.08151975597471893
+        },
+        {
+          "paper_id": "lec7",
+          "page": 19,
+          "score": 0.025158227848101268,
+          "rerank_score": 0.006265533775839072
+        },
+        {
+          "paper_id": "lec10",
+          "page": 19,
+          "score": 0.01639344262295082,
+          "rerank_score": 0.9667888274293097
+        },
+        {
+          "paper_id": "lec9",
+          "page": 8,
+          "score": 0.016129032258064516,
+          "rerank_score": 0.9663470356814963
+        }
+      ]
+    },
+    {
+      "qid": "q016",
+      "query": "梯度下降算法的优点和缺点有哪些",
+      "variants": [
+        "梯度下降算法的优点和缺点是什么",
+        "梯度下降算法的长处和短处有哪些",
+        "梯度下降算法的优势与劣势包括哪些"
+      ],
+      "hyde_documents": [
+        "梯度下降算法是一种通过迭代调整参数以最小化损失函数的优化方法。其主要优点包括实现简单、计算成本相对较低，尤其适用于大规模数据集，并且能够有效处理凸优化问题，保证收敛到全局最优。然而，其缺点也较为明显：对于非凸函数，容易陷入局部最优或鞍点；收敛速度受学习率选择影响较大，学习率过小会导致收敛缓慢，过大则可能震荡甚至发散；此外，梯度下降对特征尺度敏感，若未进行归一化处理，收敛性能会显著下降。"
+      ],
+      "gold_targets": [
+        {
+          "paper_id": "lec10",
+          "pages": [
+            14
+          ],
+          "chunk_ids": []
+        }
+      ],
+      "first_hit_rank": null,
+      "hit_ranks": [],
+      "retrieved": [
+        {
+          "paper_id": "lec16",
+          "page": 3,
+          "score": 0.07684902910709362,
+          "rerank_score": 0.15571934039527902
+        },
+        {
+          "paper_id": "DDA5001_25fall_final_slu",
+          "page": 5,
+          "score": 0.0744548914633991,
+          "rerank_score": 0.02324192480101961
+        },
+        {
+          "paper_id": "lec20",
+          "page": 13,
+          "score": 0.07226253724898608,
+          "rerank_score": 0.019419348182448604
+        },
+        {
+          "paper_id": "lec16",
+          "page": 4,
+          "score": 0.06324404761904762,
+          "rerank_score": 0.15052763130295338
+        },
+        {
+          "paper_id": "lec9",
+          "page": 13,
+          "score": 0.06300042454621968,
+          "rerank_score": 0.235284052258966
+        },
+        {
+          "paper_id": "lec9",
+          "page": 24,
+          "score": 0.062095330908794336,
+          "rerank_score": 0.08240150306085739
+        },
+        {
+          "paper_id": "lec16",
+          "page": 5,
+          "score": 0.06132688828584351,
+          "rerank_score": 0.077099696216148
+        },
+        {
+          "paper_id": "lec16",
+          "page": 6,
+          "score": 0.060859728506787336,
+          "rerank_score": 0.05561761160460151
+        },
+        {
+          "paper_id": "lec16",
+          "page": 33,
+          "score": 0.05615335850720763,
+          "rerank_score": 0.006265533775839072
+        },
+        {
+          "paper_id": "Lecture4",
+          "page": 33,
+          "score": 0.05484929780704429,
+          "rerank_score": 0.004022909935729149
+        },
+        {
+          "paper_id": "Lecture4",
+          "page": 41,
+          "score": 0.054106661983374306,
+          "rerank_score": 0.003111508539858309
+        },
+        {
+          "paper_id": "DDA5001_25fall_final",
+          "page": 2,
+          "score": 0.05353801169590643,
+          "rerank_score": 0.0029810327298548972
+        },
+        {
+          "paper_id": "sample_final_slu",
+          "page": 2,
+          "score": 0.05333807491702229,
+          "rerank_score": 0.0016941031558503916
+        },
+        {
+          "paper_id": "Lecture6",
+          "page": 36,
+          "score": 0.052343482723229556,
+          "rerank_score": 0.0020190139004485808
+        },
+        {
+          "paper_id": "DDA5001_25fall_final_slu",
+          "page": 2,
+          "score": 0.052326668765024925,
+          "rerank_score": 0.0025114635138098534
+        },
+        {
+          "paper_id": "sample_final",
+          "page": 2,
+          "score": 0.05149122807017544,
+          "rerank_score": 0.0014607495749510261
+        },
+        {
+          "paper_id": "Lecture7",
+          "page": 20,
+          "score": 0.050316455696202536,
+          "rerank_score": 0.0011972111981317266
+        },
+        {
+          "paper_id": "lec20",
+          "page": 26,
+          "score": 0.04307001428863033,
+          "rerank_score": 0.014447852533602465
+        },
+        {
+          "paper_id": "lec20",
+          "page": 25,
+          "score": 0.043064182194616975,
+          "rerank_score": 0.0073743653082378275
+        },
+        {
+          "paper_id": "lec13",
+          "page": 16,
+          "score": 0.03932103932103932,
+          "rerank_score": 0.002434382008505326
+        }
+      ]
+    },
+    {
+      "qid": "q017",
+      "query": "过拟合是什么",
+      "variants": [
+        "过拟合的定义是什么",
+        "如何理解过拟合现象",
+        "过拟合这一概念的具体含义"
+      ],
+      "hyde_documents": [
+        "过拟合是机器学习模型在训练数据上表现过好，以至于学到了数据中的噪声和随机波动，而非潜在的真实规律的现象。这通常发生在模型过于复杂（如参数过多）或训练数据不足时，导致模型对训练集细节过度敏感。过拟合的模型在训练集上误差极低，但在未见过的测试集上泛化能力显著下降。为缓解过拟合，常用方法包括增加训练数据量、降低模型复杂度、引入正则化约束，以及采用交叉验证等评估策略。"
+      ],
+      "gold_targets": [
+        {
+          "paper_id": "lec11",
+          "pages": [
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "chunk_ids": []
+        }
+      ],
+      "first_hit_rank": 2,
+      "hit_ranks": [
+        2,
+        4,
+        5,
+        11
+      ],
+      "retrieved": [
+        {
+          "paper_id": "lec26",
+          "page": 19,
+          "score": 0.08019646491354583,
+          "rerank_score": 0.3375310000260348
+        },
+        {
+          "paper_id": "lec11",
+          "page": 5,
+          "score": 0.07975083211497186,
+          "rerank_score": 0.9518632288833652
+        },
+        {
+          "paper_id": "lec12",
+          "page": 2,
+          "score": 0.07743300439195962,
+          "rerank_score": 0.6024709617654932
+        },
+        {
+          "paper_id": "lec11",
+          "page": 9,
+          "score": 0.07474198151947513,
+          "rerank_score": 0.9973477402942144
+        },
+        {
+          "paper_id": "lec11",
+          "page": 8,
+          "score": 0.07303003627827573,
+          "rerank_score": 0.9972208094414864
+        },
+        {
+          "paper_id": "lec13",
+          "page": 9,
+          "score": 0.07243602800481895,
+          "rerank_score": 0.14535782952696114
+        },
+        {
+          "paper_id": "lec13",
+          "page": 40,
+          "score": 0.06277856328259554,
+          "rerank_score": 0.9974983032597357
+        },
+        {
+          "paper_id": "lec4",
+          "page": 11,
+          "score": 0.0608888867449008,
+          "rerank_score": 0.5012321447226301
+        },
+        {
+          "paper_id": "Lecture11",
+          "page": 38,
+          "score": 0.059109350261843864,
+          "rerank_score": 0.4867279719331573
+        },
+        {
+          "paper_id": "lec3",
+          "page": 38,
+          "score": 0.059088456427846436,
+          "rerank_score": 0.4810424172582839
+        },
+        {
+          "paper_id": "lec11",
+          "page": 7,
+          "score": 0.05887445887445887,
+          "rerank_score": 0.5860491105032255
+        },
+        {
+          "paper_id": "lec25_1",
+          "page": 20,
+          "score": 0.05448717948717948,
+          "rerank_score": 0.09982066756762313
+        },
+        {
+          "paper_id": "sample_final_slu",
+          "page": 8,
+          "score": 0.05290005667863215,
+          "rerank_score": 0.034488527557917266
+        },
+        {
+          "paper_id": "lec11",
+          "page": 23,
+          "score": 0.05158450704225352,
+          "rerank_score": 0.01652955655765428
+        },
+        {
+          "paper_id": "lec11",
+          "page": 13,
+          "score": 0.0411010325393887,
+          "rerank_score": 0.22936255487832252
+        },
+        {
+          "paper_id": "lec11",
+          "page": 12,
+          "score": 0.04054547698383315,
+          "rerank_score": 0.19467383141900899
+        },
+        {
+          "paper_id": "lec26",
+          "page": 21,
+          "score": 0.03983385983385984,
+          "rerank_score": 0.18462045780634337
+        },
+        {
+          "paper_id": "lec11",
+          "page": 11,
+          "score": 0.039478241057188425,
+          "rerank_score": 0.15947904162777593
+        },
+        {
+          "paper_id": "lec26",
+          "page": 20,
+          "score": 0.029631255487269532,
+          "rerank_score": 0.9961903698015271
+        },
+        {
+          "paper_id": "lec12",
+          "page": 3,
+          "score": 0.02631578947368421,
+          "rerank_score": 0.14045410531571434
+        }
+      ]
+    },
+    {
+      "qid": "q018",
+      "query": "介绍一下机器学习中的l2正则化",
+      "variants": [
+        "请解释机器学习里L2正则化的概念",
+        "机器学习中的L2正则化是什么"
+      ],
+      "hyde_documents": [
+        "L2正则化是机器学习中一种常用的防止过拟合的技术，其核心思想是在损失函数中加入模型权重的平方和作为惩罚项。通过引入这个惩罚项，训练过程会倾向于选择数值较小的权重，从而限制模型的复杂度，使模型对训练数据中的噪声不那么敏感。从优化角度看，L2正则化相当于在参数更新时对权重进行按比例的衰减，这有助于提高模型的泛化能力。最终，L2正则化能够有效缓解过拟合，使模型在未见数据上的表现更加稳定。"
+      ],
+      "gold_targets": [
+        {
+          "paper_id": "lec12",
+          "pages": [
+            18,
+            19,
+            20
+          ],
+          "chunk_ids": []
+        }
+      ],
+      "first_hit_rank": 1,
+      "hit_ranks": [
+        1,
+        8,
+        11
+      ],
+      "retrieved": [
+        {
+          "paper_id": "lec12",
+          "page": 18,
+          "score": 0.06280843765045739,
+          "rerank_score": 0.8164063773658039
+        },
+        {
+          "paper_id": "lec13",
+          "page": 13,
+          "score": 0.06275564713064713,
+          "rerank_score": 0.8124212626951761
+        },
+        {
+          "paper_id": "lec13",
+          "page": 28,
+          "score": 0.0625136612021858,
+          "rerank_score": 0.841435153269917
+        },
+        {
+          "paper_id": "lec13",
+          "page": 12,
+          "score": 0.06203414640914641,
+          "rerank_score": 0.9830200077626816
+        },
+        {
+          "paper_id": "lec13",
+          "page": 11,
+          "score": 0.05982387740783263,
+          "rerank_score": 0.7356416417389247
+        },
+        {
+          "paper_id": "lec13",
+          "page": 19,
+          "score": 0.05721500721500721,
+          "rerank_score": 0.976129165047569
+        },
+        {
+          "paper_id": "lec13",
+          "page": 21,
+          "score": 0.05406866852432822,
+          "rerank_score": 0.10429472633104271
+        },
+        {
+          "paper_id": "lec12",
+          "page": 19,
+          "score": 0.04620592054390803,
+          "rerank_score": 0.5586580935467108
+        },
+        {
+          "paper_id": "lec13",
+          "page": 14,
+          "score": 0.04550427136028541,
+          "rerank_score": 0.5586580935467108
+        },
+        {
+          "paper_id": "lec13",
+          "page": 29,
+          "score": 0.044563279857397504,
+          "rerank_score": 0.6013594749046671
+        },
+        {
+          "paper_id": "lec12",
+          "page": 20,
+          "score": 0.042862974951156214,
+          "rerank_score": 0.31090356579840966
+        },
+        {
+          "paper_id": "lec13",
+          "page": 15,
+          "score": 0.04266735679779158,
+          "rerank_score": 0.16694686006440515
+        },
+        {
+          "paper_id": "lec20",
+          "page": 34,
+          "score": 0.04186764422149335,
+          "rerank_score": 0.1429482500230496
+        },
+        {
+          "paper_id": "lec13",
+          "page": 20,
+          "score": 0.03983385983385984,
+          "rerank_score": 0.05728197321925716
+        },
+        {
+          "paper_id": "lec15",
+          "page": 20,
+          "score": 0.039324894514767936,
+          "rerank_score": 0.03919513320329816
+        },
+        {
+          "paper_id": "lec4",
+          "page": 4,
+          "score": 0.0393028024606972,
+          "rerank_score": 0.015424552081841137
+        },
+        {
+          "paper_id": "sample_final",
+          "page": 3,
+          "score": 0.038992254182127595,
+          "rerank_score": 0.01691491326672651
+        },
+        {
+          "paper_id": "lec21",
+          "page": 26,
+          "score": 0.030621785881252923,
+          "rerank_score": 0.9857180660748888
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 36,
+          "score": 0.027205882352941177,
+          "rerank_score": 0.9734938732014706
+        },
+        {
+          "paper_id": "lec13",
+          "page": 4,
+          "score": 0.01639344262295082,
+          "rerank_score": 0.9925969859111274
+        }
+      ]
+    },
+    {
+      "qid": "q019",
+      "query": "为什么Transformer需要使用多头注意力机制",
+      "variants": [
+        "为什么Transformer架构中要采用多头注意力机制",
+        "Transformer模型引入多头注意力机制的原因是什么",
+        "多头注意力机制在Transformer中起到什么作用"
+      ],
+      "hyde_documents": [
+        "Transformer采用多头注意力机制的核心原因在于，单一注意力头只能从某个固定的角度捕捉序列中元素之间的依赖关系，而不同位置、不同语义层面的关联往往需要从多个表示子空间中并行学习。通过将查询、键、值矩阵投影到多个不同的低维子空间并分别计算注意力，模型能够同时关注来自不同位置的不同表示子空间的信息，从而增强对复杂模式的理解能力。这种设计不仅提升了模型对长距离依赖的建模效果，还通过并行计算保持了较高的训练效率。此外，多头机制有助于缓解单一注意力头可能出现的过拟合问题，使模型在泛化性能上更加稳健。"
+      ],
+      "gold_targets": [
+        {
+          "paper_id": "lec22",
+          "pages": [
+            20
+          ],
+          "chunk_ids": []
+        }
+      ],
+      "first_hit_rank": null,
+      "hit_ranks": [],
+      "retrieved": [
+        {
+          "paper_id": "lec22",
+          "page": 5,
+          "score": 0.07863666351569577,
+          "rerank_score": 0.9861513897844354
+        },
+        {
+          "paper_id": "DDA5001_25fall_final",
+          "page": 3,
+          "score": 0.07829405291065789,
+          "rerank_score": 0.9192084564299287
+        },
+        {
+          "paper_id": "Lecture13",
+          "page": 5,
+          "score": 0.07793918854369675,
+          "rerank_score": 0.986878728873449
+        },
+        {
+          "paper_id": "DDA5001_25fall_final_slu",
+          "page": 4,
+          "score": 0.07608898046398047,
+          "rerank_score": 0.6874201965622679
+        },
+        {
+          "paper_id": "lec26",
+          "page": 34,
+          "score": 0.06952474846310462,
+          "rerank_score": 0.475818440535558
+        },
+        {
+          "paper_id": "lec22",
+          "page": 16,
+          "score": 0.0687026215793339,
+          "rerank_score": 0.36829208818048637
+        },
+        {
+          "paper_id": "Lecture13",
+          "page": 16,
+          "score": 0.06754903196491158,
+          "rerank_score": 0.3602639412813044
+        },
+        {
+          "paper_id": "Lecture13",
+          "page": 2,
+          "score": 0.06715242272121366,
+          "rerank_score": 0.9630224454648543
+        },
+        {
+          "paper_id": "lec22",
+          "page": 2,
+          "score": 0.06626076626076627,
+          "rerank_score": 0.9630224454648543
+        },
+        {
+          "paper_id": "DDA5001_25fall_final",
+          "page": 6,
+          "score": 0.06530936012691699,
+          "rerank_score": 0.8901033181214943
+        },
+        {
+          "paper_id": "Lecture13",
+          "page": 2,
+          "score": 0.0582962841522982,
+          "rerank_score": 0.43158418611956184
+        },
+        {
+          "paper_id": "DDA5001_25fall_final_slu",
+          "page": 9,
+          "score": 0.057845172633075224,
+          "rerank_score": 0.6010668041380285
+        },
+        {
+          "paper_id": "lec22",
+          "page": 2,
+          "score": 0.057457342443791276,
+          "rerank_score": 0.43158418611956184
+        },
+        {
+          "paper_id": "Lecture13",
+          "page": 17,
+          "score": 0.052922349691170475,
+          "rerank_score": 0.2951283321692637
+        },
+        {
+          "paper_id": "lec22",
+          "page": 17,
+          "score": 0.05290485336259985,
+          "rerank_score": 0.284874329507616
+        },
+        {
+          "paper_id": "Lecture13",
+          "page": 4,
+          "score": 0.05290005667863216,
+          "rerank_score": 0.9666631758572982
+        },
+        {
+          "paper_id": "lec22",
+          "page": 30,
+          "score": 0.04214949137549757,
+          "rerank_score": 0.38664764346663844
+        },
+        {
+          "paper_id": "lec23",
+          "page": 22,
+          "score": 0.04205790297339593,
+          "rerank_score": 0.3132096615361948
+        },
+        {
+          "paper_id": "Lecture13",
+          "page": 32,
+          "score": 0.04038461538461539,
+          "rerank_score": 0.9692078335557077
+        },
+        {
+          "paper_id": "DDA5001_25fall_final_slu",
+          "page": 8,
+          "score": 0.029418126757516764,
+          "rerank_score": 0.36251771993279763
+        }
+      ]
+    },
+    {
+      "qid": "q020",
+      "query": "transformer经过缩放后的自注意力公式是什么",
+      "variants": [
+        "transformer经过缩放后的自注意力公式是哪个？",
+        "transformer缩放后的自注意力计算公式是什么？",
+        "transformer中经过缩放的自注意力公式是怎样的？"
+      ],
+      "hyde_documents": [
+        "Transformer中的缩放点积自注意力公式，其核心计算过程为：首先将输入序列分别与三个权重矩阵相乘，得到查询（Query）、键（Key）和值（Value）矩阵；然后计算查询与键的点积，并将结果除以一个与键的维度相关的缩放因子（通常取键向量维度的平方根），以防止内积过大导致梯度不稳定；接着对该缩放后的结果应用Softmax函数，得到注意力权重；最后将注意力权重与值矩阵相乘，得到加权后的输出。该公式可统一表示为：Attention(Q, K, V) = softmax(QK^T / √d_k) V，其中d_k为键向量的维度。"
+      ],
+      "gold_targets": [
+        {
+          "paper_id": "lec22",
+          "pages": [
+            18
+          ],
+          "chunk_ids": []
+        }
+      ],
+      "first_hit_rank": null,
+      "hit_ranks": [],
+      "retrieved": [
+        {
+          "paper_id": "lec22",
+          "page": 16,
+          "score": 0.08119877049180328,
+          "rerank_score": 0.9320833247440339
+        },
+        {
+          "paper_id": "Lecture13",
+          "page": 16,
+          "score": 0.08038914490527393,
+          "rerank_score": 0.9274947475752819
+        },
+        {
+          "paper_id": "lec22",
+          "page": 17,
+          "score": 0.07789953102453102,
+          "rerank_score": 0.9056565881718779
+        },
+        {
+          "paper_id": "Lecture13",
+          "page": 17,
+          "score": 0.07716346153846154,
+          "rerank_score": 0.8914335771643437
+        },
+        {
+          "paper_id": "lec26",
+          "page": 34,
+          "score": 0.07510577244516245,
+          "rerank_score": 0.8113772884396903
+        },
+        {
+          "paper_id": "lec22",
+          "page": 30,
+          "score": 0.07248177899451269,
+          "rerank_score": 0.594492410330178
+        },
+        {
+          "paper_id": "Lecture13",
+          "page": 30,
+          "score": 0.07187844421783422,
+          "rerank_score": 0.9871787857334058
+        },
+        {
+          "paper_id": "DDA5001_25fall_final",
+          "page": 3,
+          "score": 0.06254442075337598,
+          "rerank_score": 0.8563323913156724
+        },
+        {
+          "paper_id": "DDA5001_25fall_final",
+          "page": 6,
+          "score": 0.06015377657168702,
+          "rerank_score": 0.709623190215421
+        },
+        {
+          "paper_id": "DDA5001_25fall_final_slu",
+          "page": 4,
+          "score": 0.05798319327731092,
+          "rerank_score": 0.4464645437947745
+        },
+        {
+          "paper_id": "lec22",
+          "page": 5,
+          "score": 0.05614800871539714,
+          "rerank_score": 0.9943580914999767
+        },
+        {
+          "paper_id": "Lecture13",
+          "page": 5,
+          "score": 0.05588536369381926,
+          "rerank_score": 0.9948202872296429
+        },
+        {
+          "paper_id": "Lecture13",
+          "page": 15,
+          "score": 0.05556627435847965,
+          "rerank_score": 0.15843459521341785
+        },
+        {
+          "paper_id": "lec22",
+          "page": 15,
+          "score": 0.054804804804804805,
+          "rerank_score": 0.13229019513964763
+        },
+        {
+          "paper_id": "lec22",
+          "page": 14,
+          "score": 0.05147857416844759,
+          "rerank_score": 0.06430005451227754
+        },
+        {
+          "paper_id": "lec26",
+          "page": 34,
+          "score": 0.050474683544303796,
+          "rerank_score": 0.022889840112388905
+        },
+        {
+          "paper_id": "lec22",
+          "page": 13,
+          "score": 0.04001897645733263,
+          "rerank_score": 0.08977328657120891
+        },
+        {
+          "paper_id": "Lecture13",
+          "page": 13,
+          "score": 0.040004741583688955,
+          "rerank_score": 0.08225394475770913
+        },
+        {
+          "paper_id": "Lecture13",
+          "page": 43,
+          "score": 0.039307359307359305,
+          "rerank_score": 0.03890198009779777
+        },
+        {
+          "paper_id": "Lecture13",
+          "page": 14,
+          "score": 0.039136302294197026,
+          "rerank_score": 0.05665242530797383
+        }
+      ]
+    },
+    {
+      "qid": "999",
+      "query": "长期记忆应该保存哪些类型的信息？比如研究方向、导师要求或写作风格？",
+      "variants": [
+        "长期记忆需要存储哪些类型的信息？例如研究方向、导师要求或写作风格？",
+        "在长期记忆中，应该保留哪些类别的信息？像研究方向、导师要求或写作风格这类。",
+        "长期记忆应当记录哪些种类的信息？比如研究方向、导师要求或写作风格等。"
+      ],
+      "hyde_documents": [
+        "长期记忆应保存那些对任务执行具有稳定指导意义且需跨会话周期复用的信息，例如用户的核心研究方向、导师的固定要求、个人偏好的写作风格等。这类信息通常具有高重复使用频率和低动态变化性，能够帮助系统在多次交互中保持行为一致性。此外，长期记忆还应包括用户明确指定的规则或约束，如数据隐私偏好或特定术语的使用习惯。避免存储临时性、一次性或易过时的细节，以免干扰检索效率与响应准确性。"
+      ],
+      "gold_targets": [
+        {
+          "paper_id": "memory_notes",
+          "pages": [
+            1
+          ],
+          "chunk_ids": []
+        }
+      ],
+      "first_hit_rank": 1,
+      "hit_ranks": [
+        1,
+        8,
+        16
+      ],
+      "retrieved": [
+        {
+          "paper_id": "memory_notes",
+          "page": 1,
+          "score": 0.0811739820200952,
+          "rerank_score": 0.8723473746782093
+        },
+        {
+          "paper_id": "Lecture9",
+          "page": 29,
+          "score": 0.0779499299719888,
+          "rerank_score": 0.00881316650304586
+        },
+        {
+          "paper_id": "lec22",
+          "page": 2,
+          "score": 0.07555200140801546,
+          "rerank_score": 0.002208388796090225
+        },
+        {
+          "paper_id": "Lecture7",
+          "page": 19,
+          "score": 0.07497877581695708,
+          "rerank_score": 0.002424914266755245
+        },
+        {
+          "paper_id": "lec24",
+          "page": 21,
+          "score": 0.07146916737709577,
+          "rerank_score": 0.0004272078909473254
+        },
+        {
+          "paper_id": "Lecture7",
+          "page": 2,
+          "score": 0.07133615276095776,
+          "rerank_score": 0.0004897656064061081
+        },
+        {
+          "paper_id": "Lecture3",
+          "page": 27,
+          "score": 0.07053799624139179,
+          "rerank_score": 0.8435087678199463
+        },
+        {
+          "paper_id": "memory_notes",
+          "page": 1,
+          "score": 0.06530936012691697,
+          "rerank_score": 0.7910150389518693
+        },
+        {
+          "paper_id": "Lecture13",
+          "page": 2,
+          "score": 0.0610865036704589,
+          "rerank_score": 0.002225670854115196
+        },
+        {
+          "paper_id": "weekly_report",
+          "page": 1,
+          "score": 0.056370656370656365,
+          "rerank_score": 0.00033274128340681067
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 17,
+          "score": 0.0552381673859057,
+          "rerank_score": 0.00026947915555885544
+        },
+        {
+          "paper_id": "rag_basics",
+          "page": 1,
+          "score": 0.05394437701096275,
+          "rerank_score": 0.0002982776415551503
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 18,
+          "score": 0.05264507422402159,
+          "rerank_score": 0.00010720880092159908
+        },
+        {
+          "paper_id": "Lecture7",
+          "page": 3,
+          "score": 0.05180768376637797,
+          "rerank_score": 0.00016346470245419303
+        },
+        {
+          "paper_id": "Lecture5",
+          "page": 2,
+          "score": 0.050645240835114264,
+          "rerank_score": 0.00010889691002655445
+        },
+        {
+          "paper_id": "memory_notes",
+          "page": 1,
+          "score": 0.03125763125763126,
+          "rerank_score": 0.009974920824078677
+        },
+        {
+          "paper_id": "Lecture1",
+          "page": 36,
+          "score": 0.030776515151515152,
+          "rerank_score": 0.8984105540811842
+        },
+        {
+          "paper_id": "MachineLearning_project",
+          "page": 4,
+          "score": 0.030309988518943745,
+          "rerank_score": 0.0036358088177171496
+        },
+        {
+          "paper_id": "Lecture3",
+          "page": 26,
+          "score": 0.027799227799227798,
+          "rerank_score": 0.6509111951655322
+        },
+        {
+          "paper_id": "Lecture7",
+          "page": 18,
+          "score": 0.02690501986276634,
+          "rerank_score": 0.0002115288734611408
+        }
+      ]
+    },
+    {
+      "qid": "998",
+      "query": "How should the weekly report writer synthesize evidence and cite sources?",
+      "variants": [
+        "What is the proper way for the weekly report writer to integrate evidence and reference sources?",
+        "In what manner should the weekly report writer combine evidence and provide source citations?"
+      ],
+      "hyde_documents": [
+        "周报撰写者应首先系统梳理本周工作涉及的各类证据，包括实验数据、用户反馈、会议纪要等，按主题或任务模块进行归纳整合。在引用来源时，需明确标注每项证据的具体出处（如内部文档、外部文献或系统记录），并采用统一的引用格式（如脚注或括号标注）。对于关键结论或异常数据，应优先引用可追溯的原始记录或经审核的中间结果，避免依赖口头沟通或未经验证的信息。同时，在周报正文中通过简短的说明性文字（如“根据XX报告显示”）自然嵌入引用，确保读者能快速定位证据来源。最终，所有引用应附于周报末尾的“参考依据”部分，形成完整的证据链，以支撑结论的可信度与可复现性。"
+      ],
+      "gold_targets": [
+        {
+          "paper_id": "weekly_report",
+          "pages": [
+            1
+          ],
+          "chunk_ids": []
+        }
+      ],
+      "first_hit_rank": 1,
+      "hit_ranks": [
+        1,
+        2,
+        5
+      ],
+      "retrieved": [
+        {
+          "paper_id": "weekly_report",
+          "page": 1,
+          "score": 0.06504494976203068,
+          "rerank_score": 0.8171371170938969
+        },
+        {
+          "paper_id": "weekly_report",
+          "page": 1,
+          "score": 0.06504494976203068,
+          "rerank_score": 0.03514484640079327
+        },
+        {
+          "paper_id": "MachineLearning_project",
+          "page": 4,
+          "score": 0.05929284323271665,
+          "rerank_score": 0.001201891318511022
+        },
+        {
+          "paper_id": "rag_basics",
+          "page": 1,
+          "score": 0.056420858198351805,
+          "rerank_score": 0.0004784256262873459
+        },
+        {
+          "paper_id": "weekly_report",
+          "page": 1,
+          "score": 0.047619047619047616,
+          "rerank_score": 0.0034429807988858203
+        },
+        {
+          "paper_id": "MachineLearning_project",
+          "page": 8,
+          "score": 0.04639423076923077,
+          "rerank_score": 0.0014437558971204926
+        },
+        {
+          "paper_id": "MachineLearning_project",
+          "page": 11,
+          "score": 0.045228403437358664,
+          "rerank_score": 0.0007916296072837432
+        },
+        {
+          "paper_id": "MachineLearning_project",
+          "page": 16,
+          "score": 0.04500226142017187,
+          "rerank_score": 0.0006615174228741224
+        },
+        {
+          "paper_id": "lec1",
+          "page": 27,
+          "score": 0.04327731092436975,
+          "rerank_score": 0.00021824205527083243
+        },
+        {
+          "paper_id": "memory_notes",
+          "page": 1,
+          "score": 0.04246614955433082,
+          "rerank_score": 0.00047656131041884527
+        },
+        {
+          "paper_id": "lec1",
+          "page": 23,
+          "score": 0.04111153406928055,
+          "rerank_score": 0.00011061159714638083
+        },
+        {
+          "paper_id": "lec1",
+          "page": 25,
+          "score": 0.040555155010814706,
+          "rerank_score": 0.00013238186559744397
+        },
+        {
+          "paper_id": "memory_notes",
+          "page": 1,
+          "score": 0.038834026334026335,
+          "rerank_score": 8.957788551478938e-05
+        },
+        {
+          "paper_id": "MachineLearning_project",
+          "page": 9,
+          "score": 0.027031963470319637,
+          "rerank_score": 4.264746818557913e-05
+        },
+        {
+          "paper_id": "lec1",
+          "page": 29,
+          "score": 0.025978407557354925,
+          "rerank_score": 0.024563088772028722
+        },
+        {
+          "paper_id": "Lecture8",
+          "page": 43,
+          "score": 0.025974025974025976,
+          "rerank_score": 2.5666134302273185e-05
+        },
+        {
+          "paper_id": "lec26",
+          "page": 3,
+          "score": 0.015873015873015872,
+          "rerank_score": 0.6553360165381895
+        },
+        {
+          "paper_id": "lec4",
+          "page": 10,
+          "score": 0.015625,
+          "rerank_score": 0.616127754209826
+        },
+        {
+          "paper_id": "lec16",
+          "page": 29,
+          "score": 0.015384615384615385,
+          "rerank_score": 0.5510603975762589
+        },
+        {
+          "paper_id": "Lecture10",
+          "page": 67,
+          "score": 0.015151515151515152,
+          "rerank_score": 0.5211360785239562
+        }
+      ]
+    }
+  ]
+}

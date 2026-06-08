@@ -290,7 +290,14 @@ class LexicalReranker:
 class FlagEmbeddingReranker:
     """Optional transformer reranker."""
 
-    def __init__(self, *, model_name: str, device: str, allow_download: bool) -> None:
+    def __init__(
+        self,
+        *,
+        model_name: str,
+        device: str,
+        allow_download: bool,
+        batch_size: int = 1,
+    ) -> None:
         module = importlib.import_module("FlagEmbedding")
         reranker_class = module.FlagReranker
         local_files_only = not allow_download
@@ -306,6 +313,7 @@ class FlagEmbeddingReranker:
             )
         self._backend_name = "flagembedding"
         self._model_name = model_name
+        self._batch_size = batch_size
 
     @property
     def backend_name(self) -> str:
@@ -316,11 +324,16 @@ class FlagEmbeddingReranker:
         return self._model_name
 
     def score(self, query: str, documents: Sequence[str]) -> list[float]:
-        pairs = [(query, document) for document in documents]
-        scores = self._model.compute_score(pairs, normalize=True)
-        if isinstance(scores, int | float):
-            return [float(scores)]
-        return [float(score) for score in scores]
+        all_scores: list[float] = []
+        for start in range(0, len(documents), self._batch_size):
+            batch = documents[start : start + self._batch_size]
+            pairs = [(query, document) for document in batch]
+            scores = self._model.compute_score(pairs, normalize=True)
+            if isinstance(scores, int | float):
+                all_scores.append(float(scores))
+                continue
+            all_scores.extend(float(score) for score in scores)
+        return all_scores
 
 
 class NoReranker:
@@ -371,11 +384,29 @@ def create_embedding_backend(settings: Settings | None = None) -> EmbeddingBacke
 
 def create_reranker(settings: Settings | None = None) -> Reranker:
     settings = settings or get_settings()
-    device = detect_embedding_device(settings.embedding_device)
+    device = detect_embedding_device(
+        settings.embedding_device if settings.rerank_device == "auto" else settings.rerank_device
+    )
     if settings.rerank_backend == "none":
         return NoReranker()
     if settings.rerank_backend == "lexical":
         return LexicalReranker()
+    if settings.rerank_backend == "flag":
+        if (
+            not settings.rerank_allow_download
+            and _find_cached_model_path(settings.reranker_model) is None
+        ):
+            msg = (
+                f"RERANK_BACKEND=flag requires {settings.reranker_model} to be cached "
+                "locally, or RERANK_ALLOW_DOWNLOAD=true. Refusing to fall back to lexical."
+            )
+            raise RuntimeError(msg)
+        return FlagEmbeddingReranker(
+            model_name=settings.reranker_model,
+            device=device,
+            allow_download=settings.rerank_allow_download,
+            batch_size=settings.rerank_batch_size,
+        )
     try:
         importlib.import_module("FlagEmbedding")
     except Exception:
@@ -390,6 +421,7 @@ def create_reranker(settings: Settings | None = None) -> Reranker:
             model_name=settings.reranker_model,
             device=device,
             allow_download=settings.rerank_allow_download,
+            batch_size=settings.rerank_batch_size,
         )
     except Exception:
         return LexicalReranker()

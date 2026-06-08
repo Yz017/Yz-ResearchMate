@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -e
+ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)"
+export LD_LIBRARY_PATH="$ROOT/.local/tesseract/usr/lib/x86_64-linux-gnu:${LD_LIBRARY_PATH:-}"
+export TESSDATA_PREFIX="$ROOT/.local/tesseract/usr/share/tesseract-ocr/5/tessdata"
+exec "$ROOT/.local/tesseract/usr/bin/tesseract" "$@"

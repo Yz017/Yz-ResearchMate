@@ -59,6 +59,7 @@ def build_chunks_from_pages(
                     source_path=str(document_path),
                     oss_key=oss_key,
                     chunk_index=len(chunks),
+                    ocr=page.ocr,
                     owner_user_id=user_id,
                     tags=tuple(tags or ()),
                     ingested_at=ingested_at,

@@ -18,6 +18,7 @@ class ParsedPage:
 
     page_number: int
     text: str
+    ocr: bool = False
 
 
 @dataclass(frozen=True, slots=True)
@@ -34,6 +35,7 @@ class KnowledgeChunk:
     oss_key: str
     chunk_index: int
     chunk_hash: str
+    ocr: bool = False
     owner_user_id: str = ""
     tags: tuple[str, ...] = ()
     ingested_at: str = ""
@@ -50,6 +52,7 @@ class KnowledgeChunk:
         source_path: str,
         oss_key: str = "",
         chunk_index: int,
+        ocr: bool = False,
         owner_user_id: str = "",
         tags: tuple[str, ...] = (),
         ingested_at: str = "",
@@ -67,6 +70,7 @@ class KnowledgeChunk:
             oss_key=oss_key,
             chunk_index=chunk_index,
             chunk_hash=chunk_hash,
+            ocr=ocr,
             owner_user_id=owner_user_id,
             tags=tags,
             ingested_at=ingested_at,
@@ -86,6 +90,7 @@ class KnowledgeChunk:
             "oss_key": self.oss_key,
             "chunk_index": self.chunk_index,
             "chunk_hash": self.chunk_hash,
+            "ocr": self.ocr,
             "citation": self.citation,
             "user_id": self.owner_user_id,
             "tags": ",".join(self.tags),

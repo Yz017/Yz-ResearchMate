@@ -61,6 +61,8 @@ class Settings(BaseSettings):
     rerank_backend: RerankBackend = Field(default="auto", alias="RERANK_BACKEND")
     reranker_model: str = Field(default="BAAI/bge-reranker-v2-m3", alias="RERANKER_MODEL")
     rerank_allow_download: bool = Field(default=False, alias="RERANK_ALLOW_DOWNLOAD")
+    rerank_device: EmbeddingDevice = Field(default="auto", alias="RERANK_DEVICE")
+    rerank_batch_size: int = Field(default=1, alias="RERANK_BATCH_SIZE", ge=1, le=128)
     chroma_dir: Path = Field(default=Path("./data/chroma"), alias="CHROMA_DIR")
     kb_collection: str = Field(default="kb_chunks", alias="KB_COLLECTION")
     memory_collection: str = Field(default="memory_records", alias="MEMORY_COLLECTION")
@@ -85,6 +87,29 @@ class Settings(BaseSettings):
     rag_dense_k: int = Field(default=20, alias="RAG_DENSE_K", ge=1, le=200)
     rag_sparse_k: int = Field(default=20, alias="RAG_SPARSE_K", ge=1, le=200)
     rag_final_k: int = Field(default=5, alias="RAG_FINAL_K", ge=1, le=50)
+    rag_multi_query_enabled: bool = Field(default=True, alias="RAG_MULTI_QUERY_ENABLED")
+    rag_multi_query_variants: int = Field(
+        default=3,
+        alias="RAG_MULTI_QUERY_VARIANTS",
+        ge=1,
+        le=8,
+    )
+    rag_multi_query_pool_k: int = Field(
+        default=20,
+        alias="RAG_MULTI_QUERY_POOL_K",
+        ge=1,
+        le=200,
+    )
+    rag_hyde_enabled: bool = Field(default=True, alias="RAG_HYDE_ENABLED")
+    rag_hyde_docs: int = Field(default=1, alias="RAG_HYDE_DOCS", ge=1, le=4)
+    rag_hyde_pool_k: int = Field(default=20, alias="RAG_HYDE_POOL_K", ge=1, le=200)
+    ingest_ocr_enabled: bool = Field(default=False, alias="INGEST_OCR_ENABLED")
+    ocr_min_chars: int = Field(default=20, alias="OCR_MIN_CHARS", ge=0, le=2000)
+    ocr_good_chars: int = Field(default=80, alias="OCR_GOOD_CHARS", ge=1, le=5000)
+    ocr_languages: str = Field(default="chi_sim+eng", alias="OCR_LANGUAGES")
+    ocr_dpi: int = Field(default=300, alias="OCR_DPI", ge=72, le=600)
+    ocr_max_pages: int = Field(default=80, alias="OCR_MAX_PAGES", ge=1, le=2000)
+    tesseract_cmd: str | None = Field(default=None, alias="TESSERACT_CMD")
     llm_token_soft_limit: int = Field(
         default=200_000,
         alias="LLM_TOKEN_SOFT_LIMIT",

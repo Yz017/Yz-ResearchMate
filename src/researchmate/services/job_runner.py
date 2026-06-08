@@ -215,13 +215,13 @@ class JobRunner:
         )
 
     async def subscribe(self, job_id: str) -> AsyncIterator[JobEvent]:
-        record = await self.get_job(job_id)
-        if record is None:
-            msg = f"job not found: {job_id}"
-            raise KeyError(msg)
         queue: asyncio.Queue[JobEvent] = asyncio.Queue()
         self._subscribers.setdefault(job_id, set()).add(queue)
         try:
+            record = await self.get_job(job_id)
+            if record is None:
+                msg = f"job not found: {job_id}"
+                raise KeyError(msg)
             yield JobEvent("snapshot", record.to_payload())
             if record.state in TERMINAL_STATES:
                 return
