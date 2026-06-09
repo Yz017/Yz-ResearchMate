@@ -2339,6 +2339,12 @@
       "hit_ranks": [],
       "retrieved": [
         {
+          "paper_id": "lec9",
+          "page": 13,
+          "score": 0.07939386716917049,
+          "rerank_score": 0.235284052258966
+        },
+        {
           "paper_id": "lec16",
           "page": 3,
           "score": 0.07684902910709362,
@@ -2361,12 +2367,6 @@
           "page": 4,
           "score": 0.06324404761904762,
           "rerank_score": 0.15052763130295338
-        },
-        {
-          "paper_id": "lec9",
-          "page": 13,
-          "score": 0.06300042454621968,
-          "rerank_score": 0.235284052258966
         },
         {
           "paper_id": "lec9",

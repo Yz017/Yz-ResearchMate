@@ -5,6 +5,7 @@
 .codex/
 .venv/
 .uv-cache/
+.local/
 data/
 logs/
 __pycache__/
@@ -18,6 +19,8 @@ __pycache__/
 htmlcov/
 dist/
 build/
+docs/demos/
+docs/documents/
 
 # Local notes and unrelated documents
 CHANGELOG.md
