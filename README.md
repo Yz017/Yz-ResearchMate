@@ -16,7 +16,7 @@ ResearchMate 把"论文/课程资料/笔记"沉淀成本地知识库，再用带
 - **可调的混合 RAG**：dense（BGE-m3）+ lexical 稀疏检索 → RRF 融合 → BGE-reranker-v2-m3 重排，并支持多查询扩展（multi-query）与 HyDE，全部由 `.env` 开关与 `top_k` 参数控制。
 - **评测闭环**：内置带 ground-truth 的检索评测脚本，产出 Recall / MRR / nDCG，便于"先量化再调参"，避免过拟合到单个用例。
 - **生产化服务面**：FastAPI + SSE 流式对话与任务进度、`X-Internal-Token` 鉴权、后台 job runner 跑异步入库与任务、`rmcli` 全功能客户端。
-- **工程规范**：`uv` 锁定依赖、ruff + black + mypy(strict)、pytest 单测、pre-commit、GitHub Actions CI。
+- **工程规范**：`uv` 锁定依赖、ruff + black + mypy(strict)、pytest 单测、pre-commit。
 
 ---
 
@@ -91,7 +91,7 @@ flowchart TB
         RRF --> RERANK
     end
 
-    subgraph Store["本地存储"]
+    subgraph Store["存储"]
         CHROMA[("Chroma 向量库")]
         SQLITE[("SQLite: sessions / jobs / papers")]
         OSS[("对象存储: 阿里云 OSS 或本地目录")]
@@ -476,7 +476,7 @@ rmcli task run filter-papers --query "RAG agent shortlist" --top-n 50
 - **服务**：FastAPI、uvicorn、sse-starlette、SQLAlchemy + aiosqlite
 - **CLI**：typer + rich + httpx
 - **外部检索**：arxiv、semanticscholar、（可选）arxiv-mcp-server
-- **工程**：uv、ruff、black、mypy(strict)、pytest、pre-commit、GitHub Actions
+- **工程**：uv、ruff、black、mypy(strict)、pytest、pre-commit
 
 ---
 
