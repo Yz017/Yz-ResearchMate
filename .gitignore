@@ -16,9 +16,25 @@ __pycache__/
 .pre-commit-cache/
 .mypy_cache/
 .coverage
+.coverage.*
+coverage.xml
 htmlcov/
 dist/
 build/
+.python-version
+
+# OS/editor local files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Evaluation caches and generated reports
+eval/*_cache.json
+eval/*_report*.json
+
 docs/demos/
 docs/documents/
 
