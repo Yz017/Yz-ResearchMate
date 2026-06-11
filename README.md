@@ -26,7 +26,6 @@ ResearchMate 把"论文/课程资料/笔记"沉淀成本地知识库，再用带
   - [目录](#目录)
   - [系统架构](#系统架构)
   - [项目结构](#项目结构)
-  - [RAG 检索流程与评测](#rag-检索流程与评测)
   - [快速开始](#快速开始)
     - [1. 安装 uv](#1-安装-uv)
     - [2. 同步依赖](#2-同步依赖)
@@ -45,6 +44,7 @@ ResearchMate 把"论文/课程资料/笔记"沉淀成本地知识库，再用带
     - [对象存储（阿里云 OSS，可选）](#对象存储阿里云-oss可选)
     - [记忆归档与其他](#记忆归档与其他)
   - [文档入库](#文档入库)
+  - [RAG 检索流程与评测](#rag-检索流程与评测)
   - [HTTP API 参考](#http-api-参考)
   - [`rmcli` 命令参考](#rmcli-命令参考)
   - [异步任务](#异步任务)
@@ -148,36 +148,6 @@ eval/                     # 评测数据集、ground-truth 与报告
 examples/                 # curl 示例与样例 PDF
 docs/                     # openapi、task_kinds、性能基线、demo、模板等
 data/ · logs/             # 运行时数据（被 .gitignore 忽略）
-```
-
----
-
-## RAG 检索流程与评测
-
-`KnowledgeRetriever.search()`（`services/retriever.py`）的处理顺序：
-
-1. **查询扩展**（可选）：multi-query 生成 N 个改写 + HyDE 生成假设文档，扩大召回入口。
-2. **双路召回**：dense（向量，默认 `top_k=20`）与 lexical 稀疏检索（默认 `top_k=20`）并行。
-3. **RRF 融合**：用 Reciprocal Rank Fusion（`rrf_k=60`）把两路结果合成统一候选集，避免单一信号偏置。
-4. **重排**：BGE-reranker-v2-m3 对候选做 cross-encoder 打分。
-5. **截断输出**：按 `rerank_score → rrf_score` 排序，返回 `final_k`（默认 5）个片段，带 `paper_id` / 页码 / 各路 rank，供上层生成引用。
-
-> 不安装 `rag` 可选依赖时，检索会自动降级为轻量后端（hashing 向量 + lexical 重排），便于在无 GPU / 离线环境跑通流程；安装后切换到 BGE-m3 + reranker-v2-m3。
-
-**检索评测**（`eval/retrieval_report.json`，22 个带 ground-truth 的用例，开启 multi-query×3 + HyDE×1 + BGE 重排）：
-
-| 指标 | 值 |
-| --- | --- |
-| Recall@5 | 0.8182 |
-| Recall@10 | 0.8182 |
-| MRR@10 | 0.6174 |
-| nDCG@5 | 0.5378 |
-
-复跑评测：
-
-```bash
-uv run python scripts/eval_retrieval.py        # 检索指标 → eval/retrieval_report.json
-make eval                                       # ADK 端到端 Agent 评测
 ```
 
 ---
@@ -374,6 +344,35 @@ uv run rmcli kb ls --user-id local
 
 **扫描版 / 大量图片页 PDF**：装好 `ocr` extra 后，把 `INGEST_OCR_ENABLED=true`；入库时对文本过少的页面自动 OCR（语言、DPI、页数上限见 [OCR 配置](#ocr-入库)）。
 
+---
+
+## RAG 检索流程与评测
+
+`KnowledgeRetriever.search()`（`services/retriever.py`）的处理顺序：
+
+1. **查询扩展**（可选）：multi-query 生成 N 个改写 + HyDE 生成假设文档，扩大召回入口。
+2. **双路召回**：dense（向量，默认 `top_k=20`）与 lexical 稀疏检索（默认 `top_k=20`）并行。
+3. **RRF 融合**：用 Reciprocal Rank Fusion（`rrf_k=60`）把两路结果合成统一候选集，避免单一信号偏置。
+4. **重排**：BGE-reranker-v2-m3 对候选做 cross-encoder 打分。
+5. **截断输出**：按 `rerank_score → rrf_score` 排序，返回 `final_k`（默认 5）个片段，带 `paper_id` / 页码 / 各路 rank，供上层生成引用。
+
+> 不安装 `rag` 可选依赖时，检索会自动降级为轻量后端（hashing 向量 + lexical 重排），便于在无 GPU / 离线环境跑通流程；安装后切换到 BGE-m3 + reranker-v2-m3。
+
+**检索评测**（`eval/retrieval_report.json`，22 个带 ground-truth 的用例，开启 multi-query×3 + HyDE×1 + BGE 重排）：
+
+| 指标 | 值 |
+| --- | --- |
+| Recall@5 | 0.8182 |
+| Recall@10 | 0.8182 |
+| MRR@10 | 0.6174 |
+| nDCG@5 | 0.5378 |
+
+复跑评测：
+
+```bash
+uv run python scripts/eval_retrieval.py        # 检索指标 → eval/retrieval_report.json
+make eval                                       # ADK 端到端 Agent 评测
+```
 ---
 
 ## HTTP API 参考
